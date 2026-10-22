@@ -17,6 +17,7 @@ import {
   Smartphone,
   Eye,
   Scale,
+  FileText,
 } from 'lucide-react';
 import { GlassSlab3D } from '@/components/GlassSlab3D';
 import { calculateGlassSlab, GLASS_TYPES } from '@/lib/glassSlabPhysics';
@@ -59,6 +60,13 @@ export default function GlassSlabLabPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/report?exp=glass-slab"
+              className="px-3 py-1 rounded-lg bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] text-xs font-bold border border-[#B8D96B] flex items-center gap-1 shadow-xs"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Lab Report</span>
+            </Link>
             <Link
               href="/physics/concave-mirror"
               className="px-3 py-1 rounded-lg bg-[#FFFFFF] hover:bg-[#F4F7F2] text-[#17231B] text-xs font-semibold border border-[#E2E8DF] flex items-center gap-1"

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import gsap from 'gsap';
 import {
   FlaskConical,
   RotateCcw,
@@ -19,6 +20,12 @@ import {
   ChevronDown,
   Layers,
   HelpCircle,
+  ArrowLeft,
+  FileText,
+  Smartphone,
+  Box,
+  ShieldCheck,
+  Scale,
 } from 'lucide-react';
 import { OpticalBench3D } from '@/components/OpticalBench3D';
 import { RayDiagramSvg } from '@/components/RayDiagramSvg';
@@ -43,9 +50,42 @@ export default function LabPage() {
   const [recordedToast, setRecordedToast] = useState<string | null>(null);
   const [observationCount, setObservationCount] = useState<number>(0);
   const [showRayDiagramDrawer, setShowRayDiagramDrawer] = useState<boolean>(true);
+  const [showApparatusSpec, setShowApparatusSpec] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [leftTab, setLeftTab] = useState<'steps' | 'spec' | 'presets'>('steps');
 
   const [showSignHelp, setShowSignHelp] = useState<boolean>(false);
+
+  // GSAP animation refs
+  const labContainerRef = useRef<HTMLDivElement>(null);
+  const headerBarRef = useRef<HTMLDivElement>(null);
+  const leftColumnRef = useRef<HTMLDivElement>(null);
+  const centerBenchRef = useRef<HTMLDivElement>(null);
+  const rightColumnRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      if (headerBarRef.current) {
+        tl.from(headerBarRef.current, { y: -16, opacity: 0, duration: 0.5 });
+      }
+
+      if (leftColumnRef.current) {
+        tl.from(leftColumnRef.current, { x: -20, opacity: 0, duration: 0.6 }, '-=0.3');
+      }
+
+      if (centerBenchRef.current) {
+        tl.from(centerBenchRef.current, { scale: 0.98, opacity: 0, duration: 0.6 }, '-=0.4');
+      }
+
+      if (rightColumnRef.current) {
+        tl.from(rightColumnRef.current, { x: 20, opacity: 0, duration: 0.6 }, '-=0.4');
+      }
+    }, labContainerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   // Sync saved observation count
   useEffect(() => {
@@ -121,17 +161,103 @@ export default function LabPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-transparent text-[#17231B] overflow-hidden">
+    <div ref={labContainerRef} className="flex-1 flex flex-col bg-transparent text-[#17231B] overflow-hidden">
+      {/* Top Header & Navigation Bar */}
+      <div ref={headerBarRef} className="border-b border-[#E2E8DF] bg-[#FFFFFF]/95 backdrop-blur-md px-4 sm:px-6 py-2.5 space-y-2">
+        <div className="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/physics"
+              className="p-1.5 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] transition-colors flex items-center gap-1.5 font-semibold border border-[#E2E8DF]"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Physics Hub</span>
+            </Link>
+            <span className="text-[#647067]">/</span>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[#17231B] text-sm">Convex Lens Optical Bench</span>
+              <span className="px-2 py-0.5 rounded text-[10px] bg-[#B8D96B]/25 text-[#17231B] border border-[#B8D96B]/50 font-mono uppercase font-bold">
+                NCERT Chapter 10 • Experiment 1
+              </span>
+            </div>
+          </div>
+
+          {/* Mode Switcher & Lab Report Links */}
+          <div className="flex items-center gap-2">
+            {/* Mode Switcher: 3D Studio vs AR Camera */}
+            <div className="flex items-center rounded-xl bg-[#F4F7F2] p-1 border border-[#E2E8DF]">
+              <span className="px-3 py-1 rounded-lg bg-[#B8D96B] text-[#17231B] font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                <Box className="w-3.5 h-3.5" />
+                <span>3D Bench</span>
+              </span>
+              <Link
+                href="/ar"
+                className="px-3 py-1 rounded-lg text-[#647067] hover:text-[#17231B] font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                title="Launch in Mobile Augmented Reality"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-[#17231B]" />
+                <span>AR Camera</span>
+              </Link>
+            </div>
+
+            <Link
+              href="/report?exp=convex-lens"
+              className="px-3 py-1.5 rounded-lg bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] text-xs font-bold border border-[#B8D96B] flex items-center gap-1 shadow-xs"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Lab Report</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Experiment Switcher Quick Tabs */}
+        <div className="max-w-[1720px] mx-auto flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 text-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#647067] pr-1 hidden sm:inline">
+            Class 10 Practicals:
+          </span>
+          <Link
+            href="/lab"
+            className="px-2.5 py-1 rounded-lg bg-[#17231B] text-white font-bold text-[11px] whitespace-nowrap shadow-xs"
+          >
+            Exp 1: Convex Lens
+          </Link>
+          <Link
+            href="/physics/concave-mirror"
+            className="px-2.5 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] font-semibold text-[11px] whitespace-nowrap border border-[#E2E8DF] transition-colors"
+          >
+            Exp 2: Concave Mirror
+          </Link>
+          <Link
+            href="/physics/glass-slab"
+            className="px-2.5 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] font-semibold text-[11px] whitespace-nowrap border border-[#E2E8DF] transition-colors"
+          >
+            Exp 3: Glass Slab
+          </Link>
+          <Link
+            href="/physics/glass-prism"
+            className="px-2.5 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] font-semibold text-[11px] whitespace-nowrap border border-[#E2E8DF] transition-colors"
+          >
+            Exp 4: Glass Prism
+          </Link>
+          <Link
+            href="/physics/ohms-law"
+            className="px-2.5 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] font-semibold text-[11px] whitespace-nowrap border border-[#E2E8DF] transition-colors"
+          >
+            Exp 5: Ohm’s Law
+          </Link>
+        </div>
+      </div>
+
       {/* Toast Notification */}
       {recordedToast && (
-        <div className="fixed top-20 right-6 z-50 bg-[#17231B] border border-[#B8D96B] text-[#FFFFFF] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
+        <div className="fixed top-24 right-6 z-50 bg-[#17231B] border border-[#B8D96B] text-[#FFFFFF] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
           <CheckCircle2 className="w-5 h-5 text-[#B8D96B]" />
           <span className="text-xs font-bold">{recordedToast}</span>
           <Link
             href="/observations"
             className="text-[11px] underline font-bold text-[#B8D96B] ml-2 hover:text-[#FFFFFF]"
           >
-            View Table
+            View Notebook
           </Link>
         </div>
       )}
@@ -139,76 +265,153 @@ export default function LabPage() {
       {/* Main Responsive Grid Layout */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 gap-4 max-w-[1720px] mx-auto w-full">
         {/* =========================================
-            LEFT COLUMN: STEPS & PRESETS
+            LEFT COLUMN: STEPS, SPECS & PRESETS
            ========================================= */}
-        <aside className="w-full lg:w-72 xl:w-80 flex flex-col gap-4 shrink-0">
-          {/* Experiment Steps Card */}
-          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
+        <aside ref={leftColumnRef} className="w-full lg:w-72 xl:w-80 flex flex-col gap-4 shrink-0">
+          {/* Left Column Tab Bar */}
+          <div className="p-1 rounded-xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs flex items-center justify-between text-xs font-semibold">
+            <button
+              onClick={() => setLeftTab('steps')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center cursor-pointer ${
+                leftTab === 'steps' ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs' : 'text-[#647067] hover:text-[#17231B]'
+              }`}
+            >
+              Steps
+            </button>
+            <button
+              onClick={() => setLeftTab('spec')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center cursor-pointer ${
+                leftTab === 'spec' ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs' : 'text-[#647067] hover:text-[#17231B]'
+              }`}
+            >
+              Manual Spec
+            </button>
+            <button
+              onClick={() => setLeftTab('presets')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center cursor-pointer ${
+                leftTab === 'presets' ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs' : 'text-[#647067] hover:text-[#17231B]'
+              }`}
+            >
+              Presets
+            </button>
+          </div>
+
+          {/* TAB 1: STEPS */}
+          {leftTab === 'steps' && (
+            <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+                  <FlaskConical className="w-3.5 h-3.5 text-[#17231B]" />
+                  <span>Experiment Steps</span>
+                </h3>
+                <span className="text-[10px] text-[#17231B] font-mono bg-[#B8D96B]/30 px-2 py-0.5 rounded-full font-bold">
+                  Step {activeStep} of 4
+                </span>
+              </div>
+
+              <div className="space-y-1.5 text-xs">
+                {[
+                  { step: 1, title: 'Mount & Zero Align', desc: 'Fix convex lens at 50 cm mark on the bench rail.' },
+                  { step: 2, title: 'Position Object', desc: 'Place candle/arrow beyond 2F (e.g. u = 35-45 cm).' },
+                  { step: 3, title: 'Focus Screen', desc: 'Move screen back & forth until image is sharp.' },
+                  { step: 4, title: 'Record Data', desc: 'Log u, v and calculate f = uv/(u+v) into notebook.' },
+                ].map((s) => (
+                  <button
+                    key={s.step}
+                    onClick={() => setActiveStep(s.step)}
+                    className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      activeStep === s.step
+                        ? 'bg-[#B8D96B]/25 border-[#B8D96B] text-[#17231B]'
+                        : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:text-[#17231B] hover:bg-[#FFFFFF]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-bold text-xs">
+                      <span
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                          activeStep === s.step ? 'bg-[#17231B] text-[#FFFFFF]' : 'bg-[#E2E8DF] text-[#647067]'
+                        }`}
+                      >
+                        {s.step}
+                      </span>
+                      <span>{s.title}</span>
+                    </div>
+                    <p className="text-[11px] text-[#647067] mt-1 pl-6">{s.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: MANUAL SPECIFICATION (AIM, APPARATUS, FORMULA) */}
+          {leftTab === 'spec' && (
+            <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3 text-xs">
+              <div className="flex items-center justify-between pb-1 border-b border-[#E2E8DF]">
+                <h3 className="font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-[#17231B]" />
+                  <span>CBSE Practical Reference</span>
+                </h3>
+              </div>
+
+              <div className="space-y-2">
+                <div className="p-2.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-[#17231B] block">Aim</span>
+                  <p className="text-[11px] text-[#647067]">
+                    To determine the focal length of a convex lens by obtaining real, inverted images on a screen for varying object distances (u-v method).
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-[#17231B] block">Apparatus</span>
+                  <p className="text-[11px] text-[#647067]">
+                    Optical bench (100 cm rail), 3 upright clamps, double convex lens (f = 15 cm), candle/arrow object, and ground-glass screen.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-[#17231B] block">Standard Formulas</span>
+                  <div className="font-mono text-[11px] text-[#17231B] font-bold">
+                    1/f = 1/v - 1/u<br />
+                    f = (u × v) / (u + v)<br />
+                    m = v / u = hᵢ / hₒ
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-[#B8D96B]/20 border border-[#B8D96B]/40 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-[#17231B] block">Precautions</span>
+                  <p className="text-[10px] text-[#647067]">
+                    • Optical centers must lie on the same horizontal axis.<br />
+                    • Remove parallax before recording readings.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: CURRICULUM PRESETS */}
+          {leftTab === 'presets' && (
+            <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
-                <FlaskConical className="w-3.5 h-3.5 text-[#17231B]" />
-                <span>Experiment Steps</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#17231B]" />
+                <span>Standard Lab Presets</span>
               </h3>
-              <span className="text-[10px] text-[#17231B] font-mono bg-[#B8D96B]/30 px-2 py-0.5 rounded-full font-bold">
-                Step {activeStep} of 4
-              </span>
-            </div>
 
-            <div className="space-y-1.5 text-xs">
-              {[
-                { step: 1, title: 'Mount & Zero Align', desc: 'Fix convex lens at 50 cm mark on the bench.' },
-                { step: 2, title: 'Position Object', desc: 'Place candle/arrow beyond 2F (e.g. u = 35-45 cm).' },
-                { step: 3, title: 'Focus Screen', desc: 'Move screen back & forth until image is sharp.' },
-                { step: 4, title: 'Record Data', desc: 'Log u, v and calculate f = uv/(u+v).' },
-              ].map((s) => (
-                <button
-                  key={s.step}
-                  onClick={() => setActiveStep(s.step)}
-                  className={`w-full text-left p-2.5 rounded-xl border transition-all ${
-                    activeStep === s.step
-                      ? 'bg-[#B8D96B]/25 border-[#B8D96B] text-[#17231B]'
-                      : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:text-[#17231B] hover:bg-[#FFFFFF]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 font-bold text-xs">
-                    <span
-                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
-                        activeStep === s.step ? 'bg-[#17231B] text-[#FFFFFF]' : 'bg-[#E2E8DF] text-[#647067]'
-                      }`}
-                    >
-                      {s.step}
-                    </span>
-                    <span>{s.title}</span>
-                  </div>
-                  <p className="text-[11px] text-[#647067] mt-1 pl-6">{s.desc}</p>
-                </button>
-              ))}
+              <div className="space-y-1.5">
+                {LAB_PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => applyPreset(p.id)}
+                    className="w-full text-left p-2.5 rounded-xl bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] text-xs transition-all flex flex-col gap-0.5 group cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#17231B]">{p.label}</span>
+                      <span className="text-[10px] font-mono text-[#647067] font-semibold">{p.category}</span>
+                    </div>
+                    <span className="text-[10px] text-[#647067] line-clamp-1">{p.subtitle}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Standard Presets Selector */}
-          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
-            <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#17231B]" />
-              <span>Standard Lab Presets</span>
-            </h3>
-
-            <div className="space-y-1.5">
-              {LAB_PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => applyPreset(p.id)}
-                  className="w-full text-left p-2.5 rounded-xl bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] text-xs transition-all flex flex-col gap-0.5 group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#17231B] group-hover:text-[#17231B]">{p.label}</span>
-                    <span className="text-[10px] font-mono text-[#647067] font-semibold">{p.category}</span>
-                  </div>
-                  <span className="text-[10px] text-[#647067] line-clamp-1">{p.subtitle}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Lens Selection */}
           <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
@@ -220,7 +423,7 @@ export default function LabPage() {
                 <button
                   key={fl}
                   onClick={() => setFocalLength(fl)}
-                  className={`py-2 text-xs font-mono font-bold rounded-lg border transition-all ${
+                  className={`py-2 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer ${
                     focalLength === fl
                       ? 'bg-[#B8D96B] text-[#17231B] border-[#17231B] shadow-xs'
                       : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:bg-[#FFFFFF] hover:text-[#17231B]'
@@ -236,18 +439,45 @@ export default function LabPage() {
         {/* =========================================
             CENTER COLUMN: 3D OPTICAL BENCH VIEWPORT
            ========================================= */}
-        <main className="flex-1 flex flex-col gap-4">
-          <OpticalBench3D
-            focalLength={focalLength}
-            objectPos={objectPos}
-            lensPos={lensPos}
-            screenPos={screenPos}
-            objectHeight={objectHeight}
-            onObjectPosChange={setObjectPos}
-            onLensPosChange={setLensPos}
-            onScreenPosChange={setScreenPos}
-            className="flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-[#E2E8DF] shadow-xs"
-          />
+        <main ref={centerBenchRef} className="flex-1 flex flex-col gap-4">
+          <div className="relative flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-[#E2E8DF] shadow-xs bg-[#FFFFFF]">
+            <OpticalBench3D
+              focalLength={focalLength}
+              objectPos={objectPos}
+              lensPos={lensPos}
+              screenPos={screenPos}
+              objectHeight={objectHeight}
+              onObjectPosChange={setObjectPos}
+              onLensPosChange={setLensPos}
+              onScreenPosChange={setScreenPos}
+              className="w-full h-full min-h-[460px]"
+            />
+
+            {/* In-viewport Top Action Ribbon */}
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+              <span className="pointer-events-auto px-2.5 py-1 rounded-lg bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E2E8DF] text-[10px] font-mono text-[#17231B] font-bold shadow-xs">
+                Dual-Rail Bench • 100 cm Millimeter Calibration
+              </span>
+              <div className="pointer-events-auto flex items-center gap-1.5">
+                <button
+                  onClick={handleResetBench}
+                  className="px-2.5 py-1 rounded-lg bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E2E8DF] text-[11px] font-semibold text-[#17231B] hover:bg-[#F4F7F2] shadow-xs flex items-center gap-1 cursor-pointer"
+                  title="Reset to 2F"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset 2F</span>
+                </button>
+                <Link
+                  href="/ar"
+                  className="px-2.5 py-1 rounded-lg bg-[#B8D96B]/90 backdrop-blur-md border border-[#B8D96B] text-[11px] font-bold text-[#17231B] shadow-xs flex items-center gap-1"
+                  title="Switch to AR Mode"
+                >
+                  <Smartphone className="w-3 h-3" />
+                  <span>AR Mode</span>
+                </Link>
+              </div>
+            </div>
+          </div>
 
           {/* Bottom Drawer: Live 2D Ray Diagram & Quick Observation Counter */}
           <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
@@ -255,14 +485,14 @@ export default function LabPage() {
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#B8D96B]" />
                 <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider">
-                  Live 2D Ray Diagram & Focus Analysis
+                  Live 2D Ray Diagram & Optical Verification
                 </h3>
               </div>
 
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowRayDiagramDrawer(!showRayDiagramDrawer)}
-                  className="text-xs text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold"
+                  className="text-xs text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold cursor-pointer"
                 >
                   <span>{showRayDiagramDrawer ? 'Hide Diagram' : 'Show Diagram'}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showRayDiagramDrawer ? 'rotate-180' : ''}`} />
@@ -290,7 +520,7 @@ export default function LabPage() {
         {/* =========================================
             RIGHT COLUMN: CONTROLS & LIVE MEASUREMENTS
            ========================================= */}
-        <aside className="w-full lg:w-80 xl:w-88 flex flex-col gap-4 shrink-0">
+        <aside ref={rightColumnRef} className="w-full lg:w-80 xl:w-88 flex flex-col gap-4 shrink-0">
           {/* Live Physics Measurement Panel */}
           <div className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
@@ -377,7 +607,7 @@ export default function LabPage() {
                 </span>
                 <button
                   onClick={() => setShowSignHelp(!showSignHelp)}
-                  className="text-[10px] text-[#17231B] font-bold hover:underline"
+                  className="text-[10px] text-[#17231B] font-bold hover:underline cursor-pointer"
                 >
                   {showSignHelp ? 'Hide' : 'Explain'}
                 </button>
@@ -433,7 +663,7 @@ export default function LabPage() {
               </h3>
               <button
                 onClick={handleResetBench}
-                className="text-[11px] text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold"
+                className="text-[11px] text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold cursor-pointer"
                 title="Reset bench positions"
               >
                 <RotateCcw className="w-3 h-3" />
