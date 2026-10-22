@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <!-- Dark Studio Background -->
+    <linearGradient id="prismBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#121815" />
+      <stop offset="50%" stop-color="#0A110D" />
+      <stop offset="100%" stop-color="#050806" />
+    </linearGradient>
+
+    <!-- Prism Glass Gradients -->
+    <linearGradient id="prismGlass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="30%" stop-color="#7CE3E6" stop-opacity="0.25" />
+      <stop offset="70%" stop-color="#4AA8B2" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#2D727A" stop-opacity="0.6" />
+    </linearGradient>
+
+    <linearGradient id="prismEdgeHighlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#80DEEA" stop-opacity="0.3" />
+    </linearGradient>
+
+    <!-- Ray Beam Blur & Glow -->
+    <filter id="beamGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="strongGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- White Incident Ray -->
+    <linearGradient id="whiteRay" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="1" />
+    </linearGradient>
+
+    <!-- Screen Shadow -->
+    <filter id="screenDrop" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="-4" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="800" height="450" fill="url(#prismBg)" />
+
+  <!-- Ambient Optical Table Grid -->
+  <g opacity="0.06" stroke="#48BB78" stroke-width="1">
+    <line x1="0" y1="90" x2="800" y2="90" />
+    <line x1="0" y1="180" x2="800" y2="180" />
+    <line x1="0" y1="270" x2="800" y2="270" />
+    <line x1="0" y1="360" x2="800" y2="360" />
+    <line x1="160" y1="0" x2="160" y2="450" />
+    <line x1="320" y1="0" x2="320" y2="450" />
+    <line x1="480" y1="0" x2="480" y2="450" />
+    <line x1="640" y1="0" x2="640" y2="450" />
+  </g>
+
+  <!-- Ground Plane Pedestal -->
+  <ellipse cx="380" cy="355" rx="260" ry="42" fill="#0E1612" stroke="#253528" stroke-width="1.5" />
+
+  <!-- White Light Collimator Source Box -->
+  <g transform="translate(60, 200)">
+    <rect x="0" y="-18" width="90" height="36" rx="6" fill="#1A202C" stroke="#2D3748" stroke-width="2" />
+    <rect x="90" y="-6" width="12" height="12" rx="2" fill="#E2E8F0" />
+    <!-- Glowing aperture lens -->
+    <ellipse cx="98" cy="0" rx="3" ry="5" fill="#FFFFFF" filter="url(#beamGlow)" />
+    <!-- Label -->
+    <text x="14" y="4" font-family="monospace" font-size="9" fill="#A0AEC0" font-weight="bold">WHITE LIGHT</text>
+  </g>
+
+  <!-- Dotted Undeviated Straight Ray (Showing Deviation D) -->
+  <line x1="162" y1="200" x2="620" y2="200" stroke="#718096" stroke-width="1.2" stroke-dasharray="4,4" />
+
+  <!-- Incident White Light Beam -->
+  <polygon points="162,197 335,214 335,220 162,203" fill="#FFFFFF" opacity="0.95" filter="url(#beamGlow)" />
+  <line x1="162" y1="200" x2="335" y2="217" stroke="#FFFFFF" stroke-width="2.5" />
+
+  <!-- INTERNAL DISPERSION FAN (Inside Prism) -->
+  <!-- Prism Refracting Points: Entry at (335, 217). Exit on Right Face ~ x: 425 -->
+  <!-- Red exits higher: (425, 230), Violet exits lower: (428, 258) -->
+  <polygon points="335,217 425,230 428,258" fill="#FFFFFF" opacity="0.35" />
+  <line x1="335" y1="217" x2="425" y2="230" stroke="#FF4D4D" stroke-width="2" opacity="0.8" />
+  <line x1="335" y1="217" x2="426" y2="238" stroke="#FFA726" stroke-width="1.5" opacity="0.8" />
+  <line x1="335" y1="217" x2="427" y2="245" stroke="#FFEE58" stroke-width="1.5" opacity="0.8" />
+  <line x1="335" y1="217" x2="427" y2="251" stroke="#66BB6A" stroke-width="1.5" opacity="0.8" />
+  <line x1="335" y1="217" x2="428" y2="258" stroke="#AB47BC" stroke-width="2" opacity="0.8" />
+
+  <!-- DISPERSED VIBGYOR SPECTRUM FAN (Emergent to Screen at x: 670) -->
+  <!-- 1. Red (Least deviated: D_red ~ 26°) -->
+  <polygon points="425,230 670,270 670,284 425,235" fill="#FF1744" opacity="0.75" filter="url(#beamGlow)" />
+  <!-- 2. Orange -->
+  <polygon points="425,235 670,284 670,298 426,240" fill="#FF9100" opacity="0.75" filter="url(#beamGlow)" />
+  <!-- 3. Yellow -->
+  <polygon points="426,240 670,298 670,312 427,246" fill="#FFEA00" opacity="0.75" filter="url(#beamGlow)" />
+  <!-- 4. Green -->
+  <polygon points="427,246 670,312 670,326 427,251" fill="#00E676" opacity="0.75" filter="url(#beamGlow)" />
+  <!-- 5. Blue -->
+  <polygon points="427,251 670,326 670,340 428,255" fill="#2979FF" opacity="0.75" filter="url(#beamGlow)" />
+  <!-- 6. Indigo / Violet (Most deviated: D_violet ~ 38°) -->
+  <polygon points="428,255 670,340 670,358 428,260" fill="#D500F9" opacity="0.75" filter="url(#beamGlow)" />
+
+  <!-- Core Ray Lines with Glow -->
+  <line x1="425" y1="230" x2="670" y2="277" stroke="#FF5252" stroke-width="2.5" filter="url(#beamGlow)" />
+  <line x1="426" y1="238" x2="670" y2="291" stroke="#FFA726" stroke-width="2" filter="url(#beamGlow)" />
+  <line x1="427" y1="245" x2="670" y2="305" stroke="#FFFF00" stroke-width="2" filter="url(#beamGlow)" />
+  <line x1="427" y1="251" x2="670" y2="319" stroke="#69F0AE" stroke-width="2" filter="url(#beamGlow)" />
+  <line x1="428" y1="255" x2="670" y2="333" stroke="#448AFF" stroke-width="2" filter="url(#beamGlow)" />
+  <line x1="428" y1="258" x2="670" y2="349" stroke="#E040FB" stroke-width="2.5" filter="url(#beamGlow)" />
+
+  <!-- 3D Glass Prism Body (Isometric Triangle) -->
+  <!-- Shadow under prism -->
+  <polygon points="300,320 450,335 380,360" fill="#000000" opacity="0.5" filter="blur(6px)" />
+
+  <!-- Back/Left Face -->
+  <polygon points="380,105 285,305 380,340" fill="#20585E" fill-opacity="0.3" stroke="#4FD1C5" stroke-width="1" />
+  
+  <!-- Right Refracting Face -->
+  <polygon points="380,105 475,305 380,340" fill="url(#prismGlass)" stroke="url(#prismEdgeHighlight)" stroke-width="1.8" />
+  
+  <!-- Front Left Refracting Face -->
+  <polygon points="380,105 285,305 475,305" fill="url(#prismGlass)" stroke="url(#prismEdgeHighlight)" stroke-width="1.8" />
+
+  <!-- Crystal Edges Specular Lines -->
+  <line x1="380" y1="105" x2="285" y2="305" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+  <line x1="380" y1="105" x2="475" y2="305" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+  <line x1="285" y1="305" x2="475" y2="305" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" />
+  <!-- Apex highlight -->
+  <circle cx="380" cy="105" r="3" fill="#FFFFFF" filter="url(#beamGlow)" />
+
+  <!-- Angle of Prism A Notation -->
+  <text x="373" y="140" font-family="serif" font-size="16" font-style="italic" font-weight="bold" fill="#B8D96B">A</text>
+  <path d="M 370,146 A 25 25 0 0 1 390,146" fill="none" stroke="#B8D96B" stroke-width="1.5" />
+
+  <!-- Projection Screen (Catching the Spectrum) -->
+  <g filter="url(#screenDrop)">
+    <!-- Metal stand -->
+    <rect x="668" y="360" width="8" height="60" fill="#4A5568" stroke="#1A202C" stroke-width="1" />
+    <rect x="646" y="415" width="52" height="10" rx="3" fill="#2D3748" />
+
+    <!-- Screen Board -->
+    <rect x="665" y="240" width="14" height="145" rx="3" fill="#EDF2F7" stroke="#CBD5E0" stroke-width="1.5" />
+
+    <!-- Vivid Bands on Screen Edge -->
+    <rect x="664" y="270" width="4" height="14" fill="#FF1744" filter="url(#beamGlow)" />
+    <rect x="664" y="284" width="4" height="14" fill="#FF9100" />
+    <rect x="664" y="298" width="4" height="14" fill="#FFEA00" />
+    <rect x="664" y="312" width="4" height="14" fill="#00E676" />
+    <rect x="664" y="326" width="4" height="14" fill="#2979FF" />
+    <rect x="664" y="340" width="4" height="18" fill="#D500F9" filter="url(#beamGlow)" />
+  </g>
+
+  <!-- Spectrum Letter Labels: V I B G Y O R -->
+  <g font-family="sans-serif" font-size="11" font-weight="bold" fill="#E2E8F0">
+    <text x="690" y="282" fill="#FF5252">R (Red - min dev.)</text>
+    <text x="690" y="296" fill="#FFA726">O</text>
+    <text x="690" y="310" fill="#FFFF00">Y</text>
+    <text x="690" y="324" fill="#69F0AE">G</text>
+    <text x="690" y="338" fill="#448AFF">B / I</text>
+    <text x="690" y="355" fill="#E040FB">V (Violet - max dev.)</text>
+  </g>
+
+  <!-- Formula Overlay Badge -->
+  <g transform="translate(30, 45)">
+    <rect width="230" height="46" rx="8" fill="#17231B" fill-opacity="0.9" stroke="#B8D96B" stroke-width="1" />
+    <text x="12" y="20" font-family="monospace" font-size="10" font-weight="bold" fill="#B8D96B">PRISM FORMULA</text>
+    <text x="12" y="36" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">A + D = i + e</text>
+  </g>
+</svg>

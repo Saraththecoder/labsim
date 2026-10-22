@@ -107,6 +107,74 @@ input[type="range"] {
   background: #9AA797;
 }
 
+/* Cute Floating Animations for Physics & Chemistry Stickers */
+@keyframes cuteFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes cuteFloatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(7px) rotate(-3deg);
+  }
+}
+
+@keyframes cuteFloatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-11px) rotate(4deg);
+  }
+}
+
+@keyframes cutePulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes cuteSpinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-cute-float {
+  animation: cuteFloat 4s ease-in-out infinite;
+}
+
+.animate-cute-float-reverse {
+  animation: cuteFloatReverse 4.8s ease-in-out infinite;
+}
+
+.animate-cute-float-slow {
+  animation: cuteFloatSlow 6s ease-in-out infinite;
+}
+
+.animate-cute-pulse {
+  animation: cutePulseGlow 3s ease-in-out infinite;
+}
+
+.animate-cute-spin {
+  animation: cuteSpinSlow 12s linear infinite;
+}
+
 /* Print Styles for Laboratory Practical Report */
 @media print {
   body {

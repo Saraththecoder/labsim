@@ -94,16 +94,33 @@ export default function PhysicsSuiteHubPage() {
           {CLASS_10_PHYSICS_EXPERIMENTS.map((exp) => (
             <div
               key={exp.id}
-              className="flex flex-col justify-between p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] hover:shadow-md transition-all group relative overflow-hidden"
+              className="flex flex-col justify-between p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] hover:shadow-xl transition-all group relative overflow-hidden"
             >
-              {/* Status Badge */}
-              <div className="flex items-center justify-between gap-2 pb-4">
-                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-[#F4F7F2] text-[#17231B] border border-[#E2E8DF]">
-                  Experiment {exp.number}
-                </span>
-                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-[#B8D96B]/25 text-[#17231B] border border-[#B8D96B]/50">
-                  {exp.status === 'live' ? 'Interactive 3D + AR' : 'Coming Up'}
-                </span>
+              {/* Experiment Visual Image Header */}
+              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#17231B] mb-4 border border-[#E2E8DF]/80 shadow-xs">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={exp.imageUrl}
+                  alt={exp.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30 pointer-events-none" />
+
+                {/* Overlaid Badges */}
+                <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white border border-white/20">
+                    Experiment {exp.number}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-[#B8D96B] text-[#17231B] shadow-xs">
+                    {exp.badge}
+                  </span>
+                </div>
+
+                <div className="absolute bottom-2 left-2.5 pointer-events-none">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/50 text-[#B8D96B] backdrop-blur-sm border border-white/10">
+                    {exp.category}
+                  </span>
+                </div>
               </div>
 
               {/* Title & Chapter */}
@@ -111,7 +128,7 @@ export default function PhysicsSuiteHubPage() {
                 <span className="text-[11px] font-mono text-[#647067] font-semibold block">
                   {exp.chapter}
                 </span>
-                <h3 className="text-base font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors">
+                <h3 className="text-base font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors leading-snug">
                   {exp.title}
                 </h3>
                 <p className="text-xs text-[#647067] leading-relaxed line-clamp-3">
@@ -123,7 +140,7 @@ export default function PhysicsSuiteHubPage() {
                   <span className="text-[10px] uppercase font-bold text-[#647067] tracking-wider block">
                     Key Formula:
                   </span>
-                  <div className="p-2.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-xs text-[#17231B] font-bold">
+                  <div className="p-2.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-xs text-[#17231B] font-bold truncate">
                     {exp.keyFormulae[0]?.formula}
                   </div>
                 </div>

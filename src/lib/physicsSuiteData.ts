@@ -19,6 +19,7 @@ export interface PhysicsExperimentMeta {
   colorGradient: string;
   iconName: string;
   badge: string;
+  imageUrl: string;
 }
 
 export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
@@ -49,6 +50,7 @@ export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
     colorGradient: 'from-cyan-500 to-sky-600',
     iconName: 'Lens',
     badge: '6 Canonical Cases',
+    imageUrl: '/images/experiments/convex-lens.jpg',
   },
   {
     id: 'concave-mirror',
@@ -77,6 +79,7 @@ export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
     colorGradient: 'from-purple-500 to-indigo-600',
     iconName: 'Mirror',
     badge: 'Mirror Formula & 6 Cases',
+    imageUrl: '/images/experiments/concave-mirror.jpg',
   },
   {
     id: 'glass-slab',
@@ -104,6 +107,7 @@ export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
     colorGradient: 'from-emerald-500 to-teal-600',
     iconName: 'Square',
     badge: 'Snell’s Law & Lateral Shift',
+    imageUrl: '/images/experiments/glass-slab.svg',
   },
   {
     id: 'glass-prism',
@@ -129,6 +133,7 @@ export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
     colorGradient: 'from-amber-500 to-orange-600',
     iconName: 'Triangle',
     badge: 'i-D Curve & VIBGYOR',
+    imageUrl: '/images/experiments/glass-prism.svg',
   },
   {
     id: 'ohms-law',
@@ -157,5 +162,6 @@ export const CLASS_10_PHYSICS_EXPERIMENTS: PhysicsExperimentMeta[] = [
     colorGradient: 'from-blue-500 to-indigo-600',
     iconName: 'Zap',
     badge: 'V-I Graph & Circuits',
+    imageUrl: '/images/experiments/ohms-law.svg',
   },
 ];

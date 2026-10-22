@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <!-- Bulb Glass Warm Gradient -->
+    <radialGradient id="bulbGlass" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFFF0" />
+      <stop offset="40%" stop-color="#FEFCBF" stop-opacity="0.95" />
+      <stop offset="80%" stop-color="#F6E05E" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#D69E2E" stop-opacity="0.9" />
+    </radialGradient>
+
+    <!-- Metal Base Gradient -->
+    <linearGradient id="metalBase" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A0AEC0" />
+      <stop offset="50%" stop-color="#EDF2F7" />
+      <stop offset="100%" stop-color="#718096" />
+    </linearGradient>
+
+    <filter id="bulbGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#ECC94B" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <g filter="url(#bulbGlow)">
+    <!-- Light Rays / Rays of Inspiration -->
+    <line x1="60" y1="6" x2="60" y2="15" stroke="#ECC94B" stroke-width="3" stroke-linecap="round" />
+    <line x1="24" y1="22" x2="31" y2="29" stroke="#ECC94B" stroke-width="3" stroke-linecap="round" />
+    <line x1="96" y1="22" x2="89" y2="29" stroke="#ECC94B" stroke-width="3" stroke-linecap="round" />
+    <line x1="12" y1="52" x2="21" y2="52" stroke="#ECC94B" stroke-width="3" stroke-linecap="round" />
+    <line x1="108" y1="52" x2="99" y2="52" stroke="#ECC94B" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Bulb Glass Envelope -->
+    <path d="M 60,18 C 42,18 30,32 30,50 C 30,64 40,74 44,82 L 76,82 C 80,74 90,64 90,50 C 90,32 78,18 60,18 Z" 
+          fill="url(#bulbGlass)" stroke="#D69E2E" stroke-width="2" />
+
+    <!-- Specular Reflection Highlight -->
+    <ellipse cx="44" cy="36" rx="6" ry="12" transform="rotate(-30 44 36)" fill="#FFFFFF" opacity="0.75" />
+
+    <!-- Glowing Filament (Cute Heart/Loop) -->
+    <!-- Support Wires -->
+    <line x1="52" y1="82" x2="52" y2="60" stroke="#B7791F" stroke-width="1.8" />
+    <line x1="68" y1="82" x2="68" y2="60" stroke="#B7791F" stroke-width="1.8" />
+    <!-- Glowing Loop -->
+    <path d="M 52,60 C 52,48 58,44 60,48 C 62,44 68,48 68,60" fill="none" stroke="#C05621" stroke-width="3" stroke-linecap="round" />
+    <path d="M 52,60 C 52,48 58,44 60,48 C 62,44 68,48 68,60" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
+
+    <!-- Screw Metal Base -->
+    <rect x="44" y="82" width="32" height="6" rx="2" fill="url(#metalBase)" stroke="#718096" stroke-width="1" />
+    <rect x="46" y="88" width="28" height="6" rx="2" fill="url(#metalBase)" stroke="#718096" stroke-width="1" />
+    <rect x="48" y="94" width="24" height="6" rx="2" fill="url(#metalBase)" stroke="#718096" stroke-width="1" />
+    <!-- Bottom Contact Tip -->
+    <path d="M 52,100 C 52,104 68,104 68,100 Z" fill="#2D3748" />
+
+    <!-- Sparkle Stars -->
+    <path d="M 88,32 Q 92,32 92,28 Q 92,32 96,32 Q 92,32 92,36 Q 92,32 88,32 Z" fill="#FFFFFF" />
+    <path d="M 28,68 Q 31,68 31,65 Q 31,68 34,68 Q 31,68 31,71 Q 31,68 28,68 Z" fill="#F6E05E" />
+  </g>
+</svg>
