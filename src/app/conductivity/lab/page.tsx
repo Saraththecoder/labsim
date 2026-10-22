@@ -86,14 +86,14 @@ export default function ConductivityLabPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#070b14] text-slate-100 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-transparent text-[#17231B] overflow-hidden">
       {recordedToast && (
-        <div className="fixed top-20 right-6 z-50 bg-emerald-950 border border-emerald-500 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <div className="fixed top-20 right-6 z-50 bg-[#17231B] border border-[#B8D96B] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
+          <CheckCircle2 className="w-5 h-5 text-[#B8D96B]" />
           <span className="text-xs font-bold">{recordedToast}</span>
           <Link
             href="/conductivity/observations"
-            className="text-[11px] underline font-bold text-white ml-2 hover:text-emerald-300"
+            className="text-[11px] underline font-bold text-[#B8D96B] ml-2 hover:text-white"
           >
             View Table
           </Link>
@@ -104,9 +104,9 @@ export default function ConductivityLabPage() {
         {/* Left Column: Solution Selector & Curriculum Investigations */}
         <aside className="w-full lg:w-72 xl:w-80 flex flex-col gap-4 shrink-0">
           {/* Solution Selector */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+              <FlaskConical className="w-3.5 h-3.5 text-[#17231B]" />
               <span>Select Reagent / Solution</span>
             </h3>
 
@@ -121,24 +121,24 @@ export default function ConductivityLabPage() {
                       concentration: sol.defaultConcentration,
                     }))
                   }
-                  className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs flex flex-col gap-0.5 ${
+                  className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs flex flex-col gap-0.5 cursor-pointer ${
                     state.solutionId === sol.id
-                      ? 'bg-amber-500/20 border-amber-500/50 text-amber-200 shadow-[0_0_15px_rgba(251,191,36,0.2)]'
-                      : 'bg-[#0f172a] border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
+                      ? 'bg-[#B8D96B]/25 border-[#B8D96B] text-[#17231B] font-bold shadow-xs'
+                      : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:bg-[#FFFFFF] hover:text-[#17231B]'
                   }`}
                 >
                   <div className="flex items-center justify-between font-bold">
-                    <span>{sol.name}</span>
-                    <span className="font-mono text-[10px] text-cyan-400">{sol.formula}</span>
+                    <span className="text-[#17231B]">{sol.name}</span>
+                    <span className="font-mono text-[10px] text-[#17231B] bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#E2E8DF]">{sol.formula}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                  <div className="flex items-center justify-between text-[10px] text-[#647067]">
                     <span
                       className={`uppercase font-bold ${
                         sol.type === 'strong'
-                          ? 'text-emerald-400'
+                          ? 'text-emerald-700'
                           : sol.type === 'weak'
-                          ? 'text-amber-400'
-                          : 'text-rose-400'
+                          ? 'text-amber-700'
+                          : 'text-rose-700'
                       }`}
                     >
                       {sol.type}
@@ -151,9 +151,9 @@ export default function ConductivityLabPage() {
           </div>
 
           {/* Preset Curriculum Investigations */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#17231B]" />
               <span>Standard Experiments</span>
             </h3>
 
@@ -167,10 +167,10 @@ export default function ConductivityLabPage() {
                     electrodeDistance: 2.0,
                   }))
                 }
-                className="w-full text-left p-2 rounded-lg bg-[#0f172a] hover:bg-[#142036] border border-slate-800 text-slate-300 hover:text-white"
+                className="w-full text-left p-2 rounded-lg bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] text-[#647067] hover:text-[#17231B] cursor-pointer"
               >
-                <div className="font-bold text-slate-200">1. Strong Salt (NaCl 0.1M)</div>
-                <div className="text-[10px] text-slate-400">Complete ionization, bright bulb</div>
+                <div className="font-bold text-[#17231B]">1. Strong Salt (NaCl 0.1M)</div>
+                <div className="text-[10px] text-[#647067]">Complete ionization, bright bulb</div>
               </button>
 
               <button
@@ -182,10 +182,10 @@ export default function ConductivityLabPage() {
                     electrodeDistance: 2.0,
                   }))
                 }
-                className="w-full text-left p-2 rounded-lg bg-[#0f172a] hover:bg-[#142036] border border-slate-800 text-slate-300 hover:text-white"
+                className="w-full text-left p-2 rounded-lg bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] text-[#647067] hover:text-[#17231B] cursor-pointer"
               >
-                <div className="font-bold text-slate-200">2. Dilute Weak Acid (CH₃COOH 0.01M)</div>
-                <div className="text-[10px] text-slate-400">Ostwald dilution effect on α</div>
+                <div className="font-bold text-[#17231B]">2. Dilute Weak Acid (CH₃COOH 0.01M)</div>
+                <div className="text-[10px] text-[#647067]">Ostwald dilution effect on α</div>
               </button>
 
               <button
@@ -196,10 +196,10 @@ export default function ConductivityLabPage() {
                     concentration: 0.2,
                   }))
                 }
-                className="w-full text-left p-2 rounded-lg bg-[#0f172a] hover:bg-[#142036] border border-slate-800 text-slate-300 hover:text-white"
+                className="w-full text-left p-2 rounded-lg bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] text-[#647067] hover:text-[#17231B] cursor-pointer"
               >
-                <div className="font-bold text-slate-200">3. Non-Electrolyte (Glucose)</div>
-                <div className="text-[10px] text-slate-400">Zero ionic charge carriers</div>
+                <div className="font-bold text-[#17231B]">3. Non-Electrolyte (Glucose)</div>
+                <div className="text-[10px] text-[#647067]">Zero ionic charge carriers</div>
               </button>
             </div>
           </div>
@@ -210,28 +210,28 @@ export default function ConductivityLabPage() {
           <ConductivityBench3D
             state={state}
             showIons={showIons}
-            className="flex-1 min-h-[460px]"
+            className="flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-[#E2E8DF] shadow-xs"
           />
 
           {/* Quick Toolbar */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+              <label className="flex items-center gap-2 cursor-pointer text-[#17231B]">
                 <input
                   type="checkbox"
                   checked={showIons}
                   onChange={(e) => setShowIons(e.target.checked)}
-                  className="rounded accent-amber-400 w-4 h-4 cursor-pointer"
+                  className="rounded accent-[#B8D96B] w-4 h-4 cursor-pointer"
                 />
                 <span className="font-medium">Show Animated Ions & Electrolysis</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+              <label className="flex items-center gap-2 cursor-pointer text-[#17231B]">
                 <input
                   type="checkbox"
                   checked={state.isPowerOn}
                   onChange={(e) => setState((prev) => ({ ...prev, isPowerOn: e.target.checked }))}
-                  className="rounded accent-emerald-400 w-4 h-4 cursor-pointer"
+                  className="rounded accent-[#B8D96B] w-4 h-4 cursor-pointer"
                 />
                 <span className="font-bold">Circuit Power ({state.isPowerOn ? 'ON' : 'OFF'})</span>
               </label>
@@ -240,7 +240,7 @@ export default function ConductivityLabPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={resetCell}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] flex items-center gap-1.5 cursor-pointer font-semibold"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
@@ -248,9 +248,9 @@ export default function ConductivityLabPage() {
 
               <Link
                 href="/conductivity/observations"
-                className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold flex items-center gap-1.5 border border-slate-700"
+                className="px-3.5 py-1.5 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] font-bold flex items-center gap-1.5 border border-[#E2E8DF]"
               >
-                <TableProperties className="w-3.5 h-3.5" />
+                <TableProperties className="w-3.5 h-3.5 text-[#17231B]" />
                 <span>Notebook ({observationCount})</span>
               </Link>
             </div>
@@ -259,70 +259,104 @@ export default function ConductivityLabPage() {
 
         {/* Right Column: Physical Controls & Meters */}
         <aside className="w-full lg:w-80 xl:w-88 flex flex-col gap-4 shrink-0">
-          {/* Live Meter Readouts */}
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-amber-900/50 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-amber-400" />
-                <span>Electrochemical Readouts</span>
-              </h3>
-              <span className="text-[10px] font-mono text-emerald-400 font-bold">REAL-TIME</span>
+          {/* Live Meter Readouts (Class 10 NCERT Activity 2.3) */}
+          <div className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-[#17231B]" />
+                <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider">
+                  Class 10 NCERT Activity 2.3
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-[#17231B] font-bold bg-[#B8D96B]/30 px-2 py-0.5 rounded border border-[#B8D96B]/50">
+                BOARD EXAM
+              </span>
             </div>
 
+            {/* BULB GLOW STATUS CARD */}
+            <div className={`p-4 rounded-xl border space-y-2 shadow-inner ${
+              calc.bulbState === 'BRIGHT' || calc.bulbState === 'VERY_BRIGHT'
+                ? 'bg-[#B8D96B]/20 border-[#B8D96B] text-[#17231B]'
+                : calc.bulbState === 'DIM' || calc.bulbState === 'MODERATE'
+                ? 'bg-amber-50 border-amber-300 text-amber-950'
+                : 'bg-rose-50 border-rose-300 text-rose-950'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-full ${
+                    calc.bulbState === 'OFF' ? 'bg-rose-500' : 'bg-[#17231B]'
+                  }`} />
+                  <span>Bulb: {calc.bulbState === 'OFF' ? 'DOES NOT GLOW (OFF)' : calc.bulbState + ' GLOW'}</span>
+                </span>
+                <span className="font-mono text-xs font-bold bg-[#FFFFFF] px-2 py-0.5 rounded border border-[#E2E8DF] text-[#17231B]">
+                  {calc.circuitCurrent_mA} mA
+                </span>
+              </div>
+
+              <p className="text-xs font-bold text-[#17231B]">
+                {calc.solution.ncertCategory || calc.solution.type.toUpperCase()}
+              </p>
+
+              <div className="pt-1 border-t border-[#E2E8DF] text-[11px] text-[#647067]">
+                <span className="font-bold text-[#17231B]">NCERT Finding: </span>
+                <span>{calc.solution.ncertInference || calc.solution.description}</span>
+              </div>
+            </div>
+
+            {/* Circuit Current & Resistance */}
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px] font-sans">Current (I)</span>
-                <span className="text-base font-bold text-amber-300">{calc.circuitCurrent_mA} mA</span>
-                <span className="text-[10px] text-slate-500 block">V = {state.appliedVoltage}V</span>
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <span className="text-[#647067] block text-[10px] font-sans font-semibold">Circuit Current (I)</span>
+                <span className="text-base font-bold text-[#17231B]">{calc.circuitCurrent_mA} mA</span>
+                <span className="text-[10px] text-[#647067] block">Battery: {state.appliedVoltage} V</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px] font-sans">Conductance (G)</span>
-                <span className="text-base font-bold text-cyan-300">{calc.cellConductance.toFixed(3)} mS</span>
-                <span className="text-[10px] text-slate-500 block">R = {calc.cellResistance} Ω</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px] font-sans">Specific Cond. (κ)</span>
-                <span className="text-base font-bold text-emerald-300">{calc.specificConductivity_mS_cm} mS/cm</span>
-                <span className="text-[10px] text-slate-500 block">G* = {calc.cellConstant} cm⁻¹</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px] font-sans">Molar Cond. (Λₘ)</span>
-                <span className="text-base font-bold text-purple-300">{calc.molarConductivity}</span>
-                <span className="text-[10px] text-slate-500 block">S cm² mol⁻¹</span>
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <span className="text-[#647067] block text-[10px] font-sans font-semibold">Cell Resistance (R)</span>
+                <span className="text-base font-bold text-[#17231B]">
+                  {calc.cellResistance > 1e6 ? '∞ (Insulator)' : `${calc.cellResistance} Ω`}
+                </span>
+                <span className="text-[10px] text-[#647067] block">Gap: {state.electrodeDistance} cm</span>
               </div>
             </div>
 
-            {/* Dissociation & Bulb status */}
-            <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 text-xs space-y-1">
-              <div className="flex items-center justify-between text-slate-400 text-[10px] uppercase font-bold">
-                <span>Degree of Dissociation (α)</span>
-                <span className="text-white font-mono">{(calc.degreeOfDissociation * 100).toFixed(2)}%</span>
-              </div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div
-                  className="h-full bg-cyan-400"
-                  style={{ width: `${Math.min(100, calc.degreeOfDissociation * 100)}%` }}
-                />
-              </div>
+            {/* Mobile Charge Carriers in Solution */}
+            <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] text-xs space-y-1.5">
+              <span className="text-[#647067] text-[10px] uppercase font-bold block">
+                Charge Carriers in Solution
+              </span>
+              {calc.solution.type === 'non-electrolyte' ? (
+                <p className="text-rose-700 text-xs leading-relaxed font-semibold">
+                  Neutral molecules only. <strong>No free ions formed</strong>; electric circuit remains open.
+                </p>
+              ) : (
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="flex items-center gap-1.5 text-[#17231B] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-[#17231B]" />
+                    <span>{calc.solution.cation.formula} ({calc.solution.cation.name})</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 text-[#17231B] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
+                    <span>{calc.solution.anion.formula} ({calc.solution.anion.name})</span>
+                  </span>
+                </div>
+              )}
             </div>
 
             <button
               onClick={handleRecord}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-xs shadow-[0_0_20px_rgba(251,191,36,0.35)] flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3 rounded-xl bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4 text-[#17231B]" />
               <span>Record to Lab Notebook</span>
             </button>
           </div>
 
           {/* Physical Cell Sliders */}
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-4 text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-amber-400" />
+          <div className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-4 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
+              <h3 className="font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-[#17231B]" />
                 <span>Electrochemical Controls</span>
               </h3>
             </div>
@@ -330,8 +364,8 @@ export default function ConductivityLabPage() {
             {/* Concentration Slider */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold">Concentration (C)</span>
-                <span className="font-mono text-cyan-300 font-bold">{state.concentration} M</span>
+                <span className="text-[#17231B] font-semibold">Concentration (C)</span>
+                <span className="font-mono text-[#17231B] font-bold">{state.concentration} M</span>
               </div>
               <input
                 type="range"
@@ -340,15 +374,15 @@ export default function ConductivityLabPage() {
                 step="0.005"
                 value={state.concentration}
                 onChange={(e) => setState((p) => ({ ...p, concentration: Number(e.target.value) }))}
-                className="w-full accent-cyan-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Electrode Separation l */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold">Electrode Spacing (l)</span>
-                <span className="font-mono text-amber-300 font-bold">{state.electrodeDistance} cm</span>
+                <span className="text-[#17231B] font-semibold">Electrode Spacing (l)</span>
+                <span className="font-mono text-[#17231B] font-bold">{state.electrodeDistance} cm</span>
               </div>
               <input
                 type="range"
@@ -357,15 +391,15 @@ export default function ConductivityLabPage() {
                 step="0.2"
                 value={state.electrodeDistance}
                 onChange={(e) => setState((p) => ({ ...p, electrodeDistance: Number(e.target.value) }))}
-                className="w-full accent-amber-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Electrode Area A */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold">Electrode Area (A)</span>
-                <span className="font-mono text-emerald-300 font-bold">{state.electrodeArea} cm²</span>
+                <span className="text-[#17231B] font-semibold">Electrode Area (A)</span>
+                <span className="font-mono text-[#17231B] font-bold">{state.electrodeArea} cm²</span>
               </div>
               <input
                 type="range"
@@ -374,15 +408,15 @@ export default function ConductivityLabPage() {
                 step="0.5"
                 value={state.electrodeArea}
                 onChange={(e) => setState((p) => ({ ...p, electrodeArea: Number(e.target.value) }))}
-                className="w-full accent-emerald-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Voltage */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold">Applied Voltage (V)</span>
-                <span className="font-mono text-white font-bold">{state.appliedVoltage} V</span>
+                <span className="text-[#17231B] font-semibold">Applied Voltage (V)</span>
+                <span className="font-mono text-[#17231B] font-bold">{state.appliedVoltage} V</span>
               </div>
               <input
                 type="range"
@@ -391,15 +425,15 @@ export default function ConductivityLabPage() {
                 step="0.5"
                 value={state.appliedVoltage}
                 onChange={(e) => setState((p) => ({ ...p, appliedVoltage: Number(e.target.value) }))}
-                className="w-full accent-slate-200 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Temperature */}
-            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+            <div className="space-y-1.5 pt-2 border-t border-[#E2E8DF]">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Solution Temp (T)</span>
-                <span className="font-mono text-amber-300 font-bold">{state.temperature} °C</span>
+                <span className="text-[#647067]">Solution Temp (T)</span>
+                <span className="font-mono text-[#17231B] font-bold">{state.temperature} °C</span>
               </div>
               <input
                 type="range"
@@ -408,7 +442,7 @@ export default function ConductivityLabPage() {
                 step="1"
                 value={state.temperature}
                 onChange={(e) => setState((p) => ({ ...p, temperature: Number(e.target.value) }))}
-                className="w-full accent-amber-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
           </div>

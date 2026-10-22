@@ -14,6 +14,7 @@ import {
   Info,
   CheckCircle2,
   AlertCircle,
+  X,
 } from 'lucide-react';
 
 interface OpticalBench3DProps {
@@ -57,6 +58,13 @@ export function OpticalBench3D({
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cameraAngle, setCameraAngle] = useState<'perspective' | 'side' | 'top' | 'screen'>('perspective');
+  const [parallaxState, setParallaxState] = useState<{
+    testing: boolean;
+    hasChecked: boolean;
+    isRemoved: boolean;
+    errorCm: number;
+    message: string;
+  } | null>(null);
 
   // Convert bench cm (0 to 100 cm) to 3D units (-5 to +5 meters)
   // Let 10 cm = 1.0 unit in 3D
@@ -594,6 +602,58 @@ export function OpticalBench3D({
     controls.update();
   };
 
+  // Class 10 Board Practical: Parallax Elimination Test
+  const runParallaxTest = () => {
+    if (!cameraRef.current || !controlsRef.current) return;
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    const initialPos = camera.position.clone();
+    const initialTarget = controls.target.clone();
+
+    setParallaxState({
+      testing: true,
+      hasChecked: false,
+      isRemoved: false,
+      errorCm: Math.abs(screenDist - calc.imageDistance),
+      message: 'Simulating observer lateral head shift (moving eye left and right across uprights)...',
+    });
+
+    const startTime = performance.now();
+    const duration = 2200;
+
+    const oscillate = (time: number) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(1, elapsed / duration);
+
+      if (progress < 1) {
+        // Shift camera sideways across observer's line of sight
+        const offset = Math.sin(progress * Math.PI * 4) * 0.85;
+        camera.position.x = initialPos.x + offset;
+        controls.update();
+        requestAnimationFrame(oscillate);
+      } else {
+        camera.position.copy(initialPos);
+        controls.target.copy(initialTarget);
+        controls.update();
+
+        const err = Math.abs(screenDist - calc.imageDistance);
+        const removed = calc.isReal && err <= 0.6;
+
+        setParallaxState({
+          testing: false,
+          hasChecked: true,
+          isRemoved: removed,
+          errorCm: Number(err.toFixed(1)),
+          message: removed
+            ? '✓ Zero Parallax Verified! The real inverted image stays coincident with the screen pointer mark during lateral observation.'
+            : `⚠ Parallax Detected! The image and screen plane separate by ${err.toFixed(1)} cm when viewed at an angle. Adjust screen position to coincide with the image plane.`,
+        });
+      }
+    };
+
+    requestAnimationFrame(oscillate);
+  };
+
   // Snap screen to exact focal position
   const snapScreenToFocus = () => {
     if (!calc.isReal || !isFinite(calc.imageDistance) || !onScreenPosChange) return;
@@ -601,67 +661,86 @@ export function OpticalBench3D({
     if (exactScreenPos <= 100) {
       onScreenPosChange(exactScreenPos);
     }
+    if (parallaxState) {
+      setParallaxState(null);
+    }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-full rounded-2xl overflow-hidden border border-slate-800 bg-[#070b14] select-none shadow-2xl ${
+      className={`relative w-full rounded-2xl overflow-hidden border border-[#E2E8DF] bg-[#17231B] select-none shadow-sm ${
         isFullscreen ? 'fixed inset-0 z-50 rounded-none' : 'h-[540px]'
       } ${className}`}
     >
       {/* Top HUD Toolbar */}
       <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
         {/* Left: Bench Position Indicators */}
-        <div className="flex flex-wrap items-center gap-2 pointer-events-auto bg-[#0a0f1d]/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800/80 text-xs shadow-lg">
+        <div className="flex flex-wrap items-center gap-2 pointer-events-auto bg-[#FFFFFF]/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-[#E2E8DF] text-xs shadow-md">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-            <span className="text-slate-400">Object:</span>
-            <span className="font-mono font-bold text-amber-300">{objectPos.toFixed(1)} cm</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#17231B]"></span>
+            <span className="text-[#647067] font-semibold">Object:</span>
+            <span className="font-mono font-bold text-[#17231B]">{objectPos.toFixed(1)} cm</span>
           </div>
-          <span className="text-slate-700">|</span>
+          <span className="text-[#E2E8DF]">|</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-            <span className="text-slate-400">Lens:</span>
-            <span className="font-mono font-bold text-cyan-300">{lensPos.toFixed(1)} cm</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#B8D96B]"></span>
+            <span className="text-[#647067] font-semibold">Lens:</span>
+            <span className="font-mono font-bold text-[#17231B]">{lensPos.toFixed(1)} cm</span>
           </div>
-          <span className="text-slate-700">|</span>
+          <span className="text-[#E2E8DF]">|</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-            <span className="text-slate-400">Screen:</span>
-            <span className="font-mono font-bold text-white">{screenPos.toFixed(1)} cm</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#647067]"></span>
+            <span className="text-[#647067] font-semibold">Screen:</span>
+            <span className="font-mono font-bold text-[#17231B]">{screenPos.toFixed(1)} cm</span>
           </div>
         </div>
 
         {/* Right: Camera Presets & Fullscreen */}
-        <div className="flex items-center gap-2 pointer-events-auto bg-[#0a0f1d]/85 backdrop-blur-md p-1 rounded-xl border border-slate-800/80 shadow-lg">
+        <div className="flex items-center gap-2 pointer-events-auto bg-[#FFFFFF]/95 backdrop-blur-md p-1 rounded-xl border border-[#E2E8DF] shadow-md">
           <button
             onClick={() => setCameraView('perspective')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-all ${
-              cameraAngle === 'perspective' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-white'
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              cameraAngle === 'perspective' ? 'bg-[#B8D96B] text-[#17231B]' : 'text-[#647067] hover:text-[#17231B]'
             }`}
           >
             3D View
           </button>
           <button
             onClick={() => setCameraView('side')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-all ${
-              cameraAngle === 'side' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-white'
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              cameraAngle === 'side' ? 'bg-[#B8D96B] text-[#17231B]' : 'text-[#647067] hover:text-[#17231B]'
             }`}
           >
             Ray View (Side)
           </button>
           <button
             onClick={() => setCameraView('screen')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-all ${
-              cameraAngle === 'screen' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-white'
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              cameraAngle === 'screen' ? 'bg-[#B8D96B] text-[#17231B]' : 'text-[#647067] hover:text-[#17231B]'
             }`}
           >
             Screen View
           </button>
+
+          {/* Parallax Elimination Test Button (Class 10 Practical Requirement) */}
+          <button
+            onClick={runParallaxTest}
+            disabled={parallaxState?.testing}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 border cursor-pointer ${
+              parallaxState?.testing
+                ? 'bg-[#B8D96B]/30 text-[#17231B] border-[#B8D96B] animate-pulse'
+                : 'bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] border-[#E2E8DF]'
+            }`}
+            title="Class 10 CBSE Practical: Shift view laterally to test parallax removal"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#17231B]" />
+            <span>{parallaxState?.testing ? 'Testing...' : 'Check Parallax'}</span>
+          </button>
+
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+            className="p-1.5 text-[#647067] hover:text-[#17231B] rounded-lg hover:bg-[#F4F7F2] cursor-pointer"
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -669,39 +748,75 @@ export function OpticalBench3D({
         </div>
       </div>
 
+      {/* Parallax Test Floating Guidance Modal */}
+      {parallaxState && (
+        <div className="absolute top-16 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-30 pointer-events-auto bg-[#FFFFFF]/95 backdrop-blur-md p-3.5 rounded-xl border border-[#E2E8DF] shadow-2xl space-y-2 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between border-b border-[#E2E8DF] pb-1.5">
+            <span className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 text-[#17231B]" />
+              <span>Class 10 Parallax Test</span>
+            </span>
+            <button
+              onClick={() => setParallaxState(null)}
+              className="text-[#647067] hover:text-[#17231B] p-0.5 rounded cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <p className="text-xs text-[#17231B] leading-relaxed font-medium">
+            {parallaxState.message}
+          </p>
+
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[10px] text-[#647067] italic">
+              {parallaxState.testing ? 'Observation in progress...' : `Deviation: ${parallaxState.errorCm} cm`}
+            </span>
+            {!parallaxState.testing && !parallaxState.isRemoved && calc.isReal && onScreenPosChange && (
+              <button
+                onClick={snapScreenToFocus}
+                className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] shadow-xs cursor-pointer"
+              >
+                Eliminate Parallax
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Screen Focus Banner (Bottom overlay inside 3D viewport) */}
       <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-        <div className="pointer-events-auto bg-[#0a0f1d]/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800/90 shadow-xl flex items-center gap-3">
+        <div className="pointer-events-auto bg-[#FFFFFF]/95 backdrop-blur-md px-4 py-2.5 rounded-xl border border-[#E2E8DF] shadow-xl flex items-center gap-3">
           {calc.isFocused ? (
-            <div className="flex items-center gap-2 text-emerald-400">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-pulse" />
+            <div className="flex items-center gap-2 text-[#17231B]">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 animate-pulse" />
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#17231B]">
                   Screen in Focus (Sharp Image)
                 </p>
-                <p className="text-[11px] text-slate-300">
+                <p className="text-[11px] text-[#647067]">
                   Screen matched at v = {calc.imageDistance.toFixed(1)} cm
                 </p>
               </div>
             </div>
           ) : calc.isReal ? (
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-400" />
+              <AlertCircle className="w-5 h-5 text-amber-600" />
               <div>
-                <p className="text-xs font-bold text-amber-300">
+                <p className="text-xs font-bold text-[#17231B]">
                   Focus Match: {calc.screenFocusMatchPercent || 0}%
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-[#647067]">
                   Target v = {calc.imageDistance.toFixed(1)} cm (current screen dist: {screenDist.toFixed(1)} cm)
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-purple-400">
-              <Sparkles className="w-5 h-5 text-purple-400" />
+            <div className="flex items-center gap-2 text-[#17231B]">
+              <Sparkles className="w-5 h-5 text-[#B8D96B]" />
               <div>
-                <p className="text-xs font-bold text-purple-300">Virtual Image</p>
-                <p className="text-[11px] text-slate-400">Cannot be projected on screen (Look through lens)</p>
+                <p className="text-xs font-bold text-[#17231B]">Virtual Image</p>
+                <p className="text-[11px] text-[#647067]">Cannot be projected on screen (Look through lens)</p>
               </div>
             </div>
           )}
@@ -709,7 +824,7 @@ export function OpticalBench3D({
           {calc.isReal && !calc.isFocused && onScreenPosChange && (
             <button
               onClick={snapScreenToFocus}
-              className="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.4)]"
+              className="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <Crosshair className="w-3.5 h-3.5" />
               <span>Snap to Focus</span>
@@ -717,8 +832,8 @@ export function OpticalBench3D({
           )}
         </div>
 
-        <div className="pointer-events-auto bg-[#0a0f1d]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[11px] text-slate-400 hidden sm:flex items-center gap-1.5">
-          <Eye className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="pointer-events-auto bg-[#FFFFFF]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#E2E8DF] text-[11px] text-[#647067] hidden sm:flex items-center gap-1.5 shadow-xs">
+          <Eye className="w-3.5 h-3.5 text-[#17231B]" />
           <span>Click & drag to rotate • Scroll to zoom</span>
         </div>
       </div>

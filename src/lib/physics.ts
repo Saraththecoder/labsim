@@ -320,8 +320,8 @@ export interface LabPreset {
 export const LAB_PRESETS: LabPreset[] = [
   {
     id: 'preset-beyond-2f',
-    label: 'Object Beyond 2F (u > 2f)',
-    subtitle: 'Real, inverted, diminished image formed between F and 2F',
+    label: 'Case 2: Beyond 2F₁ (u > 2f)',
+    subtitle: 'Real, inverted, diminished image formed between F₂ and 2F₂',
     objectDistance: 45,
     focalLength: 15,
     objectHeight: 5,
@@ -330,8 +330,8 @@ export const LAB_PRESETS: LabPreset[] = [
   },
   {
     id: 'preset-at-2f',
-    label: 'Object at 2F (u = 2f)',
-    subtitle: 'Real, inverted, same size image formed exactly at 2F',
+    label: 'Case 3: At 2F₁ (u = 2f)',
+    subtitle: 'Real, inverted, SAME SIZE image formed exactly at 2F₂ (m = -1.0)',
     objectDistance: 30,
     focalLength: 15,
     objectHeight: 5,
@@ -340,8 +340,8 @@ export const LAB_PRESETS: LabPreset[] = [
   },
   {
     id: 'preset-between-f-2f',
-    label: 'Object Between F and 2F (f < u < 2f)',
-    subtitle: 'Real, inverted, magnified image formed beyond 2F',
+    label: 'Case 4: Between F₁ and 2F₁ (f < u < 2f)',
+    subtitle: 'Real, inverted, magnified image formed beyond 2F₂ (Projector)',
     objectDistance: 22.5,
     focalLength: 15,
     objectHeight: 5,
@@ -350,8 +350,8 @@ export const LAB_PRESETS: LabPreset[] = [
   },
   {
     id: 'preset-at-f',
-    label: 'Object at Focus (u = f)',
-    subtitle: 'Refracted rays become parallel; image formed at infinity',
+    label: 'Case 5: At Focus F₁ (u = f)',
+    subtitle: 'Refracted rays emerge parallel; image formed at infinity',
     objectDistance: 15,
     focalLength: 15,
     objectHeight: 5,
@@ -360,8 +360,8 @@ export const LAB_PRESETS: LabPreset[] = [
   },
   {
     id: 'preset-within-f',
-    label: 'Object Within Focus (u < f)',
-    subtitle: 'Virtual, erect, magnified image (Simple Magnifier / Hand Lens)',
+    label: 'Case 6: Between O and F₁ (u < f)',
+    subtitle: 'Virtual, erect, magnified image (Simple Magnifying Glass principle)',
     objectDistance: 10,
     focalLength: 15,
     objectHeight: 5,
@@ -369,3 +369,157 @@ export const LAB_PRESETS: LabPreset[] = [
     category: 'u < f',
   },
 ];
+
+/**
+ * Class 10 NCERT Chapter 10: The 6 Canonical Ray Cases of Convex Lens Image Formation
+ */
+export interface CanonicalCase {
+  caseNumber: 1 | 2 | 3 | 4 | 5 | 6;
+  caseBadge: string;
+  name: string;
+  objectPositionText: string;
+  imagePositionText: string;
+  natureText: string;
+  sizeText: string;
+  magnificationText: string;
+  metaphor: string;
+  boardNote: string;
+}
+
+export function getCanonicalCase(u: number, f: number): CanonicalCase {
+  const diff2F = Math.abs(u - 2 * f);
+  const diffF = Math.abs(u - f);
+
+  if (u > 3.2 * f) {
+    return {
+      caseNumber: 1,
+      caseBadge: 'Case 1: At Infinity',
+      name: 'Object at Infinity',
+      objectPositionText: 'At Infinity (u >> 2f)',
+      imagePositionText: 'At Principal Focus F₂ (+15.0 cm)',
+      natureText: 'Real & Inverted',
+      sizeText: 'Highly Diminished (Point-sized)',
+      magnificationText: 'm << -1',
+      metaphor: 'Burning Glass / Sunlight Focus on Paper',
+      boardNote: 'Used in practicals to find rough focal length of the convex lens first.',
+    };
+  }
+
+  if (diff2F <= 0.8) {
+    return {
+      caseNumber: 3,
+      caseBadge: 'Case 3: At 2F₁ (u = 2f)',
+      name: 'Object at 2F₁',
+      objectPositionText: 'At 2F₁ (u = 2f = 30.0 cm)',
+      imagePositionText: 'Exactly at 2F₂ (+30.0 cm)',
+      natureText: 'Real & Inverted',
+      sizeText: 'Same Size as Object (hᵢ = hₒ)',
+      magnificationText: 'm = -1.00',
+      metaphor: '1:1 Copy / Photocopier Lens',
+      boardNote: 'Key CBSE Board Verification point: object & image distances are identical.',
+    };
+  }
+
+  if (diffF <= 0.6) {
+    return {
+      caseNumber: 5,
+      caseBadge: 'Case 5: At Focus F₁ (u = f)',
+      name: 'Object at Principal Focus F₁',
+      objectPositionText: 'At Focus F₁ (u = f = 15.0 cm)',
+      imagePositionText: 'At Infinity (Parallel refracted rays)',
+      natureText: 'Real & Inverted',
+      sizeText: 'Extremely Magnified',
+      magnificationText: 'm -> -Infinity',
+      metaphor: 'Searchlight / Cinema Projector Bulb Focus',
+      boardNote: 'Refracted rays become parallel; no sharp image forms on finite screen.',
+    };
+  }
+
+  if (u > 2 * f) {
+    return {
+      caseNumber: 2,
+      caseBadge: 'Case 2: Beyond 2F₁ (u > 2f)',
+      name: 'Object Beyond 2F₁',
+      objectPositionText: 'Beyond 2F₁ (u > 30 cm)',
+      imagePositionText: 'Between F₂ and 2F₂',
+      natureText: 'Real & Inverted',
+      sizeText: 'Diminished (Smaller than object)',
+      magnificationText: '-1 < m < 0',
+      metaphor: 'Camera Lens / Human Eye Lens',
+      boardNote: 'Standard camera setup: distant object creates a smaller image on sensor.',
+    };
+  }
+
+  if (u > f) {
+    return {
+      caseNumber: 4,
+      caseBadge: 'Case 4: Between F₁ and 2F₁',
+      name: 'Object Between F₁ and 2F₁',
+      objectPositionText: 'Between F₁ and 2F₁ (15 cm < u < 30 cm)',
+      imagePositionText: 'Beyond 2F₂ (v > 30 cm)',
+      natureText: 'Real & Inverted',
+      sizeText: 'Magnified (Larger than object)',
+      magnificationText: 'm < -1.0',
+      metaphor: 'Classroom Projector / Movie Theatre',
+      boardNote: 'Used in slide projectors to cast large images onto classroom screens.',
+    };
+  }
+
+  return {
+    caseNumber: 6,
+    caseBadge: 'Case 6: Between O and F₁ (u < f)',
+    name: 'Object Between Optical Centre & Focus',
+    objectPositionText: 'Inside Focus F₁ (u < 15.0 cm)',
+    imagePositionText: 'On same side as object (Virtual)',
+    natureText: 'VIRTUAL & ERECT',
+    sizeText: 'Magnified',
+    magnificationText: 'm > +1.0',
+    metaphor: 'Reading Lens / Simple Hand Magnifier',
+    boardNote: 'The only case where convex lens forms a Virtual, Erect, and Magnified image!',
+  };
+}
+
+/**
+ * Calculates Lens Power in Dioptres (Class 10 formula: P = 1 / f in meters)
+ */
+export function calculateLensPower(focalLengthCm: number): {
+  powerDioptres: number;
+  sign: '+' | '-';
+  formatted: string;
+  dioptreFormula: string;
+} {
+  const fMeters = focalLengthCm / 100;
+  const p = 1 / fMeters;
+  return {
+    powerDioptres: Number(p.toFixed(2)),
+    sign: p > 0 ? '+' : '-',
+    formatted: `${p > 0 ? '+' : ''}${p.toFixed(2)} D`,
+    dioptreFormula: `P = 1 / f(m) = 1 / ${(fMeters).toFixed(2)} m = +${p.toFixed(2)} D`,
+  };
+}
+
+/**
+ * Class 10 Cartesian Sign Convention Step-by-Step Breakdown
+ */
+export function getCartesianSignBreakdown(u: number, v: number, f: number): {
+  uSign: string;
+  vSign: string;
+  fSign: string;
+  stepByStepFormula: string;
+} {
+  const cartU = -u;
+  const cartV = v;
+  const isReal = isFinite(v) && v > 0;
+  const vStr = isFinite(v) ? (cartV > 0 ? `+${cartV.toFixed(1)}` : `${cartV.toFixed(1)}`) : '∞';
+
+  const step = isFinite(v)
+    ? `1/f = 1/v - 1/u => 1/f = 1/(${vStr}) - 1/(${cartU.toFixed(1)}) = 1/${f.toFixed(1)} cm`
+    : `Object at focus: Refracted rays are parallel (1/v = 0)`;
+
+  return {
+    uSign: `${cartU.toFixed(1)} cm (Always negative in Cartesian convention)`,
+    vSign: `${vStr} cm (${isReal ? 'Positive: Real inverted image behind lens' : 'Negative: Virtual erect image in front'})`,
+    fSign: `+${f.toFixed(1)} cm (Always positive for convex/converging lens)`,
+    stepByStepFormula: step,
+  };
+}

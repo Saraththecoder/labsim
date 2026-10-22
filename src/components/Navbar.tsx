@@ -1,145 +1,193 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Menu,
   X,
-  Compass,
   BookOpen,
   FlaskConical,
   Smartphone,
   TableProperties,
   Award,
   FileText,
+  ChevronDown,
+  Atom,
   Zap,
 } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [physicsDropdownOpen, setPhysicsDropdownOpen] = useState(false);
 
-  // Check which experiment is active based on path
+  // Clean up any legacy classroom-mode if present
+  useEffect(() => {
+    document.documentElement.classList.remove('classroom-mode');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ar_studio_classroom_theme');
+    }
+  }, []);
+
   const isConductivity = pathname.startsWith('/conductivity');
+  const isPhysics = !isConductivity;
 
-  const opticsNavItems = [
-    { name: 'Home', href: '/', icon: Compass },
-    { name: 'Theory', href: '/learn', icon: BookOpen },
-    { name: '3D Optics Bench', href: '/lab', icon: FlaskConical, highlight: true },
-    { name: 'AR Mode', href: '/ar', icon: Smartphone, badge: 'WebXR' },
-    { name: 'Observations', href: '/observations', icon: TableProperties },
-    { name: 'Quiz', href: '/quiz', icon: Award },
-    { name: 'Lab Report', href: '/report', icon: FileText },
+  const physicsExperiments = [
+    { name: '1. Convex Lens Optics', href: '/lab', badge: 'Light' },
+    { name: '2. Concave Mirror', href: '/physics/concave-mirror', badge: 'Light' },
+    { name: '3. Glass Slab Refraction', href: '/physics/glass-slab', badge: 'Light' },
+    { name: '4. Glass Prism Dispersion', href: '/physics/glass-prism', badge: 'Light' },
+    { name: '5. Ohm’s Law & Circuits', href: '/physics/ohms-law', badge: 'Electricity' },
   ];
 
-  const conductivityNavItems = [
-    { name: 'Hub', href: '/conductivity', icon: Compass },
-    { name: 'Theory', href: '/conductivity/learn', icon: BookOpen },
-    { name: '3D Beaker Cell', href: '/conductivity/lab', icon: FlaskConical, highlight: true },
-    { name: 'AR Mode', href: '/conductivity/ar', icon: Smartphone, badge: 'WebXR' },
-    { name: 'Observations', href: '/conductivity/observations', icon: TableProperties },
-    { name: 'Quiz', href: '/conductivity/quiz', icon: Award },
-    { name: 'Lab Report', href: '/conductivity/report', icon: FileText },
-  ];
-
-  const activeNavItems = isConductivity ? conductivityNavItems : opticsNavItems;
+  const currentPhysicsExp = physicsExperiments.find((e) => pathname === e.href);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-[#080d1a]/95 border-b border-slate-800/80">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-[#FFFFFF]/95 border-b border-[#E2E8DF] shadow-[0_1px_3px_rgba(23,35,27,0.05)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Logo & Experiment Switcher */}
-          <div className="flex items-center gap-4">
-            <Link href={isConductivity ? '/conductivity' : '/'} className="flex items-center gap-2.5 group">
-              <div
-                className={`w-9 h-9 rounded-xl p-[1.5px] transition-transform group-hover:scale-105 shadow-md flex items-center justify-center ${
-                  isConductivity
-                    ? 'bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 font-bold'
-                    : 'bg-gradient-to-tr from-cyan-500 to-sky-400 text-slate-950 font-bold'
-                }`}
-              >
-                {isConductivity ? <Zap className="w-5 h-5 text-slate-950" /> : 'λ'}
+          {/* Brand Logo: LabSim */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#B8D96B]/30 border border-[#B8D96B]/60 text-[#17231B] flex items-center justify-center shadow-[0_0_15px_rgba(184,217,107,0.3)] group-hover:scale-105 transition-transform">
+                <Atom className="w-6 h-6 text-[#17231B]" />
               </div>
-              <div>
-                <span className="font-bold text-base tracking-tight text-white block">
-                  {isConductivity ? 'ConductoLab AR' : 'OptiLab AR'}
-                </span>
-                <span className="text-[10px] text-slate-400 block -mt-1">
-                  {isConductivity ? 'Ionic Solutions' : 'Convex Lens Optics'}
-                </span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-base tracking-tight text-[#17231B]">LabSim</span>
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-[#F4F7F2] text-[#17231B] border border-[#E2E8DF]">
+                    AR Studio
+                  </span>
+                </div>
+                <span className="text-[11px] text-[#647067] -mt-0.5 font-medium">Virtual Science Laboratory</span>
               </div>
             </Link>
 
-            {/* Experiment Switcher Pills (Desktop) */}
-            <div className="hidden md:flex items-center gap-1 bg-[#0f172a] p-1 rounded-xl border border-slate-800 text-xs">
+            {/* Discipline Switcher (Physics vs Chemistry) */}
+            <div className="hidden md:flex items-center bg-[#F4F7F2] p-1 rounded-xl border border-[#E2E8DF]">
               <Link
-                href="/lab"
-                className={`px-3 py-1 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-                  !isConductivity
-                    ? 'bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(0,240,255,0.3)]'
-                    : 'text-slate-400 hover:text-white'
+                href="/physics"
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  isPhysics
+                    ? 'bg-[#B8D96B] text-[#17231B] font-extrabold shadow-sm'
+                    : 'text-[#647067] hover:text-[#17231B]'
                 }`}
               >
-                <span>🔬 Optics Lab</span>
+                <Atom className="w-3.5 h-3.5" />
+                <span>Physics Suite</span>
               </Link>
-
               <Link
                 href="/conductivity/lab"
-                className={`px-3 py-1 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   isConductivity
-                    ? 'bg-amber-400 text-slate-950 shadow-[0_0_10px_rgba(251,191,36,0.3)]'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-[#B8D96B] text-[#17231B] font-extrabold shadow-sm'
+                    : 'text-[#647067] hover:text-[#17231B]'
                 }`}
               >
-                <span>⚡ Conductivity Lab</span>
+                <Zap className="w-3.5 h-3.5" />
+                <span>Chemistry Lab</span>
               </Link>
             </div>
           </div>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {activeNavItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive
-                      ? isConductivity
-                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/40'
-                        : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                  }`}
+          {/* Desktop Right Nav */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Physics Experiments Dropdown */}
+            {isPhysics && (
+              <div className="relative">
+                <button
+                  onClick={() => setPhysicsDropdownOpen(!physicsDropdownOpen)}
+                  onBlur={() => setTimeout(() => setPhysicsDropdownOpen(false), 200)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#17231B] bg-[#FFFFFF] hover:bg-[#F4F7F2] border border-[#E2E8DF] transition-colors shadow-sm"
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{item.name}</span>
-                  {item.badge && (
-                    <span className="ml-0.5 px-1 py-0.2 text-[8px] font-bold uppercase rounded bg-slate-800 text-slate-300 border border-slate-700">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+                  <FlaskConical className="w-3.5 h-3.5 text-[#17231B]" />
+                  <span>{currentPhysicsExp ? currentPhysicsExp.name : 'Experiments'}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#647067]" />
+                </button>
 
-          {/* Mobile menu button */}
+                {physicsDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-64 rounded-xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xl p-2 z-50 space-y-1">
+                    <div className="px-2 py-1 text-[10px] uppercase font-bold text-[#647067] tracking-wider">
+                      Prescribed Practicals
+                    </div>
+                    {physicsExperiments.map((exp) => (
+                      <Link
+                        key={exp.href}
+                        href={exp.href}
+                        onClick={() => setPhysicsDropdownOpen(false)}
+                        className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+                          pathname === exp.href
+                            ? 'bg-[#B8D96B]/25 text-[#17231B] font-bold'
+                            : 'text-[#17231B] hover:bg-[#F4F7F2]'
+                        }`}
+                      >
+                        <span>{exp.name}</span>
+                        <span className="text-[9px] font-mono text-[#647067] px-1 py-0.5 rounded bg-[#F4F7F2] border border-[#E2E8DF]">
+                          {exp.badge}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Nav Links */}
+            <nav className="flex items-center gap-1">
+              <Link
+                href={isConductivity ? '/conductivity/learn' : '/learn'}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  pathname.includes('/learn')
+                    ? 'text-[#17231B] bg-[#B8D96B]/25 font-bold'
+                    : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Theory</span>
+              </Link>
+
+              <Link
+                href={isConductivity ? '/conductivity/ar' : '/ar'}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  pathname.includes('/ar')
+                    ? 'text-[#17231B] bg-[#B8D96B]/25 font-bold'
+                    : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5 text-[#17231B]" />
+                <span>AR Mode</span>
+              </Link>
+
+              <Link
+                href={isConductivity ? '/conductivity/report' : '/report'}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  pathname.includes('/report')
+                    ? 'text-[#17231B] bg-[#B8D96B]/25 font-bold'
+                    : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Reports</span>
+              </Link>
+            </nav>
+          </div>
+
+          {/* Mobile Right: AR + Hamburger */}
           <div className="lg:hidden flex items-center gap-2">
             <Link
-              href={isConductivity ? '/lab' : '/conductivity/lab'}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 flex items-center gap-1"
+              href="/ar"
+              className="px-2.5 py-1 text-xs font-extrabold rounded-lg bg-[#B8D96B] text-[#17231B] flex items-center gap-1 shadow-sm"
             >
-              <span>{isConductivity ? 'Switch: Optics' : 'Switch: Chem'}</span>
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>AR</span>
             </Link>
+
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white focus:outline-none"
+              className="p-1.5 rounded-lg text-[#17231B] hover:bg-[#F4F7F2] focus:outline-none"
             >
-              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -147,49 +195,73 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden bg-[#090e1a] border-b border-slate-800 px-4 pt-2 pb-5 space-y-2">
-          {/* Lab Switcher in Mobile Drawer */}
-          <div className="grid grid-cols-2 gap-2 pb-2 border-b border-slate-800 text-xs">
+        <div className="lg:hidden bg-[#FFFFFF] border-b border-[#E2E8DF] px-4 pt-2 pb-5 space-y-3 shadow-xl">
+          <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[#E2E8DF] text-xs">
             <Link
-              href="/lab"
+              href="/physics"
               onClick={() => setMobileOpen(false)}
               className={`p-2 rounded-lg text-center font-bold ${
-                !isConductivity ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                isPhysics ? 'bg-[#B8D96B] text-[#17231B]' : 'bg-[#F4F7F2] text-[#647067]'
               }`}
             >
-              🔬 Optics Lab
+              ⚛ Physics Suite
             </Link>
             <Link
               href="/conductivity/lab"
               onClick={() => setMobileOpen(false)}
               className={`p-2 rounded-lg text-center font-bold ${
-                isConductivity ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-300'
+                isConductivity ? 'bg-[#B8D96B] text-[#17231B]' : 'bg-[#F4F7F2] text-[#647067]'
               }`}
             >
-              ⚡ Conductivity Lab
+              ⚡ Chemistry Lab
             </Link>
           </div>
 
           <div className="space-y-1">
-            {activeNavItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold ${
-                    isActive ? 'bg-slate-800 text-cyan-300' : 'text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 text-slate-400" />
-                    <span>{item.name}</span>
-                  </div>
-                </Link>
-              );
-            })}
+            <p className="text-[10px] uppercase font-bold text-[#647067] px-3 py-1">Physics Experiments</p>
+            {physicsExperiments.map((exp) => (
+              <Link
+                key={exp.href}
+                href={exp.href}
+                onClick={() => setMobileOpen(false)}
+                className={`block px-3 py-1.5 rounded-lg text-xs font-medium ${
+                  pathname === exp.href ? 'bg-[#B8D96B]/25 text-[#17231B] font-bold' : 'text-[#17231B]'
+                }`}
+              >
+                {exp.name}
+              </Link>
+            ))}
+          </div>
+
+          <div className="pt-2 border-t border-[#E2E8DF] space-y-1">
+            <Link
+              href={isConductivity ? '/conductivity/learn' : '/learn'}
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+            >
+              Theory & Principles
+            </Link>
+            <Link
+              href={isConductivity ? '/conductivity/ar' : '/ar'}
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+            >
+              Tabletop AR Mode
+            </Link>
+            <Link
+              href={isConductivity ? '/conductivity/observations' : '/observations'}
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+            >
+              Observation Tables
+            </Link>
+            <Link
+              href={isConductivity ? '/conductivity/report' : '/report'}
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+            >
+              Printable Lab Report
+            </Link>
           </div>
         </div>
       )}

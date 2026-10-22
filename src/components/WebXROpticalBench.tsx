@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { calculateOptics, generatePrincipalRays, LensSystemState } from '@/lib/physics';
+import { RayDiagramSvg } from '@/components/RayDiagramSvg';
 import {
   Smartphone,
   Scan,
@@ -55,16 +56,22 @@ export function WebXROpticalBench({
   const [activeMode, setActiveMode] = useState<'webxr' | 'camera-fallback' | 'studio'>('studio');
   const [benchPlaced, setBenchPlaced] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [reticleBannerVisible, setReticleBannerVisible] = useState(true);
+  const [activeViewMode, setActiveViewMode] = useState<'ar' | '3d' | 'ray'>('ar');
+  const [snapshotToast, setSnapshotToast] = useState(false);
   const [deviceDiagnostics, setDeviceDiagnostics] = useState<{
     hasXR: boolean;
     hasImmersiveAR: boolean;
     hasCamera: boolean;
     hasOrientation: boolean;
+    isSecure: boolean;
   }>({
     hasXR: false,
     hasImmersiveAR: false,
     hasCamera: false,
     hasOrientation: false,
+    isSecure: true,
   });
 
   // 3D Scene Refs
@@ -83,7 +90,7 @@ export function WebXROpticalBench({
     z: -0.6,
   });
   const [arRotationY, setArRotationY] = useState<number>(0); // in degrees
-  const [activeHudTab, setActiveHudTab] = useState<'zoom' | 'move' | 'rotate' | null>('zoom');
+  const [activeHudTab, setActiveHudTab] = useState<'zoom' | 'move' | 'rotate' | null>(null);
 
   // Keep ref of state for touch events
   const arScaleRef = useRef(arScale);
@@ -106,6 +113,7 @@ export function WebXROpticalBench({
   // Check hardware and WebXR capabilities on mount
   useEffect(() => {
     async function checkCapabilities() {
+      const isSecure = typeof window !== 'undefined' ? window.isSecureContext : false;
       const hasXR = typeof navigator !== 'undefined' && 'xr' in navigator;
       let hasImmersiveAR = false;
 
@@ -117,7 +125,7 @@ export function WebXROpticalBench({
         }
       }
 
-      const hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      const hasCamera = typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
       const hasOrientation = typeof window !== 'undefined' && 'DeviceOrientationEvent' in window;
 
       setDeviceDiagnostics({
@@ -125,7 +133,14 @@ export function WebXROpticalBench({
         hasImmersiveAR,
         hasCamera,
         hasOrientation,
+        isSecure,
       });
+
+      if (!isSecure && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+        setCameraError(
+          'Mobile browsers strictly require HTTPS to access the device camera. If testing via local Wi-Fi IP, use an HTTPS tunnel or USB port forwarding.'
+        );
+      }
 
       if (hasImmersiveAR) {
         setArSupported(true);
@@ -166,16 +181,16 @@ export function WebXROpticalBench({
     controlsRef.current = controls;
 
     // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 1.3);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambient);
 
     const sun = new THREE.DirectionalLight(0xffffff, 1.6);
     sun.position.set(2, 4, 3);
     scene.add(sun);
 
-    const cyanRim = new THREE.PointLight(0x00f0ff, 1.0, 5);
-    cyanRim.position.set(-2, 1, -1);
-    scene.add(cyanRim);
+    const limeRim = new THREE.PointLight(0xc6f135, 1.2, 6);
+    limeRim.position.set(-2, 1, -1);
+    scene.add(limeRim);
 
     // Optical Bench Root Model
     const benchRoot = new THREE.Group();
@@ -187,12 +202,12 @@ export function WebXROpticalBench({
 
     // Bed and Rails
     const bedGeo = new THREE.BoxGeometry(6.0, 0.15, 0.7);
-    const bedMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.25 });
+    const bedMat = new THREE.MeshStandardMaterial({ color: 0x121c14, metalness: 0.85, roughness: 0.3 });
     const bed = new THREE.Mesh(bedGeo, bedMat);
     benchRoot.add(bed);
 
     const railGeo = new THREE.CylinderGeometry(0.03, 0.03, 5.8, 16);
-    const railMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95 });
+    const railMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.95 });
     const rail1 = new THREE.Mesh(railGeo, railMat);
     rail1.rotation.z = Math.PI / 2;
     rail1.position.set(0, 0.15, 0.2);
@@ -232,7 +247,7 @@ export function WebXROpticalBench({
     // Convex Lens
     const lensRing = new THREE.Mesh(
       new THREE.TorusGeometry(0.28, 0.025, 16, 32),
-      new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9 })
+      new THREE.MeshStandardMaterial({ color: 0x84cc16, metalness: 0.9 })
     );
     lensRing.rotation.y = Math.PI / 2;
     lensRing.position.y = 0.55;
@@ -241,7 +256,7 @@ export function WebXROpticalBench({
     const lensGlass = new THREE.Mesh(
       new THREE.SphereGeometry(0.27, 24, 24),
       new THREE.MeshPhysicalMaterial({
-        color: 0xa5f3fc,
+        color: 0xd9f99d,
         transmission: 0.9,
         transparent: true,
         roughness: 0.05,
@@ -260,9 +275,9 @@ export function WebXROpticalBench({
     screenMesh.position.y = 0.55;
     screenGroup.add(screenMesh);
 
-    // Hit-testing Reticle for Real WebXR
+    // Hit-testing Reticle for Real WebXR (Electric Lime)
     const reticleGeo = new THREE.RingGeometry(0.12, 0.15, 32).rotateX(-Math.PI / 2);
-    const reticleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+    const reticleMat = new THREE.MeshBasicMaterial({ color: 0xc6f135 });
     const reticle = new THREE.Mesh(reticleGeo, reticleMat);
     reticle.matrixAutoUpdate = false;
     reticle.visible = false;
@@ -453,25 +468,58 @@ export function WebXROpticalBench({
   };
 
   // Zoom helper
-  const adjustZoom = (delta: number) => {
-    setArScale((prev) => Math.min(2.5, Math.max(0.25, Number((prev + delta).toFixed(2)))));
-  };
-
   // Fallback Camera feed activator
   const startCameraFeed = async () => {
+    setCameraError(null);
+    if (typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost') {
+      setCameraError(
+        'Insecure Origin: Mobile browsers block camera hardware when accessed via raw IP HTTP (e.g. http://192.168.x.x:3005). Please connect via an HTTPS tunnel (run `npx localtunnel --port 3005`) or USB port forwarding.'
+      );
+      return;
+    }
+
     try {
-      if (!navigator.mediaDevices?.getUserMedia) return;
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        setCameraError('Camera API not supported in this browser. Please use Chrome, Safari, or an HTTPS connection.');
+        return;
+      }
+
+      let stream: MediaStream;
+      try {
+        // Tier 1: Ideal rear environment camera with 720p/1080p
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+      } catch {
+        try {
+          // Tier 2: Basic environment facing camera
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+          });
+        } catch {
+          // Tier 3: Any available video stream
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+        }
+      }
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        videoRef.current.setAttribute('playsinline', 'true');
+        videoRef.current.setAttribute('webkit-playsinline', 'true');
+        await videoRef.current.play();
         setCameraActive(true);
         setActiveMode('camera-fallback');
       }
-    } catch (err) {
-      console.error('Camera access denied:', err);
+    } catch (err: any) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setCameraError('Camera permission was blocked. Tap the lock/tune icon in your browser address bar to allow camera access.');
+      } else {
+        setCameraError(err.message || 'Unable to access camera on this device.');
+      }
     }
   };
 
@@ -492,184 +540,232 @@ export function WebXROpticalBench({
     setBenchPlaced(false);
   };
 
+  // Snapshot flash simulation
+  const handleShutterClick = () => {
+    setBenchPlaced(true);
+    setSnapshotToast(true);
+    setTimeout(() => setSnapshotToast(false), 2200);
+  };
+
   return (
-    <div className="w-full space-y-6">
-      {/* Capability Notification Bar */}
-      <div className="p-4 rounded-xl border border-slate-800 bg-[#090e1a] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
-              deviceDiagnostics.hasImmersiveAR
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+    <div className="w-full space-y-3">
+      {/* 1. Top Segmented View Switcher (Matches Screen 3 Mockup) */}
+      <div className="flex items-center justify-center">
+        <div className="inline-flex items-center p-1 rounded-full bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E2E8DF] shadow-xs gap-1 text-xs font-semibold">
+          <button
+            onClick={() => {
+              setActiveViewMode('ar');
+              if (!cameraActive) startCameraFeed();
+            }}
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+              activeViewMode === 'ar'
+                ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs'
+                : 'text-[#647067] hover:text-[#17231B]'
             }`}
           >
-            {deviceDiagnostics.hasImmersiveAR ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            ) : (
-              <Smartphone className="w-5 h-5 text-cyan-400" />
-            )}
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Augmented Reality Capability Check</span>
-              <span
-                className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
-                  deviceDiagnostics.hasImmersiveAR
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                    : 'bg-slate-800 text-slate-300 border border-slate-700'
-                }`}
-              >
-                {deviceDiagnostics.hasImmersiveAR ? 'WebXR AR Supported' : 'Interactive 3D / Camera Fallback'}
-              </span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {deviceDiagnostics.hasImmersiveAR
-                ? 'Your device supports WebXR surface anchoring. Use touch gestures or the on-screen D-pad to move, scale, and rotate.'
-                : 'Interactive 3D Orbit & Pinch Zoom active. Use the Move/Zoom overlay or drag to inspect the bench from any angle.'}
-            </p>
-          </div>
-        </div>
-
-        {/* Action button */}
-        <div className="flex items-center gap-2.5">
-          {deviceDiagnostics.hasCamera && !cameraActive && !deviceDiagnostics.hasImmersiveAR && (
-            <button
-              onClick={startCameraFeed}
-              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 flex items-center gap-2 transition-all shadow-md"
-            >
-              <Camera className="w-4 h-4" />
-              <span>Enable Camera Feed AR</span>
-            </button>
-          )}
-
-          {cameraActive && (
-            <button
-              onClick={stopCameraFeed}
-              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 flex items-center gap-2"
-            >
-              <span>Stop Camera</span>
-            </button>
-          )}
+            AR Mode
+          </button>
+          <button
+            onClick={() => setActiveViewMode('3d')}
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+              activeViewMode === '3d'
+                ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs'
+                : 'text-[#647067] hover:text-[#17231B]'
+            }`}
+          >
+            3D Model
+          </button>
+          <button
+            onClick={() => setActiveViewMode('ray')}
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+              activeViewMode === 'ray'
+                ? 'bg-[#B8D96B] text-[#17231B] font-bold shadow-xs'
+                : 'text-[#647067] hover:text-[#17231B]'
+            }`}
+          >
+            Ray Diagram
+          </button>
         </div>
       </div>
 
-      {/* Main AR / 3D Canvas Viewport */}
-      <div className="relative w-full h-[580px] rounded-2xl overflow-hidden border border-slate-800 bg-[#060a12] shadow-2xl">
-        {/* Background Video stream for Camera Fallback mode */}
+      {/* Camera Inaccessible Alert Banner (If mobile HTTP or permission issue) */}
+      {cameraError && (
+        <div className="p-3.5 rounded-2xl bg-[#FFFFFF] border border-[#B8D96B] text-xs text-[#17231B] flex items-start justify-between gap-3 shadow-md">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-[#17231B] mt-0.5 shrink-0" />
+            <div className="space-y-1">
+              <span className="font-bold text-[#17231B] block">
+                Why is the AR Camera Inaccessible on Mobile?
+              </span>
+              <p className="text-[11px] text-[#647067] leading-relaxed">
+                {cameraError}
+              </p>
+              <div className="pt-1 flex flex-wrap gap-2 text-[10px]">
+                <span className="px-2 py-0.5 rounded bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-[#17231B] font-bold">
+                  Run: npx localtunnel --port 3005
+                </span>
+                <span className="text-[#647067]">for instant HTTPS on your phone</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setCameraError(null)}
+            className="text-[#647067] hover:text-[#17231B] p-1 text-xs shrink-0 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Main AR Viewport (Matches Screen 3 Mockup) */}
+      <div className="relative w-full h-[58vh] min-h-[460px] max-h-[620px] sm:h-[580px] rounded-3xl overflow-hidden border border-[#E2E8DF] bg-[#17231B] shadow-2xl">
+        {/* Background Camera Stream (Plays directly behind 3D canvas) */}
         <video
           ref={videoRef}
           playsInline
           muted
-          className={`absolute inset-0 w-full h-full object-cover z-0 ${cameraActive ? 'opacity-90' : 'hidden'}`}
+          autoPlay
+          className={`absolute inset-0 w-full h-full object-cover z-0 pointer-events-none transition-opacity duration-300 ${
+            cameraActive && activeViewMode === 'ar' ? 'opacity-90' : 'hidden'
+          }`}
         />
 
-        {/* Three.js Canvas Container */}
-        <div ref={containerRef} className="absolute inset-0 z-10 w-full h-full touch-none" />
-
-        {/* Top-Left: AR Scanning & Placement HUD overlay */}
-        <div className="absolute top-4 left-4 z-20 bg-[#090e1a]/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800 text-xs shadow-lg space-y-1">
-          <div className="flex items-center gap-2 font-semibold text-white">
-            <Scan className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span>{benchPlaced ? 'Optical Bench Anchored' : 'Surface Scan & Placement Mode'}</span>
+        {/* Studio Background Pattern when Camera is off or in 3D mode */}
+        {(!cameraActive || activeViewMode !== 'ar') && (
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#1c2c22] via-[#17231B] to-[#111b15] flex items-center justify-center pointer-events-none">
+            <div className="w-[420px] h-[420px] bg-[#B8D96B]/10 rounded-full blur-[90px]" />
           </div>
-          <p className="text-[11px] text-slate-400">
-            {benchPlaced
-              ? 'Anchored. Drag with 1 finger to rotate, 2 fingers to move, or pinch to zoom.'
-              : 'Aim camera at table or floor to project light rays in real space.'}
-          </p>
-        </div>
+        )}
 
-        {/* Top-Right: Quick Reset & Tab Toggles */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        {/* Three.js Canvas Container */}
+        <div
+          ref={containerRef}
+          className={`absolute inset-0 z-10 w-full h-full ${activeViewMode === 'ray' ? 'hidden' : 'block'}`}
+        />
+
+        {/* 2D Ray Diagram Overlay when activeViewMode === 'ray' */}
+        {activeViewMode === 'ray' && (
+          <div className="absolute inset-0 z-15 bg-[#FFFFFF]/95 backdrop-blur-md p-4 flex flex-col justify-center items-center overflow-hidden">
+            <div className="w-full max-w-2xl bg-white rounded-2xl border border-[#E2E8DF] p-3 shadow-sm">
+              <RayDiagramSvg state={state} height={260} />
+            </div>
+            <p className="text-[11px] text-[#647067] mt-3 font-mono text-center">
+              Real-time geometric ray tracing: Incident, refracted, and focal focal planes
+            </p>
+          </div>
+        )}
+
+        {/* Top Floating Prompt Banner (Matches Screen 3 Mockup) */}
+        {reticleBannerVisible && activeViewMode === 'ar' && (
+          <div className="absolute top-3 left-3 right-3 sm:left-6 sm:right-6 z-20 max-w-md mx-auto bg-[#FFFFFF]/92 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-[#E2E8DF] text-xs shadow-xl flex items-center justify-between gap-3 text-[#17231B]">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center text-[#17231B] shrink-0">
+                <Smartphone className="w-4 h-4 text-[#17231B]" />
+              </div>
+              <p className="text-[11px] font-medium leading-tight text-[#17231B] truncate sm:whitespace-normal">
+                Place the lens on a flat surface and align the markers. The rays and image will be shown in real-time.
+              </p>
+            </div>
+            <button
+              onClick={() => setReticleBannerVisible(false)}
+              className="text-[#647067] hover:text-[#17231B] p-1 text-xs shrink-0 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Floating Right Action Controls (Vertical column matching Screen 3 Mockup) */}
+        <div className="absolute top-16 sm:top-14 right-3 z-20 flex flex-col items-center gap-2">
+          {/* Settings / Upright drawer toggle */}
           <button
             onClick={() => setActiveHudTab(activeHudTab ? null : 'zoom')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-md ${
+            className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold backdrop-blur-md transition-all shadow-md cursor-pointer ${
               activeHudTab
-                ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300'
-                : 'bg-[#090e1a]/90 border-slate-800 text-slate-300 hover:text-white'
+                ? 'bg-[#B8D96B] text-[#17231B] border-[#B8D96B]'
+                : 'bg-[#FFFFFF]/90 border-[#E2E8DF] text-[#17231B] hover:bg-[#FFFFFF]'
             }`}
+            title="Adjust Scale, Position & Angle"
           >
-            <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{activeHudTab ? 'Hide AR Controls' : 'Move / Zoom AR'}</span>
+            <Sliders className="w-4 h-4" />
           </button>
 
+          {/* Camera On / Off toggle */}
+          {activeViewMode === 'ar' && (
+            <button
+              onClick={cameraActive ? stopCameraFeed : startCameraFeed}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold backdrop-blur-md transition-all shadow-md cursor-pointer ${
+                cameraActive
+                  ? 'bg-[#B8D96B] text-[#17231B] border-[#B8D96B]'
+                  : 'bg-[#FFFFFF]/90 border-[#E2E8DF] text-[#17231B] hover:bg-[#FFFFFF]'
+              }`}
+              title={cameraActive ? 'Stop Camera Feed' : 'Start Camera Feed'}
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Reset position button */}
           <button
             onClick={resetAllTransforms}
-            title="Reset Scale and Position"
-            className="p-2 rounded-xl bg-[#090e1a]/90 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-all shadow-md"
+            className="w-10 h-10 rounded-full bg-[#FFFFFF]/90 border border-[#E2E8DF] flex items-center justify-center text-[#17231B] hover:bg-[#FFFFFF] shadow-md transition-all cursor-pointer"
+            title="Reset Bench Alignment"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Floating AR Manipulation HUD (Move, Zoom, Rotate Controls) */}
+        {/* Floating AR Transformation Drawer (Fully Responsive on mobile) */}
         {activeHudTab && (
-          <div className="absolute top-16 right-4 z-20 w-80 bg-[#090e1a]/95 backdrop-blur-lg border border-slate-800 rounded-2xl p-4 shadow-2xl space-y-4">
-            {/* Tab Header */}
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-              <div className="flex items-center gap-1 bg-slate-900/80 p-0.5 rounded-lg border border-slate-800">
+          <div className="absolute top-28 right-3 z-30 w-[calc(100%-24px)] max-w-xs sm:w-72 bg-[#FFFFFF]/95 backdrop-blur-lg border border-[#E2E8DF] rounded-2xl p-3.5 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-[#E2E8DF] pb-2">
+              <div className="flex items-center gap-1 bg-[#F4F7F2] p-0.5 rounded-lg border border-[#E2E8DF]">
                 <button
                   onClick={() => setActiveHudTab('zoom')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${
-                    activeHudTab === 'zoom' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                    activeHudTab === 'zoom'
+                      ? 'bg-[#B8D96B] text-[#17231B]'
+                      : 'text-[#647067] hover:text-[#17231B]'
                   }`}
                 >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                  <span>Zoom</span>
+                  Zoom
                 </button>
                 <button
                   onClick={() => setActiveHudTab('move')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${
-                    activeHudTab === 'move' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                    activeHudTab === 'move'
+                      ? 'bg-[#B8D96B] text-[#17231B]'
+                      : 'text-[#647067] hover:text-[#17231B]'
                   }`}
                 >
-                  <Move className="w-3.5 h-3.5" />
-                  <span>Move</span>
+                  Move
                 </button>
                 <button
                   onClick={() => setActiveHudTab('rotate')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${
-                    activeHudTab === 'rotate' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                    activeHudTab === 'rotate'
+                      ? 'bg-[#B8D96B] text-[#17231B]'
+                      : 'text-[#647067] hover:text-[#17231B]'
                   }`}
                 >
-                  <RotateCw className="w-3.5 h-3.5" />
-                  <span>Rotate</span>
+                  Rotate
                 </button>
               </div>
 
-              <span className="text-[10px] font-mono text-cyan-400 font-bold">
-                {arScale.toFixed(2)}x ({(arScale * 18).toFixed(1)} cm)
-              </span>
+              <button
+                onClick={() => setActiveHudTab(null)}
+                className="text-[#647067] hover:text-[#17231B] p-1 text-xs shrink-0 cursor-pointer"
+              >
+                ✕
+              </button>
             </div>
 
-            {/* TAB 1: ZOOM & SCALE */}
             {activeHudTab === 'zoom' && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                    <ZoomIn className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Apparatus Scale</span>
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => adjustZoom(-0.1)}
-                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700"
-                    >
-                      -
-                    </button>
-                    <span className="font-mono text-cyan-300 text-xs font-bold w-12 text-center">
-                      {(arScale * 100).toFixed(0)}%
-                    </span>
-                    <button
-                      onClick={() => adjustZoom(0.1)}
-                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700"
-                    >
-                      +
-                    </button>
-                  </div>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between items-center text-[#17231B]">
+                  <span>Scale Multiplier</span>
+                  <span className="font-mono font-bold text-[#17231B]">{(arScale * 100).toFixed(0)}%</span>
                 </div>
-
                 <input
                   type="range"
                   min="0.25"
@@ -677,223 +773,142 @@ export function WebXROpticalBench({
                   step="0.05"
                   value={arScale}
                   onChange={(e) => setArScale(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
+                  className="w-full accent-[#B8D96B] cursor-pointer"
                 />
-
-                {/* Quick Size Presets */}
-                <div className="grid grid-cols-4 gap-1.5 pt-1">
-                  {[
-                    { label: 'Mini', val: 0.5 },
-                    { label: 'Desk', val: 0.8 },
-                    { label: '100%', val: 1.0 },
-                    { label: 'Room', val: 1.8 },
-                  ].map((p) => (
-                    <button
-                      key={p.label}
-                      onClick={() => setArScale(p.val)}
-                      className={`py-1 rounded text-[11px] font-semibold border transition-all ${
-                        Math.abs(arScale - p.val) < 0.04
-                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800'
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
               </div>
             )}
 
-            {/* TAB 2: MOVE POSITION (D-PAD) */}
             {activeHudTab === 'move' && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                    <Move className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Position Translation</span>
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    X:{arPosition.x.toFixed(2)} Y:{arPosition.y.toFixed(2)} Z:{arPosition.z.toFixed(2)}
-                  </span>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-[#17231B]">
+                  <span>Move on Table</span>
+                  <button
+                    onClick={() => setArPosition({ x: 0, y: -0.15, z: -0.6 })}
+                    className="text-[#17231B] text-[10px] underline font-bold cursor-pointer"
+                  >
+                    Reset
+                  </button>
                 </div>
-
-                {/* 6-Way D-Pad Layout */}
-                <div className="flex items-center justify-center gap-3 py-1">
-                  {/* Planar D-Pad */}
-                  <div className="grid grid-cols-3 gap-1.5 w-28">
-                    <div />
-                    <button
-                      onClick={() => moveBench(0, 0, -0.06)}
-                      title="Move Forward"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ArrowUp className="w-3.5 h-3.5 text-cyan-400" />
-                    </button>
-                    <div />
-
-                    <button
-                      onClick={() => moveBench(-0.06, 0, 0)}
-                      title="Move Left"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
-                    </button>
-                    <button
-                      onClick={() => setArPosition({ x: 0, y: -0.15, z: -0.6 })}
-                      title="Center Position"
-                      className="p-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 font-bold border border-slate-800"
-                    >
-                      •
-                    </button>
-                    <button
-                      onClick={() => moveBench(0.06, 0, 0)}
-                      title="Move Right"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
-                    </button>
-
-                    <div />
-                    <button
-                      onClick={() => moveBench(0, 0, 0.06)}
-                      title="Move Backward"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ArrowDown className="w-3.5 h-3.5 text-cyan-400" />
-                    </button>
-                    <div />
-                  </div>
-
-                  {/* Vertical Elevation Column */}
-                  <div className="flex flex-col gap-1.5 pl-3 border-l border-slate-800">
-                    <span className="text-[10px] text-slate-400 text-center uppercase tracking-wider font-bold">
-                      Height
-                    </span>
-                    <button
-                      onClick={() => moveBench(0, 0.04, 0)}
-                      title="Raise Up"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
-                    </button>
-                    <button
-                      onClick={() => moveBench(0, -0.04, 0)}
-                      title="Lower Down"
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center"
-                    >
-                      <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
-                    </button>
-                  </div>
+                <div className="grid grid-cols-3 gap-1.5 w-28 mx-auto">
+                  <div />
+                  <button
+                    onClick={() => moveBench(0, 0, -0.06)}
+                    className="p-1.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] flex items-center justify-center cursor-pointer"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5 text-[#17231B]" />
+                  </button>
+                  <div />
+                  <button
+                    onClick={() => moveBench(-0.06, 0, 0)}
+                    className="p-1.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] flex items-center justify-center cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 text-[#17231B]" />
+                  </button>
+                  <div />
+                  <button
+                    onClick={() => moveBench(0.06, 0, 0)}
+                    className="p-1.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] flex items-center justify-center cursor-pointer"
+                  >
+                    <ArrowRight className="w-3.5 h-3.5 text-[#17231B]" />
+                  </button>
+                  <div />
+                  <button
+                    onClick={() => moveBench(0, 0, 0.06)}
+                    className="p-1.5 rounded-lg bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] flex items-center justify-center cursor-pointer"
+                  >
+                    <ArrowDown className="w-3.5 h-3.5 text-[#17231B]" />
+                  </button>
+                  <div />
                 </div>
               </div>
             )}
 
-            {/* TAB 3: ROTATION */}
             {activeHudTab === 'rotate' && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                    <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Azimuth Angle</span>
-                  </span>
-                  <span className="font-mono text-cyan-300 font-bold text-xs">{arRotationY.toFixed(0)}°</span>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-[#17231B]">
+                  <span>Azimuth Angle</span>
+                  <span className="font-mono font-bold text-[#17231B]">{arRotationY.toFixed(0)}°</span>
                 </div>
-
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex gap-2">
                   <button
                     onClick={() => setArRotationY((r) => (r - 15) % 360)}
-                    className="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700"
+                    className="flex-1 py-1 rounded bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] font-semibold text-xs cursor-pointer"
                   >
                     ↺ -15°
                   </button>
                   <button
-                    onClick={() => setArRotationY(0)}
-                    className="py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-slate-400 border border-slate-800"
-                  >
-                    Front (0°)
-                  </button>
-                  <button
                     onClick={() => setArRotationY((r) => (r + 15) % 360)}
-                    className="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700"
+                    className="flex-1 py-1 rounded bg-[#F4F7F2] border border-[#E2E8DF] text-[#17231B] font-semibold text-xs cursor-pointer"
                   >
                     ↻ +15°
                   </button>
                 </div>
-
-                <input
-                  type="range"
-                  min="0"
-                  max="360"
-                  step="5"
-                  value={arRotationY < 0 ? arRotationY + 360 : arRotationY}
-                  onChange={(e) => setArRotationY(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                />
               </div>
             )}
           </div>
         )}
 
-        {/* Live Optics Status Tag */}
-        <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-          <div className="pointer-events-auto bg-[#0a0f1d]/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800 text-xs flex items-center gap-3 shadow-lg">
-            <span className="font-mono text-cyan-400 font-bold">f = {focalLength} cm</span>
-            <span className="text-slate-600">•</span>
-            <span className="font-mono text-amber-300 font-bold">u = {(lensPos - objectPos).toFixed(1)} cm</span>
-            <span className="text-slate-600">•</span>
-            <span className="font-mono text-emerald-400 font-bold">
-              v = {isFinite(calc.imageDistance) ? `${calc.imageDistance.toFixed(1)} cm` : '∞'}
-            </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-slate-300 font-semibold">{calc.imageNature}</span>
-          </div>
-
-          <div className="pointer-events-auto flex items-center gap-2">
-            <button
-              onClick={() => {
-                setBenchPlaced(false);
-                setArPosition({ x: 0, y: -0.15, z: -0.6 });
-              }}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 shadow-md transition-all"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Re-center Bench</span>
-            </button>
+        {/* 3-Column Floating HUD Metrics (Matches Screen 3 Mockup) */}
+        <div className="absolute bottom-22 left-3 right-3 sm:left-6 sm:right-6 z-20 max-w-lg mx-auto bg-[#FFFFFF]/92 backdrop-blur-md px-3 sm:px-5 py-2.5 rounded-2xl border border-[#E2E8DF] shadow-lg pointer-events-auto">
+          <div className="grid grid-cols-3 divide-x divide-[#E2E8DF] text-center">
+            <div className="px-1 sm:px-3">
+              <span className="block text-[10px] sm:text-[11px] text-[#647067] font-medium truncate">Image Distance (v)</span>
+              <span className="font-mono text-xs sm:text-base font-bold text-[#17231B] block">
+                {isFinite(calc.imageDistance) ? `${calc.imageDistance.toFixed(1)} cm` : '∞'}
+              </span>
+            </div>
+            <div className="px-1 sm:px-3">
+              <span className="block text-[10px] sm:text-[11px] text-[#647067] font-medium truncate">Magnification (m)</span>
+              <span className="font-mono text-xs sm:text-base font-bold text-[#17231B] block">
+                {calc.magnification === Infinity ? '∞' : calc.magnification.toFixed(2)}
+              </span>
+            </div>
+            <div className="px-1 sm:px-3">
+              <span className="block text-[10px] sm:text-[11px] text-[#647067] font-medium truncate">Image Nature</span>
+              <span className="text-[10px] sm:text-xs font-bold text-[#17231B] leading-tight block truncate sm:whitespace-normal">
+                {calc.imageNature}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* AR Instructions & Diagnostics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl border border-slate-800 bg-[#090e1a]/80 space-y-2">
-          <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
-            <ZoomIn className="w-4 h-4" />
-            <span>1. Pinch to Zoom & Scale</span>
-          </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Use two fingers to pinch in/out directly on the camera screen, or use the on-screen Zoom slider to scale between miniature desk scale (50%) and life-size classroom floor scale (200%).
-          </p>
+        {/* Floating Bottom Shutter Controls (Matches Screen 3 Mockup) */}
+        <div className="absolute bottom-3 left-0 right-0 z-20 flex items-center justify-center gap-6 sm:gap-8 pointer-events-auto">
+          {/* Gallery / Zoom Toggle Button */}
+          <button
+            onClick={() => setActiveHudTab(activeHudTab === 'zoom' ? null : 'zoom')}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFFFF]/90 border border-[#E2E8DF] flex items-center justify-center text-[#17231B] hover:bg-[#FFFFFF] active:scale-95 shadow-md cursor-pointer"
+            title="Inspect Scale / Zoom"
+          >
+            <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#17231B]" />
+          </button>
+
+          {/* Big Electric Lime Shutter Button */}
+          <button
+            onClick={handleShutterClick}
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#B8D96B] hover:bg-[#a7cb58] border-4 border-[#FFFFFF] ring-2 ring-[#B8D96B]/80 shadow-[0_0_25px_rgba(184,217,107,0.5)] flex items-center justify-center text-[#17231B] active:scale-90 transition-transform cursor-pointer"
+            title="Anchor Optical Bench / Capture Reading"
+          >
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-[#17231B]" />
+          </button>
+
+          {/* Reset / Recenter Button */}
+          <button
+            onClick={resetAllTransforms}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFFFF]/90 border border-[#E2E8DF] flex items-center justify-center text-[#17231B] hover:bg-[#FFFFFF] active:scale-95 shadow-md cursor-pointer"
+            title="Reset Position"
+          >
+            <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 text-[#17231B]" />
+          </button>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-800 bg-[#090e1a]/80 space-y-2">
-          <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
-            <Move className="w-4 h-4" />
-            <span>2. 2-Finger Drag & D-Pad Move</span>
+        {/* Snapshot Notification Toast */}
+        {snapshotToast && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 bg-[#FFFFFF]/95 backdrop-blur-md px-5 py-3 rounded-2xl border border-[#B8D96B] text-[#17231B] text-xs font-bold shadow-xl flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#17231B]" />
+            <span>Optical Bench Anchored & Measurement Logged!</span>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Drag with two fingers across the screen to slide the bench forward, backward, left, or right. Use the Height elevation buttons to place it precisely on raised laboratory tables.
-          </p>
-        </div>
-
-        <div className="p-4 rounded-xl border border-slate-800 bg-[#090e1a]/80 space-y-2">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
-            <RotateCw className="w-4 h-4" />
-            <span>3. 360° Rotational Alignment</span>
-          </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Swipe horizontally with one finger or use the Rotate buttons to pivot the optical axis towards your study group or presenter desk for comfortable viewing.
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

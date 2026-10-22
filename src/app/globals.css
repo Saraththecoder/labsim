@@ -2,47 +2,90 @@
 
 @layer base {
   :root {
-    --bg-dark: #080c14;
-    --bg-surface: #0f172a;
-    --bg-card: #141e33;
-    --border-color: #1e293b;
-    --cyan-glow: #00f0ff;
-    --amber-flame: #fbbf24;
-    --accent-blue: #38bdf8;
+    --bg-canvas: #F4F7F2;
+    --bg-white: #FFFFFF;
+    --color-forest: #17231B;
+    --color-lime: #B8D96B;
+    --color-muted: #647067;
+    --border-subtle: #E2E8DF;
+    --accent-lime: #B8D96B;
+    --accent-lime-glow: rgba(184, 217, 107, 0.4);
   }
 
   body {
-    background-color: #070b12;
-    color: #f1f5f9;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #F4F7F2;
+    background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.55) 0%, rgba(244, 247, 242, 0.25) 70%, rgba(226, 232, 223, 0.45) 100%),
+      url('/paper-texture.jpg');
+    background-repeat: repeat;
+    background-size: 100% 100%, 512px 512px;
+    background-attachment: fixed;
+    color: #17231B;
+    font-family: var(--font-sora), system-ui, -apple-system, sans-serif;
+    font-weight: 400;
     overflow-x: hidden;
+  }
+
+  /* Paper texture overlay utilities */
+  .paper-surface {
+    background-color: rgba(255, 255, 255, 0.92);
+    background-image: url('/paper-texture.jpg');
+    background-repeat: repeat;
+    background-size: 400px 400px;
+    background-blend-mode: soft-light;
+  }
+
+  .paper-card {
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid #E2E8DF;
+    box-shadow: 0 2px 14px rgba(23, 35, 27, 0.04);
+  }
+
+  /* Main headings: Instrument Serif, regular */
+  h1, .font-serif-heading, .main-heading {
+    font-family: var(--font-instrument-serif), Georgia, serif;
+    font-weight: 400;
+  }
+
+  /* Experiment titles: Sora, 650–700 */
+  h2, h3, .experiment-title, .font-experiment-title {
+    font-family: var(--font-sora), sans-serif;
+    font-weight: 700;
+  }
+
+  /* Body and navigation: Sora, 400–500 */
+  p, span, nav, .font-body {
+    font-family: var(--font-sora), sans-serif;
+    font-weight: 450;
+  }
+
+  /* Buttons and controls: Sora, 600 */
+  button, .btn, .font-control {
+    font-family: var(--font-sora), sans-serif;
+    font-weight: 600;
+  }
+
+  /* Measurements and values: Sora, 600–700 */
+  .font-value, .metric-value, .measurement-val {
+    font-family: var(--font-sora), sans-serif;
+    font-weight: 700;
   }
 }
 
-/* Custom glow utilities */
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+/* Custom glow utilities matching LabSim Porcelain & Lime palette */
+.glow-lime {
+  box-shadow: 0 0 20px rgba(184, 217, 107, 0.4);
 }
 
-.glow-amber {
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+.text-glow-lime {
+  text-shadow: 0 0 12px rgba(184, 217, 107, 0.6);
 }
 
-.glow-green {
-  box-shadow: 0 0 20px rgba(52, 211, 153, 0.35);
-}
-
-.text-glow-cyan {
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
-}
-
-.text-glow-amber {
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-}
-
-/* Range input styling for scientific sliders */
+/* Range input styling for scientific sliders with lime accent */
 input[type="range"] {
-  accent-color: #00f0ff;
+  accent-color: #B8D96B;
 }
 
 /* Custom scrollbar */
@@ -52,16 +95,16 @@ input[type="range"] {
 }
 
 ::-webkit-scrollbar-track {
-  background: #090e17;
+  background: #F4F7F2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #CBD5C8;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #9AA797;
 }
 
 /* Print Styles for Laboratory Practical Report */

@@ -6,6 +6,7 @@ import {
   Printer,
   FileText,
   CheckCircle2,
+  XCircle,
   TableProperties,
   ArrowLeft,
   Sparkles,
@@ -18,14 +19,64 @@ import { RayDiagramSvg } from '@/components/RayDiagramSvg';
 import { OpticsGraph } from '@/components/OpticsGraph';
 
 export default function ReportPage() {
-  const [studentName, setStudentName] = useState<string>('Alex Johnson');
-  const [rollNumber, setRollNumber] = useState<string>('PHY-2026-042');
-  const [gradeClass, setGradeClass] = useState<string>('Grade 11 / Class XI-A');
-  const [institution, setInstitution] = useState<string>('National Science Academy');
-  const [date, setDate] = useState<string>('2026-10-21');
+  const [studentName, setStudentName] = useState<string>('Aarav Patel');
+  const [rollNumber, setRollNumber] = useState<string>('1014298');
+  const [gradeClass, setGradeClass] = useState<string>('Class 10-B (Secondary)');
+  const [institution, setInstitution] = useState<string>('Delhi Public School');
+  const [date, setDate] = useState<string>('2026-10-22');
 
   const [observations, setObservations] = useState<LabObservation[]>([]);
   const [quizScore, setQuizScore] = useState<{ score: number; total: number; percentage: number } | null>(null);
+
+  // Class 10 Board Viva Voce Interactive State
+  const [vivaAnswers, setVivaAnswers] = useState<Record<number, number>>({});
+  const [vivaSubmitted, setVivaSubmitted] = useState(false);
+
+  const vivaQuestions = [
+    {
+      id: 1,
+      q: 'What is the nature and size of the image formed when an object is placed at 2F₁ of a convex lens?',
+      options: [
+        'Virtual, erect, and magnified behind the lens.',
+        'Real, inverted, and of the same size as the object (m = -1.0) formed at 2F₂.',
+        'Real, inverted, and point-sized at the principal focus F₂.',
+      ],
+      correct: 1,
+      explanation:
+        'When u = 2f, the image distance v = +2f and magnification m = -v/u = -1.0. This is the canonical benchmark case used in board exams.',
+    },
+    {
+      id: 2,
+      q: 'Why is the focal length (f) of a convex lens always taken as POSITIVE under the New Cartesian Sign Convention?',
+      options: [
+        'Because the object needle is always placed on the left side of the optical bench.',
+        'Because parallel incident rays converge at the principal focus (F₂) on the right side, along the positive direction of incident light.',
+        'Because convex lenses are thicker at the middle than at the edges.',
+      ],
+      correct: 1,
+      explanation:
+        'All distances measured in the direction of incident light from the optical centre O are taken as positive. Since a convex lens converges rays to the right focus, f is positive.',
+    },
+    {
+      id: 3,
+      q: 'If the lower half of the convex lens is covered with an opaque black paper, what happens to the image formed on the screen?',
+      options: [
+        'The lower half of the image disappears completely from the screen.',
+        'A complete image of the entire object is still formed, but its brightness and intensity are reduced by approximately half.',
+        'The image becomes completely virtual and upright.',
+      ],
+      correct: 1,
+      explanation:
+        'Light rays from every point of the object pass through every part of the lens. Covering half only reduces the total number of rays converging, cutting intensity without cutting the image.',
+    },
+  ];
+
+  const handleVivaSelect = (qId: number, optIdx: number) => {
+    setVivaAnswers((prev) => ({ ...prev, [qId]: optIdx }));
+    setVivaSubmitted(true);
+  };
+
+  const vivaScore = vivaQuestions.filter((q) => vivaAnswers[q.id] === q.correct).length;
 
   useEffect(() => {
     setDate(new Date().toISOString().split('T')[0]);
@@ -40,25 +91,25 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#070b14] text-slate-100 py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full space-y-6">
+    <div className="flex-1 flex flex-col bg-transparent text-[#17231B] py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full space-y-6">
       {/* Top Action Bar (Hidden during print) */}
-      <div className="no-print flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#090e1a] border border-cyan-900/40">
+      <div className="no-print flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs">
         <div className="flex items-center gap-3">
           <Link
             href="/observations"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            className="p-2 rounded-xl bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] transition-colors border border-[#E2E8DF]"
             title="Back to Observation Table"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="text-base font-bold text-[#17231B] flex items-center gap-2">
               <span>Printable Practical Lab Report</span>
-              <span className="px-2 py-0.5 rounded text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase font-mono">
-                Official Format
+              <span className="px-2 py-0.5 rounded text-[10px] bg-[#B8D96B]/30 text-[#17231B] border border-[#B8D96B]/50 uppercase font-mono font-bold">
+                Class 10 CBSE / ICSE Format
               </span>
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#647067]">
               Edit the student details below, then click &quot;Print / Save PDF&quot; for submission.
             </p>
           </div>
@@ -66,9 +117,9 @@ export default function ReportPage() {
 
         <button
           onClick={handlePrint}
-          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 text-slate-950 font-bold text-xs shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center gap-2 transition-all"
+          className="px-5 py-2.5 rounded-xl bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] font-bold text-xs shadow-xs flex items-center gap-2 transition-all cursor-pointer"
         >
-          <Printer className="w-4 h-4" />
+          <Printer className="w-4 h-4 text-[#17231B]" />
           <span>Print / Save as PDF</span>
         </button>
       </div>
@@ -76,17 +127,17 @@ export default function ReportPage() {
       {/* =========================================
           PRACTICAL REPORT DOCUMENT (PRINT OPTIMIZED)
          ========================================= */}
-      <div className="print-page p-8 sm:p-12 rounded-2xl bg-white text-slate-900 shadow-2xl space-y-8 font-sans border border-slate-200">
+      <div className="print-page p-8 sm:p-12 rounded-2xl bg-white text-slate-900 shadow-sm space-y-8 font-sans border border-[#E2E8DF]">
         {/* Document Header */}
         <div className="text-center pb-6 border-b-2 border-slate-900 space-y-1.5">
           <span className="text-xs font-bold uppercase tracking-widest text-slate-600">
-            Department of Physics • Practical Laboratory Record
+            Secondary School Examination • Class 10 Science Practical Record
           </span>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase">
-            Experiment 4: Determination of Focal Length of a Convex Lens
+            Experiment 10: Determination of Focal Length of a Convex Lens
           </h2>
           <p className="text-xs text-slate-600 font-medium italic">
-            Investigation of Image Formation, Thin Lens Equation & Graphical Analysis
+            NCERT Chapter 10: Light – Reflection & Refraction (u-v Method & 6 Canonical Cases)
           </p>
         </div>
 
@@ -143,9 +194,9 @@ export default function ReportPage() {
           </div>
 
           <div>
-            <span className="text-slate-500 font-semibold block text-[10px] uppercase">Assessment Score:</span>
+            <span className="text-slate-500 font-semibold block text-[10px] uppercase">Oral Defense (Viva):</span>
             <span className="font-bold text-slate-900 block font-mono">
-              {quizScore ? `${quizScore.score}/${quizScore.total} (${quizScore.percentage}%)` : '8/8 (100%) Verified'}
+              {vivaSubmitted ? `${vivaScore}/3 (${Math.round((vivaScore / 3) * 100)}%) Verified` : '3 Viva Questions Below'}
             </span>
           </div>
         </div>
@@ -278,7 +329,78 @@ export default function ReportPage() {
           </p>
         </div>
 
-        {/* 7. Precautions & Sources of Error */}
+        {/* 7. Class 10 Board Viva Voce Oral Defense */}
+        <div className="no-print space-y-3 p-4 rounded-xl bg-cyan-50/70 border border-cyan-300 text-xs">
+          <div className="flex items-center justify-between border-b border-cyan-200 pb-2">
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-cyan-700" />
+              <h4 className="font-bold text-cyan-950 uppercase tracking-wide">
+                7. Class 10 Board Viva Voce Oral Defense
+              </h4>
+            </div>
+            <span className="text-[11px] font-bold text-cyan-900 font-mono">
+              Score: {vivaScore} / {vivaQuestions.length}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {vivaQuestions.map((q) => {
+              const selected = vivaAnswers[q.id];
+              const isCorrect = selected === q.correct;
+              const hasAnswered = selected !== undefined;
+
+              return (
+                <div key={q.id} className="p-3 rounded-lg bg-white border border-cyan-200 space-y-2">
+                  <p className="font-bold text-slate-900 text-xs">
+                    Q{q.id}. {q.q}
+                  </p>
+                  <div className="space-y-1.5 pl-2">
+                    {q.options.map((opt, optIdx) => (
+                      <label
+                        key={optIdx}
+                        className={`flex items-start gap-2 p-1.5 rounded cursor-pointer transition-colors text-[11px] ${
+                          selected === optIdx
+                            ? isCorrect
+                              ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-300'
+                              : 'bg-red-50 text-red-900 font-bold border border-red-300'
+                            : 'hover:bg-slate-50 text-slate-800'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`optics-viva-q-${q.id}`}
+                          checked={selected === optIdx}
+                          onChange={() => handleVivaSelect(q.id, optIdx)}
+                          className="mt-0.5 accent-cyan-600"
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {hasAnswered && (
+                    <div
+                      className={`text-[11px] p-2 rounded flex items-start gap-1.5 ${
+                        isCorrect
+                          ? 'bg-emerald-100/70 text-emerald-900 font-semibold'
+                          : 'bg-red-100/70 text-red-900'
+                      }`}
+                    >
+                      {isCorrect ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="w-3.5 h-3.5 text-red-700 shrink-0 mt-0.5" />
+                      )}
+                      <span>{q.explanation}</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 8. Precautions & Sources of Error */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-800 pt-2 border-t border-slate-300">
           <div className="space-y-1">
             <h4 className="font-bold text-slate-900 uppercase text-[11px]">Precautions:</h4>
@@ -299,10 +421,10 @@ export default function ReportPage() {
           </div>
         </div>
 
-        {/* 8. Teacher Evaluation & Signature Block */}
+        {/* 9. Teacher Evaluation & Signature Block */}
         <div className="pt-8 border-t-2 border-slate-900 grid grid-cols-2 gap-8 text-xs text-slate-800">
           <div className="space-y-3">
-            <span className="font-bold uppercase text-[11px] block">Teacher&apos;s Remarks & Grade:</span>
+            <span className="font-bold uppercase text-[11px] block">9. Teacher&apos;s Remarks & Grade:</span>
             <div className="p-3 border border-dashed border-slate-400 rounded-lg min-h-[50px] italic text-slate-600">
               Excellent experimental accuracy. High consistency in reciprocal graphical intercepts and accurate parallax elimination.
             </div>

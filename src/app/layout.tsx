@@ -1,23 +1,39 @@
 import type { Metadata, Viewport } from 'next';
+import { Instrument_Serif, Sora } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-instrument-serif',
+  display: 'swap',
+});
+
+const sora = Sora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sora',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'AR Physics Lab: Refraction Through a Convex Lens',
+  title: 'LabSim: Virtual Science Laboratory',
   description:
-    'An interactive 3D virtual optics bench and WebXR Augmented Reality physics laboratory for investigating refraction, real & virtual image formation, focal length measurement, and ray tracing.',
+    'An interactive 3D and WebXR Augmented Reality virtual science laboratory for investigating physics optics and chemistry experiments.',
   keywords: [
-    'Convex Lens',
-    'Physics Virtual Lab',
+    'LabSim',
+    'Virtual Science Lab',
     'WebXR Augmented Reality',
+    'Convex Lens',
     'Refraction of Light',
     'Optical Bench',
-    'Focal Length',
-    'Lens Formula',
-    'Ray Optics',
+    'Physics Virtual Lab',
+    'Chemistry Virtual Lab',
   ],
-  authors: [{ name: 'OptiLab Physics Team' }],
+  authors: [{ name: 'LabSim Team' }],
 };
 
 export const viewport: Viewport = {
@@ -32,11 +48,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#070b14] text-slate-100 selection:bg-cyan-500 selection:text-black">
+    <html
+      lang="en"
+      className={`h-full antialiased ${instrumentSerif.variable} ${sora.variable}`}
+    >
+      <body className="min-h-full flex flex-col text-[#17231B] font-sans selection:bg-[#B8D96B] selection:text-[#17231B] pb-16 md:pb-0">
         <Navbar />
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );

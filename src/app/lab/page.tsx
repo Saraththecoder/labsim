@@ -22,7 +22,14 @@ import {
 } from 'lucide-react';
 import { OpticalBench3D } from '@/components/OpticalBench3D';
 import { RayDiagramSvg } from '@/components/RayDiagramSvg';
-import { calculateOptics, LAB_PRESETS, LensSystemState } from '@/lib/physics';
+import {
+  calculateOptics,
+  LAB_PRESETS,
+  LensSystemState,
+  getCanonicalCase,
+  calculateLensPower,
+  getCartesianSignBreakdown,
+} from '@/lib/physics';
 import { addObservation, getSavedObservations } from '@/lib/storage';
 
 export default function LabPage() {
@@ -37,6 +44,8 @@ export default function LabPage() {
   const [observationCount, setObservationCount] = useState<number>(0);
   const [showRayDiagramDrawer, setShowRayDiagramDrawer] = useState<boolean>(true);
   const [activeStep, setActiveStep] = useState<number>(1);
+
+  const [showSignHelp, setShowSignHelp] = useState<boolean>(false);
 
   // Sync saved observation count
   useEffect(() => {
@@ -54,6 +63,9 @@ export default function LabPage() {
     lensPosition: lensPos,
   };
   const calc = calculateOptics(state);
+  const canonical = getCanonicalCase(u, focalLength);
+  const power = calculateLensPower(focalLength);
+  const signBreakdown = getCartesianSignBreakdown(u, calc.cartesianV, focalLength);
 
   // Apply a curriculum preset
   const applyPreset = (presetId: string) => {
@@ -109,15 +121,15 @@ export default function LabPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#070b14] text-slate-100 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-transparent text-[#17231B] overflow-hidden">
       {/* Toast Notification */}
       {recordedToast && (
-        <div className="fixed top-20 right-6 z-50 bg-emerald-950 border border-emerald-500 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <div className="fixed top-20 right-6 z-50 bg-[#17231B] border border-[#B8D96B] text-[#FFFFFF] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
+          <CheckCircle2 className="w-5 h-5 text-[#B8D96B]" />
           <span className="text-xs font-bold">{recordedToast}</span>
           <Link
             href="/observations"
-            className="text-[11px] underline font-bold text-white ml-2 hover:text-emerald-300"
+            className="text-[11px] underline font-bold text-[#B8D96B] ml-2 hover:text-[#FFFFFF]"
           >
             View Table
           </Link>
@@ -131,13 +143,15 @@ export default function LabPage() {
            ========================================= */}
         <aside className="w-full lg:w-72 xl:w-80 flex flex-col gap-4 shrink-0">
           {/* Experiment Steps Card */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <FlaskConical className="w-3.5 h-3.5 text-cyan-400" />
+              <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+                <FlaskConical className="w-3.5 h-3.5 text-[#17231B]" />
                 <span>Experiment Steps</span>
               </h3>
-              <span className="text-[10px] text-cyan-400 font-mono">Step {activeStep} of 4</span>
+              <span className="text-[10px] text-[#17231B] font-mono bg-[#B8D96B]/30 px-2 py-0.5 rounded-full font-bold">
+                Step {activeStep} of 4
+              </span>
             </div>
 
             <div className="space-y-1.5 text-xs">
@@ -152,30 +166,30 @@ export default function LabPage() {
                   onClick={() => setActiveStep(s.step)}
                   className={`w-full text-left p-2.5 rounded-xl border transition-all ${
                     activeStep === s.step
-                      ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-200'
-                      : 'bg-[#0f172a] border-slate-800/80 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#B8D96B]/25 border-[#B8D96B] text-[#17231B]'
+                      : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:text-[#17231B] hover:bg-[#FFFFFF]'
                   }`}
                 >
                   <div className="flex items-center gap-2 font-bold text-xs">
                     <span
                       className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
-                        activeStep === s.step ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                        activeStep === s.step ? 'bg-[#17231B] text-[#FFFFFF]' : 'bg-[#E2E8DF] text-[#647067]'
                       }`}
                     >
                       {s.step}
                     </span>
                     <span>{s.title}</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 pl-6">{s.desc}</p>
+                  <p className="text-[11px] text-[#647067] mt-1 pl-6">{s.desc}</p>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Standard Presets Selector */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#17231B]" />
               <span>Standard Lab Presets</span>
             </h3>
 
@@ -184,21 +198,21 @@ export default function LabPage() {
                 <button
                   key={p.id}
                   onClick={() => applyPreset(p.id)}
-                  className="w-full text-left p-2.5 rounded-xl bg-[#0f172a] hover:bg-[#142036] border border-slate-800 hover:border-cyan-500/40 text-xs transition-all flex flex-col gap-0.5 group"
+                  className="w-full text-left p-2.5 rounded-xl bg-[#F4F7F2] hover:bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] text-xs transition-all flex flex-col gap-0.5 group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200 group-hover:text-cyan-300">{p.label}</span>
-                    <span className="text-[10px] font-mono text-cyan-400">{p.category}</span>
+                    <span className="font-bold text-[#17231B] group-hover:text-[#17231B]">{p.label}</span>
+                    <span className="text-[10px] font-mono text-[#647067] font-semibold">{p.category}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 line-clamp-1">{p.subtitle}</span>
+                  <span className="text-[10px] text-[#647067] line-clamp-1">{p.subtitle}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Lens Selection */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider">
               Lens Focal Length (f)
             </h3>
             <div className="grid grid-cols-4 gap-1.5">
@@ -208,8 +222,8 @@ export default function LabPage() {
                   onClick={() => setFocalLength(fl)}
                   className={`py-2 text-xs font-mono font-bold rounded-lg border transition-all ${
                     focalLength === fl
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.4)]'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-[#B8D96B] text-[#17231B] border-[#17231B] shadow-xs'
+                      : 'bg-[#F4F7F2] border-[#E2E8DF] text-[#647067] hover:bg-[#FFFFFF] hover:text-[#17231B]'
                   }`}
                 >
                   +{fl}cm
@@ -232,15 +246,15 @@ export default function LabPage() {
             onObjectPosChange={setObjectPos}
             onLensPosChange={setLensPos}
             onScreenPosChange={setScreenPos}
-            className="flex-1 min-h-[460px]"
+            className="flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-[#E2E8DF] shadow-xs"
           />
 
           {/* Bottom Drawer: Live 2D Ray Diagram & Quick Observation Counter */}
-          <div className="p-4 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#B8D96B]" />
+                <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider">
                   Live 2D Ray Diagram & Focus Analysis
                 </h3>
               </div>
@@ -248,7 +262,7 @@ export default function LabPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowRayDiagramDrawer(!showRayDiagramDrawer)}
-                  className="text-xs text-slate-400 hover:text-white flex items-center gap-1"
+                  className="text-xs text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold"
                 >
                   <span>{showRayDiagramDrawer ? 'Hide Diagram' : 'Show Diagram'}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showRayDiagramDrawer ? 'rotate-180' : ''}`} />
@@ -256,9 +270,9 @@ export default function LabPage() {
 
                 <Link
                   href="/observations"
-                  className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-slate-700"
+                  className="px-3 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] text-xs font-bold flex items-center gap-1.5 border border-[#E2E8DF]"
                 >
-                  <TableProperties className="w-3.5 h-3.5" />
+                  <TableProperties className="w-3.5 h-3.5 text-[#17231B]" />
                   <span>Notebook ({observationCount})</span>
                 </Link>
               </div>
@@ -278,70 +292,122 @@ export default function LabPage() {
            ========================================= */}
         <aside className="w-full lg:w-80 xl:w-88 flex flex-col gap-4 shrink-0">
           {/* Live Physics Measurement Panel */}
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-cyan-900/50 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Crosshair className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Live Optical Readouts</span>
-              </h3>
-              <span className="text-[10px] font-mono text-emerald-400 font-bold">REAL-TIME</span>
+          <div className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
+              <div className="flex items-center gap-1.5">
+                <Crosshair className="w-3.5 h-3.5 text-[#17231B]" />
+                <h3 className="text-xs font-bold text-[#17231B] uppercase tracking-wider">
+                  Class 10 Board Optical Readouts
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-[#17231B] font-bold bg-[#B8D96B]/30 px-2 py-0.5 rounded border border-[#B8D96B]/50">
+                NCERT CH. 10
+              </span>
+            </div>
+
+            {/* CLASS 10 CANONICAL CASE LIVE BADGE */}
+            <div className="p-3.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[#17231B] font-mono tracking-wide uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
+                  <span>{canonical.caseBadge}</span>
+                </span>
+                <span className="text-[10px] text-[#17231B] font-bold px-2 py-0.5 rounded bg-[#FFFFFF] border border-[#E2E8DF]">
+                  {canonical.sizeText}
+                </span>
+              </div>
+              <p className="text-xs font-bold text-[#17231B] leading-snug">
+                {canonical.name} ➔ {canonical.imagePositionText}
+              </p>
+              <div className="pt-1 border-t border-[#E2E8DF] flex flex-col gap-0.5">
+                <p className="text-[11px] text-[#647067] font-medium flex items-center gap-1">
+                  <span>💡 Metaphor:</span>
+                  <span className="text-[#17231B] font-semibold">{canonical.metaphor}</span>
+                </p>
+                <p className="text-[10px] text-[#647067] italic">
+                  Board Note: {canonical.boardNote}
+                </p>
+              </div>
             </div>
 
             {/* Metrics 2x2 Grid */}
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">Object Dist (u)</span>
-                <span className="text-base font-bold text-amber-300">{u.toFixed(1)} cm</span>
-                <span className="text-[10px] text-slate-500 block">Sign: -{u.toFixed(1)} cm</span>
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <span className="text-[#647067] block text-[10px] font-sans font-semibold">Object Dist (u)</span>
+                <span className="text-base font-bold text-[#17231B]">{u.toFixed(1)} cm</span>
+                <span className="text-[10px] text-[#647067] block">Sign: -{u.toFixed(1)} cm</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">Image Dist (v)</span>
-                <span className="text-base font-bold text-emerald-300">
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <span className="text-[#647067] block text-[10px] font-sans font-semibold">Image Dist (v)</span>
+                <span className="text-base font-bold text-[#17231B]">
                   {isFinite(calc.imageDistance) ? `${calc.imageDistance.toFixed(1)} cm` : '∞'}
                 </span>
-                <span className="text-[10px] text-slate-500 block">
+                <span className="text-[10px] text-[#647067] block">
                   Sign: {calc.cartesianV > 0 ? `+${calc.cartesianV.toFixed(1)}` : `${calc.cartesianV.toFixed(1)}`} cm
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">Focal Length (f)</span>
-                <span className="text-base font-bold text-cyan-300">+{focalLength.toFixed(1)} cm</span>
-                <span className="text-[10px] text-slate-500 block">Convex (+ve)</span>
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#647067] block text-[10px] font-sans font-semibold">Focal (f)</span>
+                  <span className="text-[9px] text-[#17231B] font-bold bg-[#B8D96B]/30 px-1 rounded">
+                    {power.formatted}
+                  </span>
+                </div>
+                <span className="text-base font-bold text-[#17231B]">+{focalLength.toFixed(1)} cm</span>
+                <span className="text-[10px] text-[#647067] block">Power P = {power.formatted}</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">Magnification (m)</span>
-                <span className="text-base font-bold text-purple-300">
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] space-y-1">
+                <span className="text-[#647067] block text-[10px] font-sans font-semibold">Magnification (m)</span>
+                <span className="text-base font-bold text-[#17231B]">
                   {isFinite(calc.magnification) ? calc.magnification.toFixed(2) : '∞'}
                 </span>
-                <span className="text-[10px] text-slate-500 block">hᵢ = {calc.imageHeight.toFixed(1)} cm</span>
+                <span className="text-[10px] text-[#647067] block">hᵢ = {calc.imageHeight.toFixed(1)} cm</span>
               </div>
             </div>
 
-            {/* Image Nature Tag */}
-            <div className="p-3 rounded-xl bg-[#0b1220] border border-slate-800 text-xs space-y-1">
-              <span className="text-slate-400 text-[10px] uppercase font-bold block">Image Description</span>
-              <p className="font-semibold text-slate-200">{calc.imageDescription}</p>
+            {/* Cartesian Sign Convention Box */}
+            <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[#647067] text-[10px] uppercase font-bold flex items-center gap-1">
+                  <Info className="w-3 h-3 text-[#17231B]" />
+                  <span>Cartesian Sign Formula</span>
+                </span>
+                <button
+                  onClick={() => setShowSignHelp(!showSignHelp)}
+                  className="text-[10px] text-[#17231B] font-bold hover:underline"
+                >
+                  {showSignHelp ? 'Hide' : 'Explain'}
+                </button>
+              </div>
+
+              <div className="p-2 rounded bg-[#FFFFFF] font-mono text-[11px] text-[#17231B] font-bold border border-[#E2E8DF]">
+                1/f = 1/v - 1/u ➔ 1/{focalLength} = 1/{isFinite(calc.imageDistance) ? (calc.cartesianV > 0 ? `+${calc.cartesianV.toFixed(1)}` : `${calc.cartesianV.toFixed(1)}`) : '∞'} - 1/(-{u.toFixed(1)})
+              </div>
+
+              {showSignHelp && (
+                <div className="space-y-1 text-[11px] text-[#647067] pt-1 border-t border-[#E2E8DF]">
+                  <p>• <strong className="text-[#17231B]">u = -{u.toFixed(1)} cm</strong>: Object is to the left of optical centre (against incident light).</p>
+                  <p>• <strong className="text-[#17231B]">f = +{focalLength} cm</strong>: Real focus of convex lens lies behind the lens.</p>
+                  <p>• <strong className="text-[#17231B]">v = {calc.cartesianV > 0 ? `+${calc.cartesianV.toFixed(1)}` : `${calc.cartesianV.toFixed(1)}`} cm</strong>: {calc.isReal ? 'Real inverted image formed on screen' : 'Virtual erect image on same side'}.</p>
+                </div>
+              )}
             </div>
 
             {/* Screen Sharpness Meter */}
             <div className="space-y-1.5 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Screen Sharpness</span>
-                <span
-                  className={`font-mono font-bold ${
-                    calc.isFocused ? 'text-emerald-400' : 'text-amber-400'
-                  }`}
-                >
+                <span className="text-[#647067] font-semibold">Screen Sharpness</span>
+                <span className="font-mono font-bold text-[#17231B]">
                   {calc.screenFocusMatchPercent || 0}%
                 </span>
               </div>
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-[#E2E8DF] overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 ${
-                    calc.isFocused ? 'bg-emerald-400 shadow-[0_0_10px_#34d399]' : 'bg-amber-400'
+                    calc.isFocused ? 'bg-[#B8D96B]' : 'bg-[#17231B]'
                   }`}
                   style={{ width: `${calc.screenFocusMatchPercent || 0}%` }}
                 />
@@ -351,23 +417,23 @@ export default function LabPage() {
             {/* Record Observation Button */}
             <button
               onClick={handleRecordObservation}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-[0_0_20px_rgba(52,211,153,0.35)] flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3 rounded-xl bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4 text-[#17231B]" />
               <span>Record to Lab Notebook</span>
             </button>
           </div>
 
           {/* Bench Slider Sliders */}
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-slate-800 space-y-4 text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-4 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8DF]">
+              <h3 className="font-bold text-[#17231B] uppercase tracking-wider flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-[#17231B]" />
                 <span>Upright Bench Controls</span>
               </h3>
               <button
                 onClick={handleResetBench}
-                className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
+                className="text-[11px] text-[#647067] hover:text-[#17231B] flex items-center gap-1 font-semibold"
                 title="Reset bench positions"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -378,11 +444,11 @@ export default function LabPage() {
             {/* Object Position Slider */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <span className="text-[#17231B] font-semibold flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#17231B]" />
                   <span>Object Position (xₒ)</span>
                 </span>
-                <span className="font-mono text-amber-300 font-bold">{objectPos.toFixed(1)} cm</span>
+                <span className="font-mono text-[#17231B] font-bold">{objectPos.toFixed(1)} cm</span>
               </div>
               <input
                 type="range"
@@ -391,18 +457,18 @@ export default function LabPage() {
                 step="0.5"
                 value={objectPos}
                 onChange={(e) => setObjectPos(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Lens Position Slider */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+                <span className="text-[#17231B] font-semibold flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#B8D96B]" />
                   <span>Lens Position (xₗ)</span>
                 </span>
-                <span className="font-mono text-cyan-300 font-bold">{lensPos.toFixed(1)} cm</span>
+                <span className="font-mono text-[#17231B] font-bold">{lensPos.toFixed(1)} cm</span>
               </div>
               <input
                 type="range"
@@ -411,18 +477,18 @@ export default function LabPage() {
                 step="0.5"
                 value={lensPos}
                 onChange={(e) => setLensPos(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Screen Position Slider */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                <span className="text-[#17231B] font-semibold flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#647067]" />
                   <span>Screen Position (xₛ)</span>
                 </span>
-                <span className="font-mono text-white font-bold">{screenPos.toFixed(1)} cm</span>
+                <span className="font-mono text-[#17231B] font-bold">{screenPos.toFixed(1)} cm</span>
               </div>
               <input
                 type="range"
@@ -431,15 +497,15 @@ export default function LabPage() {
                 step="0.5"
                 value={screenPos}
                 onChange={(e) => setScreenPos(Number(e.target.value))}
-                className="w-full accent-slate-200 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
 
             {/* Object Height */}
-            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+            <div className="space-y-1.5 pt-2 border-t border-[#E2E8DF]">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Object Height (hₒ)</span>
-                <span className="font-mono text-amber-300 font-bold">{objectHeight} cm</span>
+                <span className="text-[#647067] font-semibold">Object Height (hₒ)</span>
+                <span className="font-mono text-[#17231B] font-bold">{objectHeight} cm</span>
               </div>
               <input
                 type="range"
@@ -448,7 +514,7 @@ export default function LabPage() {
                 step="0.5"
                 value={objectHeight}
                 onChange={(e) => setObjectHeight(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
+                className="w-full accent-[#B8D96B] cursor-pointer"
               />
             </div>
           </div>

@@ -1,394 +1,516 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import gsap from 'gsap';
 import {
-  FlaskConical,
-  BookOpen,
-  Smartphone,
-  TableProperties,
-  Award,
-  FileText,
   Sparkles,
   ArrowRight,
-  CheckCircle2,
+  Box,
   Scan,
-  Compass,
-  Layers,
+  BookOpen,
+  FileText,
   ChevronRight,
   Eye,
-  Sliders,
-  ShieldCheck,
+  Camera,
+  Layers,
+  RotateCcw,
+  Zap,
 } from 'lucide-react';
 import { RayDiagramSvg } from '@/components/RayDiagramSvg';
 
 export default function HomePage() {
-  // Mini interactive state on hero
-  const [focalLength] = useState(15);
-  const [objectDist, setObjectDist] = useState(30);
+  const [objectDist, setObjectDist] = useState(25);
+  const focalLength = 10;
+
+  // GSAP Animation Refs
+  const heroRef = useRef<HTMLDivElement>(null);
+  const eyebrowRef = useRef<HTMLParagraphElement>(null);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const subheadRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const noteLeftRef = useRef<HTMLDivElement>(null);
+  const noteRightRef = useRef<HTMLDivElement>(null);
+  const tilesRef = useRef<HTMLDivElement>(null);
+  const expHeadingRef = useRef<HTMLDivElement>(null);
+  const expListRef = useRef<HTMLDivElement>(null);
+  const demoCardRef = useRef<HTMLDivElement>(null);
+  const svgWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // GSAP Context ensures clean disposal on React unmount
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      // 1. Hero text & CTA entrance
+      if (eyebrowRef.current) {
+        tl.from(eyebrowRef.current, {
+          y: -14,
+          opacity: 0,
+          duration: 0.6,
+          letterSpacing: '0.35em',
+        });
+      }
+
+      if (headlineRef.current) {
+        tl.from(
+          headlineRef.current,
+          {
+            y: 28,
+            opacity: 0,
+            duration: 0.85,
+            ease: 'power4.out',
+          },
+          '-=0.4'
+        );
+      }
+
+      if (subheadRef.current) {
+        tl.from(
+          subheadRef.current,
+          {
+            y: 18,
+            opacity: 0,
+            duration: 0.7,
+          },
+          '-=0.55'
+        );
+      }
+
+      if (ctaRef.current) {
+        tl.from(
+          ctaRef.current,
+          {
+            scale: 0.85,
+            opacity: 0,
+            duration: 0.65,
+            ease: 'back.out(1.8)',
+          },
+          '-=0.45'
+        );
+      }
+
+      // 2. Stagger in the 4 quick tiles
+      if (tilesRef.current && tilesRef.current.children.length > 0) {
+        tl.from(
+          tilesRef.current.children,
+          {
+            y: 24,
+            opacity: 0,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: 'back.out(1.4)',
+          },
+          '-=0.3'
+        );
+      }
+
+      // 3. Stagger in popular experiments
+      if (expHeadingRef.current) {
+        tl.from(
+          expHeadingRef.current,
+          {
+            opacity: 0,
+            y: 16,
+            duration: 0.5,
+          },
+          '-=0.2'
+        );
+      }
+
+      if (expListRef.current && expListRef.current.children.length > 0) {
+        tl.from(
+          expListRef.current.children,
+          {
+            y: 22,
+            opacity: 0,
+            duration: 0.55,
+            stagger: 0.1,
+            ease: 'power2.out',
+          },
+          '-=0.3'
+        );
+      }
+
+      // 4. Reveal live simulator card
+      if (demoCardRef.current) {
+        tl.from(
+          demoCardRef.current,
+          {
+            y: 30,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'power3.out',
+          },
+          '-=0.2'
+        );
+      }
+
+      // 5. Floating handwritten sketchbook margin annotations (physics sine float)
+      if (noteLeftRef.current) {
+        gsap.to(noteLeftRef.current, {
+          y: -10,
+          rotation: -3,
+          duration: 3.2,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        });
+      }
+
+      if (noteRightRef.current) {
+        gsap.to(noteRightRef.current, {
+          y: 8,
+          rotation: 8,
+          duration: 3.8,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        });
+      }
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Subtle pulse animation when user drags the distance slider
+  const handleSliderChange = (newVal: number) => {
+    setObjectDist(newVal);
+    if (svgWrapperRef.current) {
+      gsap.fromTo(
+        svgWrapperRef.current,
+        { scale: 0.99 },
+        { scale: 1, duration: 0.25, ease: 'power2.out' }
+      );
+    }
+  };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#070b14] text-slate-100 overflow-hidden">
+    <div ref={heroRef} className="flex-1 flex flex-col bg-transparent text-[#17231B] overflow-hidden pb-12 relative">
       {/* =========================================
-          HERO SECTION
+          HERO SECTION (Porcelain & Electric Lime on Paper)
          ========================================= */}
-      <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {/* Glow backdrop */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-cyan-500/10 via-sky-500/15 to-transparent blur-[120px] pointer-events-none rounded-full" />
+      <section className="relative pt-6 pb-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
+        {/* Subtle Electric Lime Ambient Glow */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[320px] sm:w-[500px] h-[240px] bg-[#B8D96B]/20 blur-[100px] pointer-events-none rounded-full" />
 
-        <div className="text-center space-y-6 max-w-3xl mx-auto relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 text-xs font-semibold tracking-wide shadow-[0_0_15px_rgba(0,240,255,0.2)]">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Interactive Virtual & WebXR Physics Laboratory</span>
-          </div>
+        {/* Tactile Sketchbook Margin Annotations (Mockup Style with GSAP floating physics) */}
+        <div ref={noteLeftRef} className="hidden lg:block absolute top-12 left-4 rotate-[-6deg] select-none pointer-events-none opacity-75">
+          <span className="font-serif italic text-[#647067] text-xs leading-tight block">
+            Explore ✎<br />
+            Experiment<br />
+            Learn
+          </span>
+        </div>
+        <div ref={noteRightRef} className="hidden lg:block absolute top-12 right-6 rotate-[5deg] select-none pointer-events-none opacity-75">
+          <span className="font-serif italic text-[#647067] text-xs leading-tight block text-right">
+            light bends<br />
+            possibilities ⟿
+          </span>
+        </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Explore Convex Lenses in{' '}
-            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-300 bg-clip-text text-transparent">
-              Augmented Reality
+        <div className="text-left sm:text-center space-y-4 relative z-10">
+          {/* Eyebrow Tagline */}
+          <p ref={eyebrowRef} className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-[#647067] uppercase">
+            EXPLORE • EXPERIMENT • UNDERSTAND
+          </p>
+
+          {/* Main Title: Instrument Serif, regular */}
+          <h1 ref={headlineRef} className="font-serif-heading text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-[#17231B] leading-[1.12]">
+            Interactive <br className="hidden sm:inline" />
+            <span>Physics Labs</span> <br />
+            <span className="text-[#17231B] underline decoration-[#B8D96B] decoration-[6px] underline-offset-8">
+              in Your World
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-            Step onto a virtual optical bench to move real-time light sources, refract light through curved glass, observe sharp and blurred inverted images on screen, and perform authentic school physics practicals right in your browser or on your physical tabletop.
+          {/* Subtitle: Sora 400-500 */}
+          <p ref={subheadRef} className="font-body text-xs sm:text-base text-[#647067] max-w-xl sm:mx-auto leading-relaxed font-normal">
+            Real experiments. Real understanding. <br className="inline sm:hidden" />
+            Interactive. Immersive. <br className="hidden sm:inline" />
+            For schools and higher education.
           </p>
 
-          {/* Primary & Secondary CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          {/* Primary Lime CTA Button: Sora 600 */}
+          <div ref={ctaRef} className="pt-2">
             <Link
               href="/lab"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 text-slate-950 shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all flex items-center gap-2 group"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#B8D96B] hover:bg-[#a9cd59] text-[#17231B] font-semibold text-sm shadow-[0_4px_18px_rgba(184,217,107,0.35)] transition-all transform active:scale-95 cursor-pointer hover:translate-y-[-2px]"
             >
-              <FlaskConical className="w-4 h-4 text-slate-950 group-hover:rotate-12 transition-transform" />
               <span>Start Experiment</span>
-              <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/learn"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm bg-[#0e1628] hover:bg-[#152038] text-cyan-300 border border-cyan-500/30 hover:border-cyan-400/50 shadow-lg transition-all flex items-center gap-2"
-            >
-              <BookOpen className="w-4 h-4 text-cyan-400" />
-              <span>Explore the Theory</span>
-            </Link>
-
-            <Link
-              href="/ar"
-              className="px-5 py-3.5 rounded-xl font-bold text-sm bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all flex items-center gap-2"
-            >
-              <Smartphone className="w-4 h-4 text-cyan-400" />
-              <span>Launch AR Mode</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </Link>
           </div>
         </div>
 
-        {/* =========================================
-            HERO VISUAL PREVIEW: INTERACTIVE RAY BENCH
-           ========================================= */}
-        <div className="mt-14 relative z-10 max-w-5xl mx-auto rounded-2xl bg-[#080d19]/90 border border-cyan-900/40 p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800/80">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#00f0ff]" />
-              <h3 className="text-sm font-bold text-white tracking-wide">
-                Live Ray-Tracing Optics Preview
+        {/* 4 Quick Access Navigation Tiles (Porcelain & White) */}
+        <div ref={tilesRef} className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 relative z-10">
+          {/* 1. 3D Labs */}
+          <Link
+            href="/lab"
+            className="p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all group flex flex-col items-start gap-3 shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center text-[#17231B] group-hover:scale-105 transition-transform">
+              <Box className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors">
+                3D Labs
+              </h3>
+              <p className="text-[10px] text-[#647067] mt-0.5 line-clamp-1">Simulated benches</p>
+            </div>
+          </Link>
+
+          {/* 2. AR Experiments */}
+          <Link
+            href="/ar"
+            className="p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all group flex flex-col items-start gap-3 shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center text-[#17231B] group-hover:scale-105 transition-transform">
+              <Scan className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors">
+                AR Experiments
+              </h3>
+              <p className="text-[10px] text-[#647067] mt-0.5 line-clamp-1">Camera tabletop</p>
+            </div>
+          </Link>
+
+          {/* 3. Theory & Concepts */}
+          <Link
+            href="/learn"
+            className="p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all group flex flex-col items-start gap-3 shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center text-[#17231B] group-hover:scale-105 transition-transform">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors">
+                Theory & Concepts
+              </h3>
+              <p className="text-[10px] text-[#647067] mt-0.5 line-clamp-1">Class 10 Syllabus</p>
+            </div>
+          </Link>
+
+          {/* 4. Reports & Assessment */}
+          <Link
+            href="/observations"
+            className="p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all group flex flex-col items-start gap-3 shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center text-[#17231B] group-hover:scale-105 transition-transform">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors">
+                Reports & Assessment
+              </h3>
+              <p className="text-[10px] text-[#647067] mt-0.5 line-clamp-1">Data & Quizzes</p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* =========================================
+          POPULAR EXPERIMENTS SECTION (Porcelain & White Cards)
+         ========================================= */}
+      <section className="py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full space-y-4">
+        <div ref={expHeadingRef} className="flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-bold text-[#17231B] tracking-tight">
+            Popular Experiments
+          </h2>
+          <Link
+            href="/physics"
+            className="text-xs font-bold text-[#17231B] hover:text-[#527d24] flex items-center gap-1 transition-colors group"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        {/* Experiment Cards List (GSAP Staggered) */}
+        <div ref={expListRef} className="space-y-3">
+          {/* 1. Convex Lens */}
+          <Link
+            href="/lab?exp=convex-lens"
+            className="group block p-3.5 sm:p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="flex items-center gap-4">
+              {/* Thumbnail Container */}
+              <div className="w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-2 relative overflow-hidden shrink-0">
+                <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-[#B8D96B] via-[#17231B] to-[#B8D96B] shadow-[0_0_10px_rgba(184,217,107,0.5)]" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-60">
+                  <div className="w-full h-[1px] bg-[#B8D96B]" />
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors truncate">
+                    Convex Lens
+                  </h3>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#B8D96B]/25 text-[#17231B] border border-[#B8D96B]/50">
+                    Active
+                  </span>
+                </div>
+                <p className="text-xs text-[#647067] mt-0.5 line-clamp-1 sm:line-clamp-2">
+                  Image formation, ray diagrams and real-world applications
+                </p>
+              </div>
+
+              {/* Arrow Action Button */}
+              <div className="w-9 h-9 rounded-full bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] flex items-center justify-center text-[#17231B] group-hover:bg-[#B8D96B] transition-all shrink-0">
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </div>
+            </div>
+          </Link>
+
+          {/* 2. Concave Lens */}
+          <Link
+            href="/lab?exp=concave-lens"
+            className="group block p-3.5 sm:p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="flex items-center gap-4">
+              {/* Thumbnail Container */}
+              <div className="w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-2 relative overflow-hidden shrink-0">
+                <div className="w-2 h-10 rounded border-y border-[#17231B] bg-transparent shadow-[0_0_8px_rgba(23,35,27,0.2)]" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                  <div className="w-full h-[1px] bg-[#17231B]" />
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm sm:text-base font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors truncate">
+                  Concave Lens
+                </h3>
+                <p className="text-xs text-[#647067] mt-0.5 line-clamp-1 sm:line-clamp-2">
+                  Virtual & real images, ray diagrams
+                </p>
+              </div>
+
+              {/* Arrow Action Button */}
+              <div className="w-9 h-9 rounded-full bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] flex items-center justify-center text-[#17231B] group-hover:bg-[#B8D96B] transition-all shrink-0">
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </div>
+            </div>
+          </Link>
+
+          {/* 3. Mirror Experiments */}
+          <Link
+            href="/lab?exp=spherical-mirrors"
+            className="group block p-3.5 sm:p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-[0_2px_8px_rgba(23,35,27,0.04)]"
+          >
+            <div className="flex items-center gap-4">
+              {/* Thumbnail Container */}
+              <div className="w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-2 relative overflow-hidden shrink-0">
+                <div className="w-1.5 h-10 rounded-full border-r-2 border-[#17231B] bg-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                  <div className="w-full h-[1px] bg-[#17231B]" />
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm sm:text-base font-bold text-[#17231B] group-hover:text-[#17231B] transition-colors truncate">
+                  Mirror Experiments
+                </h3>
+                <p className="text-xs text-[#647067] mt-0.5 line-clamp-1 sm:line-clamp-2">
+                  Plane, Concave & Convex
+                </p>
+              </div>
+
+              {/* Arrow Action Button */}
+              <div className="w-9 h-9 rounded-full bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] flex items-center justify-center text-[#17231B] group-hover:bg-[#B8D96B] transition-all shrink-0">
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* =========================================
+          INTERACTIVE BENCH PREVIEW (Porcelain & Forest Palette)
+         ========================================= */}
+      <section ref={demoCardRef} className="py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full space-y-4">
+        <div className="rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] p-4 sm:p-6 shadow-[0_4px_20px_rgba(23,35,27,0.05)] space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8DF]">
+            <div>
+              <span className="text-[10px] font-bold text-[#647067] tracking-widest uppercase block">
+                Live Interactive Simulator
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-[#17231B]">
+                Convex Lens Ray Formation
               </h3>
             </div>
-            <div className="flex items-center gap-3 text-xs">
-              <span className="text-slate-400">Drag Object Distance u:</span>
-              <input
-                type="range"
-                min="10"
-                max="50"
-                step="1"
-                value={objectDist}
-                onChange={(e) => setObjectDist(Number(e.target.value))}
-                className="w-36 accent-cyan-400 cursor-pointer"
-              />
-              <span className="font-mono text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
-                u = {objectDist} cm
-              </span>
-            </div>
-          </div>
-
-          <RayDiagramSvg
-            state={{
-              focalLength,
-              objectDistance: objectDist,
-              objectHeight: 5,
-            }}
-            height={280}
-          />
-
-          <div className="mt-3 flex flex-wrap items-center justify-between text-xs text-slate-400 px-1">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                <span>Ray 1: Parallel → Focus F₂</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                <span>Ray 2: Undeviated through O</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-400" />
-                <span>Ray 3: F₁ → Parallel</span>
-              </span>
-            </div>
-            <Link
-              href="/lab"
-              className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+            <button
+              onClick={() => handleSliderChange(25)}
+              className="px-2.5 py-1 rounded-lg bg-[#F4F7F2] hover:bg-[#EAEFE8] border border-[#E2E8DF] text-xs font-semibold text-[#17231B] flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
             >
-              <span>Open in Full 3D Optical Bench</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================
-          THREE FEATURE CARDS: LEARN, EXPERIMENT, MEASURE
-         ========================================= */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-            Designed for School Practical Curricula
-          </h2>
-          <p className="text-sm text-slate-400">
-            A comprehensive pedagogical laboratory workflow covering theory, execution, measurement, and assessment.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Learn */}
-          <div className="rounded-2xl bg-[#090e1a] border border-slate-800/80 p-6 space-y-4 hover:border-cyan-500/40 transition-all hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">1. Master the Theory</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Explore the 6 fundamental cases of convex lenses, Snell&apos;s law of refraction, New Cartesian Sign Conventions, thin lens formulas, and linear magnification through animated 2D and 3D ray diagrams.
-              </p>
-            </div>
-            <Link
-              href="/learn"
-              className="pt-4 text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 border-t border-slate-800"
-            >
-              <span>Read Theory Modules</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
           </div>
 
-          {/* Card 2: Experiment */}
-          <div className="rounded-2xl bg-[#090e1a] border border-cyan-500/30 p-6 space-y-4 shadow-[0_0_25px_rgba(0,240,255,0.1)] flex flex-col justify-between group relative overflow-hidden">
-            <div className="absolute top-0 right-0 px-3 py-1 bg-cyan-500/20 text-cyan-300 text-[10px] font-bold uppercase rounded-bl-xl border-l border-b border-cyan-500/30">
-              Interactive 3D
-            </div>
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-                <FlaskConical className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">2. Conduct 3D & AR Practical</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Move illuminated cross-wires, brass-mounted convex lenses, and ground-glass screens along dual rails. Observe authentic focal blur, circle of confusion, and snap to razor-sharp focus.
-              </p>
-            </div>
-            <Link
-              href="/lab"
-              className="pt-4 text-xs font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 border-t border-cyan-900/50"
-            >
-              <span>Launch Virtual Optical Bench</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+          {/* SVG Ray Diagram with GSAP micro-interaction */}
+          <div ref={svgWrapperRef} className="rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] p-3 overflow-hidden transition-transform">
+            <RayDiagramSvg
+              state={{
+                focalLength,
+                objectDistance: objectDist,
+                objectHeight: 5,
+              }}
+              height={220}
+            />
           </div>
 
-          {/* Card 3: Measure */}
-          <div className="rounded-2xl bg-[#090e1a] border border-slate-800/80 p-6 space-y-4 hover:border-cyan-500/40 transition-all hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
-                <TableProperties className="w-6 h-6" />
+          {/* Mobile-Friendly Sliders */}
+          <div className="space-y-4 bg-[#F4F7F2] p-4 rounded-xl border border-[#E2E8DF]">
+            {/* Object Distance Slider */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-[#17231B] font-semibold">Object Distance (u)</span>
+                <span className="font-mono text-[#17231B] font-bold bg-[#FFFFFF] px-2 py-0.5 rounded border border-[#E2E8DF] shadow-sm">
+                  {objectDist} cm
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-white">3. Record & Generate Reports</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Log real-time observations directly into your electronic lab notebook. Plot interactive v vs u hyperbola and 1/v vs 1/u linear graphs, compute percentage error, and print an academic practical sheet.
-              </p>
-            </div>
-            <Link
-              href="/observations"
-              className="pt-4 text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 border-t border-slate-800"
-            >
-              <span>View Observation Table</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================
-          HOW AUGMENTED REALITY WORKS SECTION
-         ========================================= */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-slate-800/80">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950 text-cyan-400 text-xs font-semibold border border-cyan-800">
-              <Scan className="w-3.5 h-3.5" />
-              <span>Markerless Surface Hit-Testing</span>
-            </div>
-
-            <h2 className="text-3xl font-extrabold text-white leading-tight">
-              Bring the Physics Laboratory to Your Study Desk
-            </h2>
-
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Traditional physics labs are often restricted by limited apparatus, fragile glassware, and crowded bench sharing. With WebXR technology, students can place a 1.0-meter precision optical bench directly on their classroom table.
-            </p>
-
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
-                <div>
-                  <h4 className="text-xs font-bold text-white">Real-world Scale & Proportions</h4>
-                  <p className="text-xs text-slate-400">Accurately calibrated 100 cm bench with authentic focal lengths (10 cm to 25 cm).</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
-                <div>
-                  <h4 className="text-xs font-bold text-white">360-Degree Ray Inspection</h4>
-                  <p className="text-xs text-slate-400">Walk around the table to see how light rays converge to form a real inverted focal image.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
-                <div>
-                  <h4 className="text-xs font-bold text-white">Zero App Installation</h4>
-                  <p className="text-xs text-slate-400">Runs directly inside modern mobile browsers (Android Chrome with ARCore) and WebXR viewers.</p>
-                </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleSliderChange(Math.max(12, objectDist - 1))}
+                  className="w-7 h-7 rounded-lg bg-[#FFFFFF] hover:bg-[#EAEFE8] border border-[#E2E8DF] text-[#17231B] font-bold flex items-center justify-center active:scale-95 text-sm shadow-sm cursor-pointer"
+                >
+                  -
+                </button>
+                <input
+                  type="range"
+                  min="12"
+                  max="45"
+                  step="1"
+                  value={objectDist}
+                  onChange={(e) => handleSliderChange(Number(e.target.value))}
+                  className="w-full accent-[#B8D96B] h-2 bg-[#E2E8DF] rounded-lg cursor-pointer"
+                />
+                <button
+                  onClick={() => handleSliderChange(Math.min(45, objectDist + 1))}
+                  className="w-7 h-7 rounded-lg bg-[#FFFFFF] hover:bg-[#EAEFE8] border border-[#E2E8DF] text-[#17231B] font-bold flex items-center justify-center active:scale-95 text-sm shadow-sm cursor-pointer"
+                >
+                  +
+                </button>
               </div>
             </div>
 
-            <div className="pt-2 flex items-center gap-4">
+            {/* Bottom Actions */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
               <Link
-                href="/ar"
-                className="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center gap-2 transition-all"
+                href="/lab"
+                className="flex-1 py-3 px-4 rounded-xl bg-[#17231B] hover:bg-[#233529] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
               >
-                <Smartphone className="w-4 h-4" />
-                <span>Test AR Compatibility</span>
+                <Camera className="w-4 h-4 stroke-[2.5]" />
+                <span>Open Full 3D & AR Optical Bench</span>
               </Link>
             </div>
           </div>
-
-          {/* AR Diagnostic / Illustration Card */}
-          <div className="p-6 rounded-2xl bg-[#0a0f1d] border border-cyan-900/50 shadow-2xl space-y-6">
-            <h3 className="text-sm font-bold text-white flex items-center justify-between">
-              <span>Device Compatibility Diagnostic</span>
-              <span className="text-[11px] text-cyan-400 font-mono">WebXR API v1</span>
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#0f172a] border border-slate-800 flex items-center justify-between">
-                <div>
-                  <span className="font-semibold text-white block">Android Mobile (Chrome / Edge)</span>
-                  <span className="text-slate-400 text-[11px]">Supports WebXR surface hit-testing with ARCore</span>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold text-[10px]">
-                  FULL AR SUPPORT
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#0f172a] border border-slate-800 flex items-center justify-between">
-                <div>
-                  <span className="font-semibold text-white block">Apple iOS (Safari)</span>
-                  <span className="text-slate-400 text-[11px]">Live Camera fallback & WebXR Viewer App</span>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold text-[10px]">
-                  CAMERA AR / 3D
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#0f172a] border border-slate-800 flex items-center justify-between">
-                <div>
-                  <span className="font-semibold text-white block">Desktop & Laptop Browsers</span>
-                  <span className="text-slate-400 text-[11px]">Hardware-accelerated 3D Virtual Optics Bench</span>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 font-bold text-[10px]">
-                  3D STUDIO MODE
-                </span>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-800/60 text-[11px] text-cyan-300 flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
-              <span>
-                Transparent Educational Policy: If surface placement is unavailable on your device, the app seamlessly provides a full-featured 3D studio without any degraded physics.
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================
-          EXPERIMENT OVERVIEW & APPARATUS SUMMARY
-         ========================================= */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-slate-800/80">
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-            Practical Experiment Specification
-          </h2>
-          <p className="text-xs text-slate-400">
-            CBSE / ICSE / IB Class 10 & 12 Physics Standard Practical Reference
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-[#090e1a] border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Aim</h4>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              To find the focal length of a convex lens by obtaining the image of an illuminated object on a screen and plotting graphs between u and v, and between 1/u and 1/v.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#090e1a] border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Apparatus</h4>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Optical bench with dual rails and 100 cm scale, three uprights with vernier clamps, double convex lens, illuminated wire mesh/candle object, and ground-glass screen.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#090e1a] border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Formula</h4>
-            <p className="text-xs text-slate-300 font-mono leading-relaxed">
-              1/f = 1/v - 1/u<br />
-              f = (u × v) / (u + v)<br />
-              m = v / u = hᵢ / hₒ
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#090e1a] border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Sign Convention</h4>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              New Cartesian: Object distance u is negative (-), Real image distance v is positive (+), Focal length f of convex lens is always positive (+).
-            </p>
-          </div>
-        </div>
-
-        {/* Quick jump banner */}
-        <div className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-sky-950/30 to-[#080d19] border border-cyan-800/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-white">Ready to begin the investigation?</h3>
-            <p className="text-xs text-slate-300">
-              Start by aligning the optical bench, setting the lens position at 50 cm, and focusing the screen.
-            </p>
-          </div>
-          <Link
-            href="/lab"
-            className="px-6 py-3 rounded-xl font-bold text-xs bg-cyan-400 hover:bg-cyan-300 text-slate-950 flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all shrink-0"
-          >
-            <span>Open Virtual 3D Lab</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </section>
     </div>

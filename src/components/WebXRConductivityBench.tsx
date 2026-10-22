@@ -713,10 +713,21 @@ export function WebXRConductivityBench({ state, onStateChange }: WebXRConductivi
   const startCamera = async () => {
     try {
       if (!navigator.mediaDevices?.getUserMedia) return;
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+        });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        videoRef.current.setAttribute('playsinline', 'true');
+        videoRef.current.setAttribute('webkit-playsinline', 'true');
+        await videoRef.current.play();
         setCameraActive(true);
       }
     } catch (err) {
@@ -774,7 +785,7 @@ export function WebXRConductivityBench({ state, onStateChange }: WebXRConductivi
       </div>
 
       {/* Main 3D / AR Viewport */}
-      <div className="relative w-full h-[580px] rounded-2xl overflow-hidden border border-slate-800 bg-[#060913] shadow-2xl">
+      <div className="relative w-full h-[58vh] min-h-[460px] max-h-[620px] sm:h-[580px] rounded-2xl overflow-hidden border border-slate-800 bg-[#060913] shadow-2xl">
         <video
           ref={videoRef}
           playsInline
@@ -784,7 +795,7 @@ export function WebXRConductivityBench({ state, onStateChange }: WebXRConductivi
         <div ref={containerRef} className="absolute inset-0 z-10 w-full h-full touch-none" />
 
         {/* Top-Left HUD */}
-        <div className="absolute top-4 left-4 z-20 bg-[#090e1a]/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800 text-xs shadow-xl space-y-1">
+        <div className="absolute top-4 left-4 z-20 bg-[#090e1a]/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800 text-xs shadow-xl space-y-1 max-w-sm">
           <div className="flex items-center gap-2 font-bold text-white">
             <Scan className="w-4 h-4 text-amber-400 animate-pulse" />
             <span>{benchPlaced ? 'Apparatus Anchored to Table' : 'Scanning Surface Plane'}</span>
@@ -821,7 +832,7 @@ export function WebXRConductivityBench({ state, onStateChange }: WebXRConductivi
 
         {/* Floating AR Manipulation HUD (Move, Zoom, Rotate Controls) */}
         {activeHudTab && (
-          <div className="absolute top-16 right-4 z-20 w-80 bg-[#090e1a]/95 backdrop-blur-lg border border-slate-800 rounded-2xl p-4 shadow-2xl space-y-4">
+          <div className="absolute top-16 right-4 z-20 w-[calc(100%-32px)] max-w-xs sm:w-80 bg-[#090e1a]/95 backdrop-blur-lg border border-slate-800 rounded-2xl p-4 shadow-2xl space-y-4">
             {/* Tab Header */}
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
               <div className="flex items-center gap-1 bg-slate-900/80 p-0.5 rounded-lg border border-slate-800">
