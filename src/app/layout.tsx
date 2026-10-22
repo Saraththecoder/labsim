@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { SplashScreen } from '@/components/SplashScreen';
 
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
@@ -53,6 +54,7 @@ export default function RootLayout({
       className={`h-full antialiased ${instrumentSerif.variable} ${sora.variable}`}
     >
       <body className="min-h-full flex flex-col text-[#17231B] font-sans selection:bg-[#B8D96B] selection:text-[#17231B] pb-16 md:pb-0">
+        <SplashScreen />
         <Navbar />
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />

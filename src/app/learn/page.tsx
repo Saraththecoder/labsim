@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -163,9 +163,74 @@ const CONCAVE_MIRROR_CASES = [
   },
 ];
 
+interface EverydayExampleItem {
+  icon: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  highlightTag?: string;
+}
+
+function RealLifeExampleBanner({
+  title,
+  subtitle,
+  examples,
+}: {
+  title: string;
+  subtitle: string;
+  examples: EverydayExampleItem[];
+}) {
+  return (
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-[#F4F7F2] to-[#FFFFFF] border-2 border-[#B8D96B]/60 shadow-sm space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E2E8DF]">
+        <div className="flex items-center gap-2.5">
+          <span className="text-2xl">💡</span>
+          <div>
+            <h3 className="text-sm sm:text-base font-bold text-[#17231B] flex items-center gap-2">
+              <span>{title}</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#B8D96B] text-[#17231B] font-bold uppercase tracking-wider">
+                Real-Life Example
+              </span>
+            </h3>
+            <p className="text-xs text-[#647067]">{subtitle}</p>
+          </div>
+        </div>
+        <span className="text-[11px] font-semibold text-[#17231B] bg-[#B8D96B]/25 border border-[#B8D96B]/50 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
+          ✨ Easy Everyday Analogy
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        {examples.map((item, i) => (
+          <div
+            key={i}
+            className="p-4 rounded-xl bg-white border border-[#E2E8DF] shadow-xs flex flex-col justify-between space-y-2 hover:border-[#B8D96B] transition-all"
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-xl">{item.icon}</span>
+                {item.highlightTag && (
+                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#F4F7F2] text-[#17231B] border border-[#E2E8DF]">
+                    {item.highlightTag}
+                  </span>
+                )}
+              </div>
+              <h4 className="text-xs font-bold text-[#17231B]">{item.title}</h4>
+              <p className="text-[11px] font-normal text-[#5A685D] leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LearnContent() {
   const searchParams = useSearchParams();
   const expParam = searchParams.get('exp');
+  const theoryDetailsRef = useRef<HTMLDivElement>(null);
 
   // Find index of selected experiment or default to 0 (Convex Lens)
   const initialIndex = CLASS_10_PHYSICS_EXPERIMENTS.findIndex((e) => e.id === expParam);
@@ -184,19 +249,34 @@ function LearnContent() {
   const activeLensCase = CONVEX_LENS_CASES[lensCaseIndex];
   const activeMirrorCase = CONCAVE_MIRROR_CASES[mirrorCaseIndex];
 
+  const handleSelectExperiment = (idx: number) => {
+    setSelectedExpIndex(idx);
+    // Smoothly scroll down directly to the theory matter
+    setTimeout(() => {
+      if (theoryDetailsRef.current) {
+        const navOffset = 80;
+        const targetY = theoryDetailsRef.current.getBoundingClientRect().top + window.pageYOffset - navOffset;
+        window.scrollTo({
+          top: targetY,
+          behavior: 'smooth',
+        });
+      }
+    }, 70);
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-transparent text-[#17231B] py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-10">
       {/* Page Header */}
       <div className="space-y-3 max-w-4xl">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFFFFF] border border-[#E2E8DF] text-[#17231B] text-xs font-semibold shadow-xs">
           <BookOpen className="w-3.5 h-3.5 text-[#17231B]" />
-          <span>Class 10 CBSE & ICSE • Master Practical Theory & Viva Guide</span>
+          <span>Class 10 CBSE & ICSE • Simple & Visual Practical Theory Guide</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-normal text-[#17231B] tracking-tight font-serif">
-          Physics Practical <span className="italic">Theory & Principles</span>
+          Physics Practical <span className="italic">Theory Made Simple</span>
         </h1>
         <p className="text-sm sm:text-base text-[#647067] leading-relaxed">
-          Select an experiment below to master its optical principles, mathematical derivations, sign conventions, canonical ray cases, and board viva questions.
+          Tap any experiment below. Learn how it works in plain, simple English with everyday examples (like magnifying glasses, spoons, rainbows, and garden water pipes) so you can ace your board practical exams with confidence!
         </p>
       </div>
 
@@ -206,7 +286,7 @@ function LearnContent() {
       <div className="space-y-3">
         <div className="flex items-center justify-between pb-1 border-b border-[#E2E8DF]">
           <span className="text-xs font-bold uppercase tracking-wider text-[#647067]">
-            Select Prescribed Practical (1 of 5)
+            Select an Experiment (Click to Read Theory)
           </span>
           <span className="text-xs text-[#647067] font-medium">
             Active: <strong className="text-[#17231B]">{currentExp.shortTitle}</strong>
@@ -219,10 +299,10 @@ function LearnContent() {
             return (
               <button
                 key={exp.id}
-                onClick={() => setSelectedExpIndex(idx)}
+                onClick={() => handleSelectExperiment(idx)}
                 className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group cursor-pointer relative overflow-hidden ${
                   isSelected
-                    ? 'bg-[#FFFFFF] border-[#B8D96B] ring-2 ring-[#B8D96B]/50 shadow-md'
+                    ? 'bg-[#FFFFFF] border-[#B8D96B] ring-2 ring-[#B8D96B]/50 shadow-md transform scale-[1.02]'
                     : 'bg-[#FFFFFF]/80 hover:bg-[#FFFFFF] border-[#E2E8DF] hover:border-[#CBD5C8] shadow-xs'
                 }`}
               >
@@ -249,7 +329,7 @@ function LearnContent() {
 
                 <div className="mt-2 pt-2 border-t border-[#E2E8DF] flex items-center justify-between text-[10px] font-bold">
                   <span className={`${isSelected ? 'text-[#17231B]' : 'text-[#8C988F]'}`}>
-                    {isSelected ? '● Reading' : 'View Theory'}
+                    {isSelected ? '● Reading Below ↓' : 'Click to Read →'}
                   </span>
                   <ChevronRight className={`w-3 h-3 ${isSelected ? 'text-[#B8D96B]' : 'text-[#8C988F]'}`} />
                 </div>
@@ -260,9 +340,10 @@ function LearnContent() {
       </div>
 
       {/* =========================================
-          EXPERIMENT BANNER & QUICK LAUNCH ACTIONS
+          EXPERIMENT BANNER & THEORY DETAILS SECTION (Auto-scrolled to)
          ========================================= */}
-      <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div ref={theoryDetailsRef} className="pt-2 scroll-mt-24 space-y-8">
+        <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-[#B8D96B]/25 text-[#17231B] border border-[#B8D96B]/50">
@@ -315,59 +396,88 @@ function LearnContent() {
       {/* ---------------- 1. CONVEX LENS OPTICS THEORY ---------------- */}
       {currentExp.id === 'convex-lens' && (
         <div className="space-y-8">
-          {/* Theoretical Foundations & Lens Formula */}
+          {/* Real-Life Everyday Example Hero Box */}
+          <RealLifeExampleBanner
+            title="How Convex Lenses Work in Everyday Life"
+            subtitle="Before learning the formulas, see where convex lenses are used all around you:"
+            examples={[
+              {
+                icon: '🔍',
+                title: 'The Magnifying Glass Sun Trick',
+                subtitle: 'Burning paper with sunlight',
+                description: 'Ever held a magnifying glass under the sun to burn a tiny bright spot on dry leaves? That hot focused spot is the lens Focus (F), and the distance between the glass and paper is the Focal Length (f)!',
+                highlightTag: 'Focus & Focal Length',
+              },
+              {
+                icon: '🎬',
+                title: 'Cinema Hall Movie Projector',
+                subtitle: 'Small film into giant screen',
+                description: 'Inside a cinema projector, a small illuminated film frame placed just behind the focus projects a huge, sharp, colorful real image across the auditorium onto the giant theatre screen!',
+                highlightTag: 'Enlarged Real Image',
+              },
+              {
+                icon: '👁️',
+                title: 'Your Smartphone Camera & Eyes',
+                subtitle: 'Focusing light onto sensors',
+                description: 'The camera lens on your smartphone and the natural lens in your eye are convex lenses! They gather light from people far away and shrink it neatly onto the sensor so you see clear photos.',
+                highlightTag: 'Camera & Human Eye',
+              },
+            ]}
+          />
+
+          {/* Simple & Clear Theoretical Foundations */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Lens Formula & Sign Convention</span>
+                <span>The Lens Formula</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Connects focal length (<code className="font-bold text-[#17231B]">f</code>), object distance (<code className="font-bold text-[#17231B]">u</code>), and image distance (<code className="font-bold text-[#17231B]">v</code>) using the New Cartesian Sign Convention:
+                Connects where the object is (<code className="font-bold text-[#17231B]">u</code>), where the lens focuses (<code className="font-bold text-[#17231B]">f</code>), and where the image appears (<code className="font-bold text-[#17231B]">v</code>):
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 1/v - 1/u = 1/f
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Object distance <code className="font-bold text-[#17231B]">u</code> is always negative (-).</li>
-                <li>• Real image distance <code className="font-bold text-[#17231B]">v</code> is positive (+).</li>
-                <li>• Focal length <code className="font-bold text-[#17231B]">f</code> of convex lens is positive (+).</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">u (Object distance):</strong> Always negative (-) because light travels from the left.</li>
+                <li>• <strong className="text-[#17231B]">v (Image distance):</strong> Positive (+) for real images formed on the screen on the right.</li>
+                <li>• <strong className="text-[#17231B]">f (Focal length):</strong> Always positive (+) for a convex converging lens.</li>
               </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Linear Magnification (m)</span>
+                <span>Magnification (Zoom Factor)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Ratio of height of image (<code className="font-bold text-[#17231B]">hᵢ</code>) to height of object (<code className="font-bold text-[#17231B]">hₒ</code>):
+                Tells you how many times bigger or smaller the image is compared to the object:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
-                m = v / u = hᵢ / hₒ
+                m = v / u = Image Height / Object Height
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Negative magnification indicates a real, inverted image.</li>
-                <li>• Positive magnification indicates a virtual, erect image.</li>
-                <li>• If |m| &gt; 1: magnified; if |m| &lt; 1: diminished.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">Negative (-):</strong> Image is upside down (real and inverted).</li>
+                <li>• <strong className="text-[#17231B]">Positive (+):</strong> Image is right-side up (virtual and erect).</li>
+                <li>• <strong className="text-[#17231B]">Number &gt; 1:</strong> Image is magnified; <strong className="text-[#17231B]">&lt; 1:</strong> diminished.</li>
               </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Power of a Lens (P)</span>
+                <span>Lens Power (Bending Strength)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Measure of the degree of convergence of light rays, defined as reciprocal of focal length in meters:
+                Measures how strongly the lens bends light rays. Thicker lenses bend rays faster and have a shorter focal length:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 P = 1 / f (in metres) Dioptres (D)
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• 1 Dioptre (1 D) = 1 m⁻¹.</li>
-                <li>• Power is positive (+) for convex lens (converging).</li>
-                <li>• For f = 20 cm = 0.2 m, P = +5.0 D.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• Unit is <strong className="text-[#17231B]">Dioptre (D)</strong>.</li>
+                <li>• Always <strong className="text-[#17231B]">positive (+)</strong> for convex lenses (converging rays).</li>
+                <li>• Example: A 20 cm lens (0.2 m) has a power of <strong className="text-[#17231B]">+5.0 D</strong>.</li>
               </ul>
             </div>
           </div>
@@ -449,23 +559,52 @@ function LearnContent() {
       {/* ---------------- 2. CONCAVE MIRROR THEORY ---------------- */}
       {currentExp.id === 'concave-mirror' && (
         <div className="space-y-8">
-          {/* Mathematical & Physical Laws */}
+          {/* Real-Life Everyday Example Hero Box */}
+          <RealLifeExampleBanner
+            title="How Concave Mirrors Work in Everyday Life"
+            subtitle="Before jumping into formulas, discover how curved concave mirrors are used daily:"
+            examples={[
+              {
+                icon: '🥄',
+                title: 'The Steel Kitchen Spoon Trick',
+                subtitle: 'Inner hollow reflection',
+                description: 'Look into the inside hollow bowl of a clean metal spoon. When held at arm’s length, you appear upside-down! But bring it right up to your nose, and suddenly you flip right-side up and look huge!',
+                highlightTag: 'Inverted vs Magnified',
+              },
+              {
+                icon: '🚗',
+                title: 'Car Headlights & Flashlight Torches',
+                subtitle: 'Focusing light into a straight beam',
+                description: 'Why can a tiny 12V bulb illuminate dark highways for 200 metres? The bulb is placed right at the mirror’s focus point, bouncing all scattered light into a laser-straight, powerful parallel beam!',
+                highlightTag: 'Parallel Beam (u = f)',
+              },
+              {
+                icon: '🪒',
+                title: 'Dentist & Shaving Mirror',
+                subtitle: 'Magnified upright reflections',
+                description: 'When held close to your face (inside the focal point), a concave mirror creates an upright, extra-large virtual image so dentists can examine small teeth and you can shave safely without cuts.',
+                highlightTag: 'Virtual Magnified Image',
+              },
+            ]}
+          />
+
+          {/* Simple & Clear Mathematical Laws */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Spherical Mirror Formula</span>
+                <span>The Mirror Formula</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Connects focal length (<code className="font-bold text-[#17231B]">f</code>), object distance (<code className="font-bold text-[#17231B]">u</code>), and image distance (<code className="font-bold text-[#17231B]">v</code>) for spherical reflection:
+                Connects focal point (<code className="font-bold text-[#17231B]">f</code>), object (<code className="font-bold text-[#17231B]">u</code>), and image (<code className="font-bold text-[#17231B]">v</code>). Notice the plus sign:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 1/v + 1/u = 1/f
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Focal length <code className="font-bold text-[#17231B]">f</code> of concave mirror is negative (-).</li>
-                <li>• Real image distance <code className="font-bold text-[#17231B]">v</code> is negative (-).</li>
-                <li>• Virtual image distance <code className="font-bold text-[#17231B]">v</code> is positive (+).</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">f (Focal length):</strong> Always negative (-) because the focal point is in front of the mirror.</li>
+                <li>• <strong className="text-[#17231B]">u (Object distance):</strong> Always negative (-).</li>
+                <li>• <strong className="text-[#17231B]">v (Real image):</strong> Negative (-) in front; positive (+) if virtual behind the glass.</li>
               </ul>
             </div>
 
@@ -475,14 +614,15 @@ function LearnContent() {
                 <span>Radius of Curvature (R = 2f)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Centre of Curvature <code className="font-bold text-[#17231B]">C</code> is the centre of the sphere of which the mirror forms a part. The focal point <code className="font-bold text-[#17231B]">F</code> lies exactly halfway between the Pole <code className="font-bold text-[#17231B]">P</code> and <code className="font-bold text-[#17231B]">C</code>:
+                Imagine the mirror as a slice cut from a hollow shiny sphere. The sphere’s centre is <code className="font-bold text-[#17231B]">C</code>:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 R = 2f  ⟺  f = R / 2
               </div>
-              <p className="text-[11px] text-[#647067]">
-                A ray passing through C reflects back along its own path because it strikes normally (i = 0, r = 0).
-              </p>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• The focal point <strong className="text-[#17231B]">F</strong> lies exactly halfway between the mirror Pole and centre <strong className="text-[#17231B]">C</strong>.</li>
+                <li>• Any ray passing through <strong className="text-[#17231B]">C</strong> bounces straight back on itself because it hits the curved surface at 90° (normal).</li>
+              </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
@@ -491,15 +631,14 @@ function LearnContent() {
                 <span>Mirror Magnification</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Ratio of image height to object height (note the negative sign):
+                How much bigger or smaller your reflection appears (note the negative sign):
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
-                m = -v / u = hᵢ / hₒ
+                m = -v / u = Image Height / Object Height
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• For real, inverted image: m is negative (-).</li>
-                <li>• For virtual, erect image: m is positive (+).</li>
-                <li>• Shaving mirror operates in virtual zone (u &lt; f, m &gt; +1).</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">Negative (-):</strong> Real and upside down.</li>
+                <li>• <strong className="text-[#17231B]">Positive (+):</strong> Virtual, upright, and magnified (like a shaving mirror).</li>
               </ul>
             </div>
           </div>
@@ -564,21 +703,52 @@ function LearnContent() {
       {/* ---------------- 3. RECTANGULAR GLASS SLAB THEORY ---------------- */}
       {currentExp.id === 'glass-slab' && (
         <div className="space-y-8">
+          {/* Real-Life Everyday Example Hero Box */}
+          <RealLifeExampleBanner
+            title="How Glass Slab Refraction Works in Everyday Life"
+            subtitle="Before checking pin angles, look at how light bends in water and glass every day:"
+            examples={[
+              {
+                icon: '🥤',
+                title: 'The "Broken" Drinking Straw',
+                subtitle: 'Straw inside a glass of water',
+                description: 'Put a straight drinking straw into a transparent glass of water. From the outside, the straw looks completely cut, displaced, or bent at the water surface! That is Refraction: light slows down in denser water and glass, shifting its path.',
+                highlightTag: 'Refraction Basics',
+              },
+              {
+                icon: '🪙',
+                title: 'The Magic Floating Coin Trick',
+                subtitle: 'Coin rising in a mug',
+                description: 'Drop a coin in a cup and step back until the rim blocks it. Now pour water in — the coin magically appears into view! Light bending away from the normal lifts the apparent position of the coin toward the surface.',
+                highlightTag: 'Apparent Depth',
+              },
+              {
+                icon: '📐',
+                title: 'The Sideways Step (Lateral Shift)',
+                subtitle: 'Parallel entry and exit',
+                description: 'Because opposite faces of the glass block are parallel, the ray exits at the exact same angle it entered (∠i = ∠e). It never changes its overall travel direction — it just takes a sideways step!',
+                highlightTag: 'Lateral Displacement',
+              },
+            ]}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Snell’s Law of Refraction</span>
+                <span>Snell’s Law (Why Light Bends)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                When light passes obliquely from an optically rarer medium (air, n₁ ≈ 1) into a denser medium (crown glass, n₂ ≈ 1.52), it bends toward the normal:
+                Light travels at 300,000 km/s in air, but slows down to 200,000 km/s inside glass. Because it slows down, it bends towards the normal line:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
-                n = sin(i) / sin(r)
+                n = sin(i) / sin(r) ≈ 1.50
               </div>
-              <p className="text-[11px] text-[#647067]">
-                The ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant for a given pair of media.
-              </p>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">i (Angle of Incidence):</strong> Entry angle in air.</li>
+                <li>• <strong className="text-[#17231B]">r (Angle of Refraction):</strong> Bent angle inside glass (always smaller than i).</li>
+                <li>• <strong className="text-[#17231B]">n (Refractive index):</strong> Measure of how much glass slows down light.</li>
+              </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
@@ -587,14 +757,15 @@ function LearnContent() {
                 <span>Parallel Emergence (∠i = ∠e)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                At the first surface (air-to-glass), the ray bends toward the normal (∠r &lt; ∠i). At the second parallel surface (glass-to-air), it bends away from the normal by the exact same angular magnitude:
+                Entering glass bends the ray inward. Exiting glass into air bends it outward by the exact same angle:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 ∠i = ∠e (Angle of Emergence)
               </div>
-              <p className="text-[11px] text-[#647067]">
-                Hence, the emergent ray is strictly parallel to the original direction of the incident ray.
-              </p>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• The exiting beam is strictly <strong className="text-[#17231B]">parallel</strong> to the incoming beam.</li>
+                <li>• Zero angular deviation occurs because the opposite faces are parallel.</li>
+              </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
@@ -603,15 +774,14 @@ function LearnContent() {
                 <span>Lateral Displacement (d)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                The perpendicular distance between the original incident ray and the emergent ray:
+                The perpendicular sideways shift between the original path and the exiting beam:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-xs text-[#17231B] font-bold text-center">
                 d = [t · sin(i - r)] / cos(r)
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Directly proportional to slab thickness <code className="font-bold text-[#17231B]">t</code>.</li>
-                <li>• Increases as angle of incidence <code className="font-bold text-[#17231B]">i</code> increases.</li>
-                <li>• Directly proportional to refractive index <code className="font-bold text-[#17231B]">n</code>.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">Thicker slab (t):</strong> Produces a larger sideways shift.</li>
+                <li>• <strong className="text-[#17231B]">Steeper angle (i):</strong> Produces a larger sideways shift.</li>
               </ul>
             </div>
           </div>
@@ -655,6 +825,35 @@ function LearnContent() {
       {/* ---------------- 4. TRIANGULAR GLASS PRISM THEORY ---------------- */}
       {currentExp.id === 'glass-prism' && (
         <div className="space-y-8">
+          {/* Real-Life Everyday Example Hero Box */}
+          <RealLifeExampleBanner
+            title="How Glass Prisms & Rainbows Work in Everyday Life"
+            subtitle="Before measuring deviation angles, see how nature splits white light into colors:"
+            examples={[
+              {
+                icon: '🌈',
+                title: 'Real Rainbows After Rain',
+                subtitle: 'Nature’s giant raindrops',
+                description: 'White sunlight looks colorless, but it is actually 7 vibrant colors bundled together (VIBGYOR). When sunlight enters spherical raindrops, each color bends at a different angle, spreading out into a magical sky rainbow!',
+                highlightTag: 'Dispersion of Light',
+              },
+              {
+                icon: '🔺',
+                title: 'Permanent Triangular Bending',
+                subtitle: 'Why prisms don’t stay straight',
+                description: 'Unlike a flat glass window where light exits straight, a triangular prism has slanted sides. This causes light to bend permanently toward the heavy base of the triangle instead of staying parallel!',
+                highlightTag: 'Angle of Deviation',
+              },
+              {
+                icon: '💿',
+                title: 'Soap Bubbles & Shiny CDs',
+                subtitle: 'Rainbow sheen in room light',
+                description: 'The swirling rainbow colors on soap bubbles or the back of an audio CD separate ambient room light into its seven component colors using the exact same wave dispersion physics!',
+                highlightTag: 'VIBGYOR Spectrum',
+              },
+            ]}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
@@ -662,46 +861,48 @@ function LearnContent() {
                 <span>The Prism Equation</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Connects Angle of Prism (<code className="font-bold text-[#17231B]">A</code> = 60°), Angle of Deviation (<code className="font-bold text-[#17231B]">D</code>), Angle of Incidence (<code className="font-bold text-[#17231B]">i</code>), and Angle of Emergence (<code className="font-bold text-[#17231B]">e</code>):
+                Connects prism angle (<code className="font-bold text-[#17231B]">A</code> = 60°), bending angle (<code className="font-bold text-[#17231B]">D</code>), entry angle (<code className="font-bold text-[#17231B]">i</code>), and exit angle (<code className="font-bold text-[#17231B]">e</code>):
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 A + D = i + e
               </div>
-              <p className="text-[11px] text-[#647067]">
-                Unlike a parallel slab, non-parallel refracting faces cause the emergent ray to bend permanently toward the base of the prism.
-              </p>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• Slanted triangle faces permanently deflect the ray toward the base.</li>
+                <li>• <strong className="text-[#17231B]">D (Deviation):</strong> How much the ray turns from its original path.</li>
+              </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Minimum Deviation & Refractive Index</span>
+                <span>Minimum Deviation (The Sweet Spot)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                At the angle of minimum deviation (<code className="font-bold text-[#17231B]">Dₘ</code>), the ray travels parallel to the base inside the prism, and <code className="font-bold text-[#17231B]">i = e</code>:
+                When light passes symmetrically through the prism, the bending angle hits its lowest possible value (<code className="font-bold text-[#17231B]">Dₘ</code>):
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-xs text-[#17231B] font-bold text-center">
                 n = sin[(A + Dₘ)/2] / sin(A/2)
               </div>
-              <p className="text-[11px] text-[#647067]">
-                For crown glass (n ≈ 1.5) with A = 60°, Dₘ is approximately 37°–38°.
-              </p>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• At minimum deviation, <strong className="text-[#17231B]">i = e</strong> and the ray inside runs parallel to the base.</li>
+                <li>• For standard glass with A = 60°, Dₘ is roughly <strong className="text-[#17231B]">37° to 38°</strong>.</li>
+              </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>VIBGYOR Dispersion of White Light</span>
+                <span>VIBGYOR (Why Colors Separate)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                White light consists of seven primary spectral colours. In glass, speed of light varies inversely with refractive index:
+                Violet light has short waves and slows down the most in glass, so it bends the hardest. Red light has long waves and bends the least:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-xs text-[#17231B] font-bold text-center">
-                λ_red &gt; λ_violet ⟹ D_violet &gt; D_red
+                Deviation: Violet &gt; Indigo &gt; Blue &gt; Green &gt; Yellow &gt; Orange &gt; Red
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Red light has longest wavelength (~700 nm) and deviates the least.</li>
-                <li>• Violet light has shortest wavelength (~400 nm) and deviates the most.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">Red:</strong> Bends least (~700 nm wavelength).</li>
+                <li>• <strong className="text-[#17231B]">Violet:</strong> Bends most (~400 nm wavelength).</li>
               </ul>
             </div>
           </div>
@@ -743,54 +944,85 @@ function LearnContent() {
       {/* ---------------- 5. OHM'S LAW & CIRCUITS THEORY ---------------- */}
       {currentExp.id === 'ohms-law' && (
         <div className="space-y-8">
+          {/* Real-Life Everyday Example Hero Box */}
+          <RealLifeExampleBanner
+            title="How Ohm’s Law & Electricity Work in Everyday Life"
+            subtitle="Before connecting meters, see how electrical circuits relate to water and household wiring:"
+            examples={[
+              {
+                icon: '🚰',
+                title: 'The Garden Water Pipe Analogy',
+                subtitle: 'Voltage = Pressure, Current = Flow',
+                description: 'Think of electricity like water flowing in a hose: Voltage (V) is the pump pressure pushing the water, Current (I) is how much water gushes out per second, and Resistance (R) is someone stepping on or squeezing the pipe!',
+                highlightTag: 'Core Analogy (V = IR)',
+              },
+              {
+                icon: '🔥',
+                title: 'Why Phone Chargers & Toasters Get Warm',
+                subtitle: 'Electrical friction generates heat',
+                description: 'When millions of electrons struggle through a narrow resistance wire, friction generates heat! That is why your phone charger warms up, and exactly how room heaters, toasters, and hair dryers work.',
+                highlightTag: 'Heating Effect (H = I²Rt)',
+              },
+              {
+                icon: '💡',
+                title: 'Why Home Lights Don’t All Go Dark',
+                subtitle: 'Series vs Parallel wiring',
+                description: 'Old decorative holiday string lights wired in series all die if just one bulb burns out! But your household rooms are wired in parallel, so switching off your bedroom lamp leaves the living room fan and TV running.',
+                highlightTag: 'Parallel in Homes',
+              },
+            ]}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Ohm’s Law Statement</span>
+                <span>Ohm’s Law Formula</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                The electric current (<code className="font-bold text-[#17231B]">I</code>) flowing through a metallic conductor is directly proportional to the potential difference (<code className="font-bold text-[#17231B]">V</code>) across its ends, provided its temperature and physical conditions remain constant:
+                The harder you push (Voltage), the more current flows through the wire (Current), unless the wire resists (Resistance):
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 V = I · R  ⟺  R = V / I
               </div>
-              <p className="text-[11px] text-[#647067]">
-                SI unit of resistance is Ohm (Ω). 1 Ω = 1 Volt / 1 Ampere.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Series Resistor Combination</span>
-              </h3>
-              <p className="text-xs text-[#647067] leading-relaxed">
-                Resistors connected end-to-end. Current is identical through each resistor, while total potential difference is divided:
-              </p>
-              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
-                Rₛ = R₁ + R₂ + ... + Rₙ
-              </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Equivalent resistance is greater than the largest individual resistance.</li>
-                <li>• If one resistor fails, the entire circuit is broken.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• <strong className="text-[#17231B]">V (Voltage in Volts):</strong> Electrical push from the battery.</li>
+                <li>• <strong className="text-[#17231B]">I (Current in Amperes):</strong> Rate of electron flow.</li>
+                <li>• <strong className="text-[#17231B]">R (Resistance in Ohms Ω):</strong> The wire’s opposition to current.</li>
               </ul>
             </div>
 
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
-                <span>Parallel Resistor Combination</span>
+                <span>Series Wiring (End-to-End)</span>
               </h3>
               <p className="text-xs text-[#647067] leading-relaxed">
-                Resistors connected across common points. Potential difference is identical across each, while total current is the sum:
+                Single chain connection. The same current flows through each resistor, while voltages add up:
+              </p>
+              <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
+                Rₛ = R₁ + R₂ + ... + Rₙ
+              </div>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• Total resistance increases: <strong className="text-[#17231B]">Rₛ &gt; largest R</strong>.</li>
+                <li>• If one component breaks, the entire circuit stops working.</li>
+              </ul>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#17231B] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#B8D96B]" />
+                <span>Parallel Wiring (Side-by-Side)</span>
+              </h3>
+              <p className="text-xs text-[#647067] leading-relaxed">
+                Separate branch connection. Full battery voltage reaches every branch independently:
               </p>
               <div className="p-3 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] font-mono text-sm text-[#17231B] font-bold text-center">
                 1/Rₚ = 1/R₁ + 1/R₂ + ...
               </div>
-              <ul className="text-[11px] text-[#647067] space-y-1">
-                <li>• Equivalent resistance is less than the smallest individual resistance.</li>
-                <li>• Household appliances are connected in parallel so each operates independently.</li>
+              <ul className="text-[11px] text-[#647067] space-y-1.5">
+                <li>• Total resistance drops: <strong className="text-[#17231B]">Rₚ &lt; smallest R</strong>.</li>
+                <li>• Standard in all house electrical wiring for safe, independent control.</li>
               </ul>
             </div>
           </div>
@@ -982,6 +1214,7 @@ function LearnContent() {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

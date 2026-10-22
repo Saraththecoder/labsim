@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Atom,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -203,7 +204,7 @@ export default function HomePage() {
       </section>
 
       {/* =========================================
-          SECTION 2: THREE-STEP LEARNING WORKFLOW
+          SECTION 2: WHY LABSIM? (VISUAL FEATURE SHOWCASE)
          ========================================= */}
       <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full relative">
         {/* ---------------- CUTE STICKER 5: Glowing Bulb (Physics Circuit) ---------------- */}
@@ -216,66 +217,155 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#647067] bg-[#FFFFFF] px-3 py-1 rounded-full border border-[#E2E8DF] shadow-xs">
-            Systematic Board Curriculum
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#17231B] bg-[#FFFFFF] px-3.5 py-1.5 rounded-full border border-[#B8D96B]/60 shadow-xs inline-flex items-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-[#B8D96B]" />
+            <span>Why LabSim? • Real Lab vs Virtual Reality</span>
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17231B]">
-            Three-Stage Practical Mastery
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-[#17231B] tracking-tight">
+            Your School Science Lab, <span className="underline decoration-[#B8D96B] decoration-4 underline-offset-4">Available 24/7</span>
           </h2>
-          <p className="text-xs sm:text-sm text-[#647067]">
-            Structured pedagogical methodology aligned with NCERT Science Chapters 10, 11, and 12 guidelines.
+          <p className="text-xs sm:text-sm text-[#647067] leading-relaxed">
+            School laboratories give you only 40 minutes once a week with crowded queues and scratched mirrors. LabSim puts a fully functioning 3D and Augmented Reality laboratory right on your screen and study table.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3 relative overflow-hidden group hover:border-[#B8D96B] transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#B8D96B]/20 text-[#17231B] font-mono font-bold flex items-center justify-center text-sm border border-[#B8D96B]/40">
-              01
+        {/* 4 Strategic Visual Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card 1: 3D Optical Bench & Ray Tracing */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group overflow-hidden">
+            <div className="space-y-3">
+              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#17231B] border border-[#E2E8DF]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/experiments/convex-lens.jpg"
+                  alt="3D Optical Bench Practical"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute bottom-2 left-2.5 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-black/70 text-[#B8D96B] backdrop-blur-xs">
+                  Physics Optics Bench
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#17231B] group-hover:text-[#17231B]">
+                  Master Optical Benches Without Broken Glass
+                </h3>
+                <p className="text-xs text-[#647067] mt-1 leading-relaxed">
+                  Slide lenses along a 100 cm dual-rail optical bench, position object and image pins, and eliminate parallax error in real-time 3D ray tracing without waiting in school lab queues.
+                </p>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-[#17231B]">Master the Theory</h3>
-            <p className="text-xs text-[#647067] leading-relaxed">
-              Understand Snell’s law, mirror & thin-lens formulas, sign conventions, and light dispersion before entering the lab.
-            </p>
+
             <Link
-              href="/learn"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#17231B] hover:text-[#B8D96B] pt-2 transition-colors"
+              href="/lab"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#17231B] group-hover:text-[#38761D] pt-1 transition-colors"
             >
-              <span>Explore Theory Guide</span>
+              <span>Try Convex Lens 3D Lab</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3 relative overflow-hidden group hover:border-[#B8D96B] transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#B8D96B]/20 text-[#17231B] font-mono font-bold flex items-center justify-center text-sm border border-[#B8D96B]/40">
-              02
+          {/* Card 2: Tabletop Augmented Reality (AR) */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group overflow-hidden">
+            <div className="space-y-3">
+              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#17231B] border border-[#E2E8DF]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/experiments/concave-mirror.jpg"
+                  alt="Tabletop Augmented Reality"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute bottom-2 left-2.5 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-black/70 text-[#B8D96B] backdrop-blur-xs">
+                  WebXR Desk Surface AR
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#17231B] group-hover:text-[#17231B]">
+                  Place Physical Apparatus on Your Study Table
+                </h3>
+                <p className="text-xs text-[#647067] mt-1 leading-relaxed">
+                  Point your phone camera at your desk. The complete physical apparatus appears right in front of you in 1:1 scale using WebXR with intuitive touch controls.
+                </p>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-[#17231B]">Conduct 3D & AR Practical</h3>
-            <p className="text-xs text-[#647067] leading-relaxed">
-              Align optical benches, eliminate parallax errors, place apparatus in physical space with AR hit-testing, and observe sharp ray convergence.
-            </p>
+
             <Link
-              href="/physics"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#17231B] hover:text-[#B8D96B] pt-2 transition-colors"
+              href="/ar"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#17231B] group-hover:text-[#38761D] pt-1 transition-colors"
             >
-              <span>Explore 3D Labs</span>
+              <span>Launch Desk Augmented Reality</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs space-y-3 relative overflow-hidden group hover:border-[#B8D96B] transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#B8D96B]/20 text-[#17231B] font-mono font-bold flex items-center justify-center text-sm border border-[#B8D96B]/40">
-              03
+          {/* Card 3: Safe Circuits & Chemistry */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group overflow-hidden">
+            <div className="space-y-3">
+              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/experiments/ohms-law.svg"
+                  alt="Safe Electrical Circuit Simulation"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute bottom-2 left-2.5 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#17231B]/80 text-[#B8D96B] backdrop-blur-xs">
+                  Zero-Risk Circuits & Acids
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#17231B] group-hover:text-[#17231B]">
+                  Zero Blown Fuses, Zero Chemical Spills
+                </h3>
+                <p className="text-xs text-[#647067] mt-1 leading-relaxed">
+                  Safely test batteries, slide rheostats, and dip electrodes into acids, bases, and salts. View live current meters and ion dissociation with zero risk of electric shocks or chemical burns.
+                </p>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-[#17231B]">Record & Generate Reports</h3>
-            <p className="text-xs text-[#647067] leading-relaxed">
-              Log readings into digital observation notebooks, calculate mean focal length & errors, complete viva defense, and print PDF practical sheets.
-            </p>
+
+            <Link
+              href="/conductivity/lab"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#17231B] group-hover:text-[#38761D] pt-1 transition-colors"
+            >
+              <span>Test Chemistry & Circuit Labs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Card 4: Observation Tables & Viva Practice */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group overflow-hidden">
+            <div className="space-y-3">
+              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/experiments/glass-prism.svg"
+                  alt="Practical Records and Viva"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute bottom-2 left-2.5 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#17231B]/80 text-[#B8D96B] backdrop-blur-xs">
+                  Exam-Ready Observation Sheets
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#17231B] group-hover:text-[#17231B]">
+                  Ready-to-Submit Lab Notebooks & Viva Mastery
+                </h3>
+                <p className="text-xs text-[#647067] mt-1 leading-relaxed">
+                  Auto-calculate mean focal lengths, refractive indices, and error percentages. Master curated examiner viva-voce questions to score full 30/30 marks in your practical exam!
+                </p>
+              </div>
+            </div>
+
             <Link
               href="/report"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#17231B] hover:text-[#B8D96B] pt-2 transition-colors"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#17231B] group-hover:text-[#38761D] pt-1 transition-colors"
             >
-              <span>Open Lab Reports</span>
+              <span>View Practical Reports & Viva</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -320,17 +410,28 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Discipline 1: Physics Suite */}
-          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5 group relative">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl bg-[#B8D96B]/25 text-[#17231B] flex items-center justify-center border border-[#B8D96B]/50">
-                  <Atom className="w-6 h-6" />
-                </div>
-                <span className="px-3 py-1 rounded-lg text-xs font-bold bg-[#F4F7F2] text-[#17231B] border border-[#E2E8DF]">
+          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5 group relative overflow-hidden">
+            {/* Visual Header Image */}
+            <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-[#17231B] border border-[#E2E8DF]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/experiments/convex-lens.jpg"
+                alt="Physics Suite Practicals"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+                <span className="text-xs font-bold flex items-center gap-1.5">
+                  <Atom className="w-4 h-4 text-[#B8D96B]" />
+                  <span>Physics Laboratory</span>
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#B8D96B] text-[#17231B]">
                   5 Practicals
                 </span>
               </div>
+            </div>
 
+            <div className="space-y-4">
               <div>
                 <h3 className="text-xl font-bold text-[#17231B] group-hover:text-[#17231B]">
                   Class 10 Physics Suite
@@ -375,17 +476,28 @@ export default function HomePage() {
           </div>
 
           {/* Discipline 2: Chemistry Lab */}
-          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5 group relative">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl bg-[#B8D96B]/25 text-[#17231B] flex items-center justify-center border border-[#B8D96B]/50">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <span className="px-3 py-1 rounded-lg text-xs font-bold bg-[#F4F7F2] text-[#17231B] border border-[#E2E8DF]">
+          <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] hover:border-[#B8D96B] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5 group relative overflow-hidden">
+            {/* Visual Header Image */}
+            <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-[#F4F7F2] border border-[#E2E8DF] flex items-center justify-center p-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/experiments/glass-slab.svg"
+                alt="Chemistry Electrolyte Practical"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+                <span className="text-xs font-bold flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-[#B8D96B]" />
+                  <span>Chemistry Laboratory</span>
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#17231B] text-[#B8D96B] border border-[#B8D96B]/50">
                   Electrolyte Practical
                 </span>
               </div>
+            </div>
 
+            <div className="space-y-4">
               <div>
                 <h3 className="text-xl font-bold text-[#17231B] group-hover:text-[#17231B]">
                   Class 10 Chemistry Lab
