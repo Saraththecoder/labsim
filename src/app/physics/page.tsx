@@ -28,42 +28,11 @@ export default function PhysicsSuiteHubPage() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
       if (headerRef.current) {
-        tl.from(headerRef.current.children, {
-          y: 20,
-          opacity: 0,
-          stagger: 0.12,
-          duration: 0.7,
-        });
-      }
-
-      if (statsRef.current) {
-        tl.from(
-          statsRef.current.children,
-          {
-            scale: 0.9,
-            opacity: 0,
-            stagger: 0.08,
-            duration: 0.5,
-            ease: 'back.out(1.5)',
-          },
-          '-=0.3'
-        );
-      }
-
-      if (gridRef.current) {
-        tl.from(
-          gridRef.current.children,
-          {
-            y: 30,
-            opacity: 0,
-            stagger: 0.1,
-            duration: 0.65,
-            ease: 'power2.out',
-          },
-          '-=0.2'
+        gsap.fromTo(
+          headerRef.current,
+          { y: 16, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', clearProps: 'all' }
         );
       }
     }, containerRef);

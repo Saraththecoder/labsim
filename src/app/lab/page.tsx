@@ -65,22 +65,12 @@ export default function LabPage() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
       if (headerBarRef.current) {
-        tl.from(headerBarRef.current, { y: -16, opacity: 0, duration: 0.5 });
-      }
-
-      if (leftColumnRef.current) {
-        tl.from(leftColumnRef.current, { x: -20, opacity: 0, duration: 0.6 }, '-=0.3');
-      }
-
-      if (centerBenchRef.current) {
-        tl.from(centerBenchRef.current, { scale: 0.98, opacity: 0, duration: 0.6 }, '-=0.4');
-      }
-
-      if (rightColumnRef.current) {
-        tl.from(rightColumnRef.current, { x: 20, opacity: 0, duration: 0.6 }, '-=0.4');
+        gsap.fromTo(
+          headerBarRef.current,
+          { y: -12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out', clearProps: 'all' }
+        );
       }
     }, labContainerRef);
 

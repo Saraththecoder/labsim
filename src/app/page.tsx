@@ -47,116 +47,32 @@ export default function HomePage() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      // 1. Hero text & CTA entrance
-      if (eyebrowRef.current) {
-        tl.from(eyebrowRef.current, {
-          y: -14,
-          opacity: 0,
-          duration: 0.6,
-          letterSpacing: '0.35em',
-        });
+      // 1. Subtle entrance on headline and eyebrow with clearProps to prevent stuck opacity
+      if (headlineRef.current) {
+        gsap.fromTo(
+          headlineRef.current,
+          { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', clearProps: 'all' }
+        );
       }
 
-      if (headlineRef.current) {
-        tl.from(
-          headlineRef.current,
-          {
-            y: 28,
-            opacity: 0,
-            duration: 0.85,
-            ease: 'power4.out',
-          },
-          '-=0.4'
+      if (eyebrowRef.current) {
+        gsap.fromTo(
+          eyebrowRef.current,
+          { y: -10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', clearProps: 'all' }
         );
       }
 
       if (subheadRef.current) {
-        tl.from(
+        gsap.fromTo(
           subheadRef.current,
-          {
-            y: 18,
-            opacity: 0,
-            duration: 0.7,
-          },
-          '-=0.55'
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.55, delay: 0.1, ease: 'power2.out', clearProps: 'all' }
         );
       }
 
-      if (ctaRef.current) {
-        tl.from(
-          ctaRef.current,
-          {
-            scale: 0.85,
-            opacity: 0,
-            duration: 0.65,
-            ease: 'back.out(1.8)',
-          },
-          '-=0.45'
-        );
-      }
-
-      // 2. Stagger in the 4 quick tiles
-      if (tilesRef.current && tilesRef.current.children.length > 0) {
-        tl.from(
-          tilesRef.current.children,
-          {
-            y: 24,
-            opacity: 0,
-            duration: 0.55,
-            stagger: 0.08,
-            ease: 'back.out(1.4)',
-          },
-          '-=0.3'
-        );
-      }
-
-      // 3. Reveal live simulator card
-      if (demoCardRef.current) {
-        tl.from(
-          demoCardRef.current,
-          {
-            y: 30,
-            opacity: 0,
-            duration: 0.7,
-            ease: 'power3.out',
-          },
-          '-=0.2'
-        );
-      }
-
-      // 4. Stagger workflow steps
-      if (workflowRef.current && workflowRef.current.children.length > 0) {
-        tl.from(
-          workflowRef.current.children,
-          {
-            y: 26,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power2.out',
-          },
-          '-=0.2'
-        );
-      }
-
-      // 5. Stagger experiments list
-      if (experimentsRef.current && experimentsRef.current.children.length > 0) {
-        tl.from(
-          experimentsRef.current.children,
-          {
-            y: 24,
-            opacity: 0,
-            duration: 0.55,
-            stagger: 0.08,
-            ease: 'power2.out',
-          },
-          '-=0.2'
-        );
-      }
-
-      // 6. Floating handwritten sketchbook margin annotations (physics sine float)
+      // 2. Continuous floating sketchbook margin notes
       if (noteLeftRef.current) {
         gsap.to(noteLeftRef.current, {
           y: -10,
@@ -180,7 +96,6 @@ export default function HomePage() {
       }
     }, pageContainerRef);
 
-    return () => ctx.revert();
   }, []);
 
   // Subtle pulse animation when user drags the distance slider
