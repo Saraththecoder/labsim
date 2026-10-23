@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { OpticalBench3D } from '@/components/OpticalBench3D';
 import { RayDiagramSvg } from '@/components/RayDiagramSvg';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import {
   calculateOptics,
   LAB_PRESETS,
@@ -616,12 +617,12 @@ export default function LabPage() {
               )}
             </div>
 
-            {/* Screen Sharpness Meter */}
+            {/* Screen Sharpness Meter & Auto-Focus Helper */}
             <div className="space-y-1.5 text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[#647067] font-semibold">Screen Sharpness</span>
                 <span className="font-mono font-bold text-[#17231B]">
-                  {calc.screenFocusMatchPercent || 0}%
+                  {calc.screenFocusMatchPercent || 0}% {calc.isFocused && '• In Sharp Focus! 🎯'}
                 </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[#E2E8DF] overflow-hidden">
@@ -632,6 +633,16 @@ export default function LabPage() {
                   style={{ width: `${calc.screenFocusMatchPercent || 0}%` }}
                 />
               </div>
+
+              {calc.isReal && !calc.isFocused && isFinite(calc.imageDistance) && (
+                <button
+                  onClick={() => setScreenPos(Math.round(lensPos + calc.imageDistance))}
+                  className="w-full py-1.5 rounded-lg bg-[#F4F7F2] hover:bg-[#B8D96B]/30 border border-[#E2E8DF] text-[11px] font-bold text-[#17231B] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs mt-1"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#558120]" />
+                  <span>Auto-Focus Screen (Jump to {Math.round(lensPos + calc.imageDistance)} cm)</span>
+                </button>
+              )}
             </div>
 
             {/* Record Observation Button */}
@@ -740,6 +751,9 @@ export default function LabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="convex-lens" />
     </div>
   );
 }

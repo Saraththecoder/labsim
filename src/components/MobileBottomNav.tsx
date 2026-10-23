@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FlaskConical, BookOpen, BarChart3 } from 'lucide-react';
+import { Home, Atom, FlaskConical, Sliders, FileText } from 'lucide-react';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -17,21 +17,27 @@ export function MobileBottomNav() {
       isActive: pathname === '/',
     },
     {
-      name: 'Labs',
+      name: 'Physics',
       href: '/physics',
-      icon: FlaskConical,
+      icon: Atom,
       isActive: pathname.startsWith('/physics') || pathname === '/lab' || pathname === '/ar',
     },
     {
-      name: 'Theory',
-      href: '/learn',
-      icon: BookOpen,
-      isActive: pathname.includes('/learn'),
+      name: 'Chemistry',
+      href: '/chemistry',
+      icon: FlaskConical,
+      isActive: pathname.startsWith('/chemistry') || pathname.startsWith('/conductivity'),
+    },
+    {
+      name: 'Sandbox',
+      href: '/sandbox',
+      icon: Sliders,
+      isActive: pathname.startsWith('/sandbox'),
     },
     {
       name: 'Reports',
       href: '/report',
-      icon: BarChart3,
+      icon: FileText,
       isActive: pathname.includes('/report') || pathname.includes('/observations') || pathname.includes('/quiz'),
     },
   ];

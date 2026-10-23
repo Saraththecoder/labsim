@@ -51,6 +51,8 @@ export function ConcaveMirrorBench3D({
   const controlsRef = useRef<OrbitControls | null>(null);
 
   const objectUprightRef = useRef<THREE.Group | null>(null);
+  const arrowGroupRef = useRef<THREE.Group | null>(null);
+  const updateArrowRef = useRef<((hCm: number) => void) | null>(null);
   const mirrorUprightRef = useRef<THREE.Group | null>(null);
   const screenUprightRef = useRef<THREE.Group | null>(null);
   const raysGroupRef = useRef<THREE.Group | null>(null);
@@ -309,16 +311,53 @@ export function ConcaveMirrorBench3D({
     post.position.set(0, 0.7, 0);
     objectGroup.add(post);
 
-    const arrowShaftGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.45, 16);
-    const arrowShaftMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.6 });
-    const arrowShaft = new THREE.Mesh(arrowShaftGeo, arrowShaftMat);
-    arrowShaft.position.set(0, 1.15, 0);
-    objectGroup.add(arrowShaft);
+    // Dynamic glowing arrow needle sitting strictly on optical axis Y=1.0
+    const arrowGroup = new THREE.Group();
+    arrowGroupRef.current = arrowGroup;
+    objectGroup.add(arrowGroup);
 
-    const arrowTipGeo = new THREE.ConeGeometry(0.06, 0.12, 16);
-    const arrowTip = new THREE.Mesh(arrowTipGeo, arrowShaftMat);
-    arrowTip.position.set(0, 1.4, 0);
-    objectGroup.add(arrowTip);
+    const updateArrowGeometry = (hCm: number) => {
+      while (arrowGroup.children.length > 0) {
+        const c = arrowGroup.children[0];
+        arrowGroup.remove(c);
+        if (c instanceof THREE.Mesh) {
+          c.geometry.dispose();
+          if (Array.isArray(c.material)) c.material.forEach((m) => m.dispose());
+          else c.material.dispose();
+        }
+      }
+      const H = Math.max(0.15, hCm * 0.1);
+      const tipH = 0.08;
+      const shaftH = Math.max(0.05, H - tipH);
+
+      const arrowAmberMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        emissive: 0xd97706,
+        emissiveIntensity: 1.5,
+        roughness: 0.2,
+      });
+
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, shaftH, 16),
+        arrowAmberMat
+      );
+      shaft.position.set(0, 1.0 + shaftH / 2, 0);
+      arrowGroup.add(shaft);
+
+      const tip = new THREE.Mesh(
+        new THREE.ConeGeometry(0.04, tipH, 16),
+        arrowAmberMat
+      );
+      tip.position.set(0, 1.0 + H - tipH / 2, 0);
+      arrowGroup.add(tip);
+
+      const objectLight = new THREE.PointLight(0xf59e0b, 1.6, 2.5);
+      objectLight.position.set(0, 1.0 + H, 0);
+      arrowGroup.add(objectLight);
+    };
+
+    updateArrowRef.current = updateArrowGeometry;
+    updateArrowGeometry(objectHeight);
 
     objectGroup.position.set(cmTo3D(objectPos), 0, 0);
     objectUprightRef.current = objectGroup;
@@ -381,10 +420,25 @@ export function ConcaveMirrorBench3D({
       metalness: 0.1,
     });
     const screenPlate = new THREE.Mesh(screenPlateGeo, screenPlateMat);
-    screenPlate.rotation.y = Math.PI / 2;
+    screenPlate.rotation.y = 0;
     screenPlate.position.set(0, 1.0, 0);
     screenPlate.castShadow = true;
     screenGroup.add(screenPlate);
+
+    // Front projection surface (facing mirror dish towards +X)
+    const surfGeo = new THREE.PlaneGeometry(0.68, 0.68);
+    const surfMat = new THREE.MeshBasicMaterial({ map: screenTexture, transparent: true });
+
+    const frontSurf = new THREE.Mesh(surfGeo, surfMat);
+    frontSurf.rotation.y = Math.PI / 2;
+    frontSurf.position.set(0.011, 1.0, 0);
+    screenGroup.add(frontSurf);
+
+    // Back surface (facing observer towards -X)
+    const backSurf = new THREE.Mesh(surfGeo, surfMat);
+    backSurf.rotation.y = -Math.PI / 2;
+    backSurf.position.set(-0.011, 1.0, 0);
+    screenGroup.add(backSurf);
 
     screenGroup.position.set(cmTo3D(screenPos), 0, 0);
     screenUprightRef.current = screenGroup;
@@ -432,6 +486,10 @@ export function ConcaveMirrorBench3D({
     }
     if (screenUprightRef.current) {
       screenUprightRef.current.position.x = cmTo3D(screenPos);
+    }
+
+    if (updateArrowRef.current) {
+      updateArrowRef.current(objectHeight);
     }
 
     updateScreenTexture();

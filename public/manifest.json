@@ -1,0 +1,24 @@
+{
+  "name": "LabSim: Virtual Science Laboratory",
+  "short_name": "LabSim AR",
+  "description": "NCERT Class 10 Interactive Science Laboratory in 3D & Augmented Reality",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F7F2",
+  "theme_color": "#17231B",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/images/mascot/labby-happy.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/mascot/labby-alert.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

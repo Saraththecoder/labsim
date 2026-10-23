@@ -1115,7 +1115,7 @@ export function buildGlassPrismModel(
     return new THREE.Mesh(new THREE.TubeGeometry(c, 24, radius, 8, false), new THREE.MeshBasicMaterial({ color: col }));
   };
 
-  const pEntry = new THREE.Vector3(-0.25, 0.55, -0.15);
+  const pEntry = new THREE.Vector3(-0.225, 0.55, -0.13);
   const pSource = new THREE.Vector3(projX, 0.55, projZ);
 
   // White incident beam from slit projector
@@ -1125,7 +1125,7 @@ export function buildGlassPrismModel(
     // 7-Color VIBGYOR Rainbow Spectrum Band
     calc.spectralRays.forEach((ray, idx) => {
       const devRad = (ray.deviationDeg * Math.PI) / 180;
-      const rInside = new THREE.Vector3(0.2, 0.55, -0.1 + idx * 0.02);
+      const rInside = new THREE.Vector3(0.225, 0.55, -0.13 + (idx - 3) * 0.012);
       const rScreen = new THREE.Vector3(
         1.5 * Math.cos(devRad * 0.6 + 0.2),
         0.55,
@@ -1147,7 +1147,7 @@ export function buildGlassPrismModel(
     root.add(screen);
   } else {
     // Monochromatic Refracted Ray (Single Green Ray)
-    const pInside = new THREE.Vector3(0.22, 0.55, 0);
+    const pInside = new THREE.Vector3(0.225, 0.55, -0.13);
     const devRad = calc.angleDeviationRad;
     const pEmergent = new THREE.Vector3(
       1.5 * Math.cos(devRad * 0.6 + 0.2),

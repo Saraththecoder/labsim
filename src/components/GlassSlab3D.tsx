@@ -143,11 +143,13 @@ export function GlassSlab3D({
       raysGroup.add(dotLine);
 
       // 5. Lateral Displacement Dimension Line (Crimson Red)
-      // Perpendicular line from original path to emergent ray
-      if (d3D > 0.05) {
-        // Point on original path opposite to Oprime
-        const perpX = Ox + shiftInsideX * Math.cos(iRad);
-        const perpY = Oy - shiftInsideX * Math.sin(iRad);
+      // Strictly perpendicular segment dropped from emergence point O' to original path
+      if (d3D > 0.02) {
+        // Projection of vector OO' onto unit direction u=(sin i, -cos i)
+        const projS = shiftInsideX * Math.sin(iRad) + t3D * Math.cos(iRad);
+        const perpX = Ox + projS * Math.sin(iRad);
+        const perpY = Oy - projS * Math.cos(iRad);
+
         const latPts = [new THREE.Vector3(OprimeX, OprimeY, Oz + 0.01), new THREE.Vector3(perpX, perpY, Oz + 0.01)];
         const latGeo = new THREE.BufferGeometry().setFromPoints(latPts);
         const latMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2.5 });
@@ -173,35 +175,36 @@ export function GlassSlab3D({
       raysGroup.add(nBotLine);
     }
 
-    // 7. Four Optical Pins (P1, P2 along incident; P3, P4 along emergent)
+    // 7. Four Optical Pins grounded firmly into drawing board (Z = -0.04)
     if (showPins) {
-      const pinMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
-      const pinHeadMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3 });
-      const pinGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 16);
-      const headGeo = new THREE.SphereGeometry(0.04, 16, 16);
+      const pinMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
+      const pinGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.44, 16);
+      const headGeo = new THREE.SphereGeometry(0.038, 16, 16);
 
-      const addPin = (x: number, y: number, label: string) => {
+      const addPin = (x: number, y: number, headColor = 0xd97706) => {
         const pin = new THREE.Group();
+        pin.position.set(x, y, -0.04);
+
         const body = new THREE.Mesh(pinGeo, pinMat);
         body.rotation.x = Math.PI / 2;
-        body.position.set(0, 0, 0.25);
+        body.position.set(0, 0, 0.22);
         pin.add(body);
 
-        const head = new THREE.Mesh(headGeo, pinHeadMat);
-        head.position.set(0, 0, 0.5);
+        const headMat = new THREE.MeshStandardMaterial({ color: headColor, roughness: 0.3 });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.position.set(0, 0, 0.44);
         pin.add(head);
 
-        pin.position.set(x, y, Oz);
         pinsGroup.add(pin);
       };
 
-      // P1 & P2 along incident ray
-      addPin(incOriginX + (Ox - incOriginX) * 0.3, incOriginY + (Oy - incOriginY) * 0.3, 'P1');
-      addPin(incOriginX + (Ox - incOriginX) * 0.7, incOriginY + (Oy - incOriginY) * 0.7, 'P2');
+      // P1 & P2 along incident ray (Red beads)
+      addPin(incOriginX + (Ox - incOriginX) * 0.35, incOriginY + (Oy - incOriginY) * 0.35, 0xef4444);
+      addPin(incOriginX + (Ox - incOriginX) * 0.75, incOriginY + (Oy - incOriginY) * 0.75, 0xef4444);
 
-      // P3 & P4 along emergent ray
-      addPin(OprimeX + (emEndX - OprimeX) * 0.3, OprimeY + (emEndY - OprimeY) * 0.3, 'P3');
-      addPin(OprimeX + (emEndX - OprimeX) * 0.7, OprimeY + (emEndY - OprimeY) * 0.7, 'P4');
+      // P3 & P4 along emergent ray (Blue beads)
+      addPin(OprimeX + (emEndX - OprimeX) * 0.35, OprimeY + (emEndY - OprimeY) * 0.35, 0x0284c7);
+      addPin(OprimeX + (emEndX - OprimeX) * 0.75, OprimeY + (emEndY - OprimeY) * 0.75, 0x0284c7);
     }
   };
 

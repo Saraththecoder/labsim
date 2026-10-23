@@ -54,6 +54,8 @@ export function ConductivityBench3D({
   const waterCausticRef = useRef<{ texture: THREE.CanvasTexture; update: (t: number) => void } | null>(null);
   const causticPoolRef = useRef<THREE.Mesh | null>(null);
   const liquidTopRef = useRef<THREE.Mesh | null>(null);
+  const wire1MeshRef = useRef<THREE.Mesh | null>(null);
+  const wire2MeshRef = useRef<THREE.Mesh | null>(null);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cameraView, setCameraView] = useState<'perspective' | 'beaker' | 'circuit' | 'top'>('perspective');
@@ -509,24 +511,28 @@ export function ConductivityBench3D({
     const wireMatRed = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
     const wireMatBlack = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 });
 
+    const initialHalfDist = (state.electrodeDistance / 2) * 0.08;
+
     // Red Lead: PSU (+) to Left Electrode (+)
     const curve1 = new THREE.CatmullRomCurve3([
       new THREE.Vector3(1.25, 0.25, -0.05),
       new THREE.Vector3(0.5, 0.8, -0.4),
       new THREE.Vector3(-0.5, 1.4, -0.3),
-      new THREE.Vector3(-1.0 - (state.electrodeDistance * 0.05), 1.9, 0),
+      new THREE.Vector3(-1.0 - initialHalfDist, 1.88, 0),
     ]);
     const wire1 = new THREE.Mesh(new THREE.TubeGeometry(curve1, 32, 0.022, 8, false), wireMatRed);
+    wire1MeshRef.current = wire1;
     scene.add(wire1);
 
     // Black Lead: Right Electrode (-) to Bulb
     const curve2 = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-1.0 + (state.electrodeDistance * 0.05), 1.9, 0),
+      new THREE.Vector3(-1.0 + initialHalfDist, 1.88, 0),
       new THREE.Vector3(-0.2, 0.6, 0.4),
       new THREE.Vector3(0.8, 0.2, 0.8),
       new THREE.Vector3(1.25, 0.2, 0.9),
     ]);
     const wire2 = new THREE.Mesh(new THREE.TubeGeometry(curve2, 32, 0.022, 8, false), wireMatBlack);
+    wire2MeshRef.current = wire2;
     scene.add(wire2);
 
     // Return Lead: Bulb back to PSU (-)
@@ -602,13 +608,34 @@ export function ConductivityBench3D({
 
   // Update dynamic visuals when state changes
   useEffect(() => {
-    // 1. Update electrode separation distance l
+    // 1. Update electrode separation distance l & snap wires to alligator clips
     const halfDist = (state.electrodeDistance / 2) * 0.08;
     if (electrodeLeftRef.current) {
       electrodeLeftRef.current.position.x = -halfDist;
     }
     if (electrodeRightRef.current) {
       electrodeRightRef.current.position.x = halfDist;
+    }
+
+    if (wire1MeshRef.current) {
+      const c1 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(1.25, 0.25, -0.05),
+        new THREE.Vector3(0.5, 0.8, -0.4),
+        new THREE.Vector3(-0.5, 1.4, -0.3),
+        new THREE.Vector3(-1.0 - halfDist, 1.88, 0),
+      ]);
+      wire1MeshRef.current.geometry.dispose();
+      wire1MeshRef.current.geometry = new THREE.TubeGeometry(c1, 32, 0.022, 8, false);
+    }
+    if (wire2MeshRef.current) {
+      const c2 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-1.0 + halfDist, 1.88, 0),
+        new THREE.Vector3(-0.2, 0.6, 0.4),
+        new THREE.Vector3(0.8, 0.2, 0.8),
+        new THREE.Vector3(1.25, 0.2, 0.9),
+      ]);
+      wire2MeshRef.current.geometry.dispose();
+      wire2MeshRef.current.geometry = new THREE.TubeGeometry(c2, 32, 0.022, 8, false);
     }
 
     // 2. Liquid Color & Opacity & Caustic Pool

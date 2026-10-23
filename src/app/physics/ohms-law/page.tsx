@@ -23,6 +23,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { OhmsLawCircuit3D } from '@/components/OhmsLawCircuit3D';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import {
   calculateOhmsLaw,
   CircuitConfig,
@@ -345,6 +346,9 @@ export default function OhmsLawLabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="ohms-law" />
     </div>
   );
 }

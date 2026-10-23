@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: 'LabSim: Virtual Science Laboratory',
   description:
     'An interactive 3D and WebXR Augmented Reality virtual science laboratory for investigating physics optics and chemistry experiments.',
+  manifest: '/manifest.json',
   keywords: [
     'LabSim',
     'Virtual Science Lab',

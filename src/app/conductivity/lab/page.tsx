@@ -17,6 +17,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { ConductivityBench3D } from '@/components/ConductivityBench3D';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import {
   calculateConductivity,
   ConductivityCellState,
@@ -448,6 +449,9 @@ export default function ConductivityLabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="conductivity" />
     </div>
   );
 }

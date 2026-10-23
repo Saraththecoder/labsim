@@ -15,12 +15,16 @@ import {
   ChevronDown,
   Atom,
   Zap,
+  Trophy,
+  Sliders,
 } from 'lucide-react';
+import { StudentBadgesModal } from '@/components/StudentBadgesModal';
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [physicsDropdownOpen, setPhysicsDropdownOpen] = useState(false);
+  const [badgesOpen, setBadgesOpen] = useState(false);
 
   // Clean up any legacy classroom-mode if present
   useEffect(() => {
@@ -31,7 +35,8 @@ export function Navbar() {
   }, []);
 
   const isConductivity = pathname.startsWith('/conductivity');
-  const isPhysics = !isConductivity;
+  const isChemistry = pathname.startsWith('/chemistry') || isConductivity;
+  const isPhysics = !isChemistry;
 
   const physicsExperiments = [
     { name: '1. Convex Lens Optics', href: '/lab', badge: 'Light' },
@@ -78,14 +83,14 @@ export function Navbar() {
                 <span>Physics Suite</span>
               </Link>
               <Link
-                href="/conductivity/lab"
+                href="/chemistry"
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  isConductivity
+                  isChemistry
                     ? 'bg-[#B8D96B] text-[#17231B] font-extrabold shadow-sm'
                     : 'text-[#647067] hover:text-[#17231B]'
                 }`}
               >
-                <Zap className="w-3.5 h-3.5" />
+                <FlaskConical className="w-3.5 h-3.5" />
                 <span>Chemistry Lab</span>
               </Link>
             </div>
@@ -148,6 +153,18 @@ export function Navbar() {
               </Link>
 
               <Link
+                href="/sandbox"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  pathname.includes('/sandbox')
+                    ? 'text-[#17231B] bg-[#B8D96B]/25 font-bold'
+                    : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-[#17231B]" />
+                <span>Sandbox</span>
+              </Link>
+
+              <Link
                 href={isConductivity ? '/conductivity/ar' : '/ar'}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   pathname.includes('/ar')
@@ -170,11 +187,28 @@ export function Navbar() {
                 <FileText className="w-3.5 h-3.5" />
                 <span>Reports</span>
               </Link>
+
+              <button
+                onClick={() => setBadgesOpen(true)}
+                className="w-8 h-8 rounded-full bg-[#B8D96B]/20 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer ml-1"
+                title="View Practical Achievements & Level"
+              >
+                <Trophy className="w-3.5 h-3.5 text-[#17231B]" />
+              </button>
             </nav>
           </div>
 
-          {/* Mobile Right: AR + Hamburger */}
+          {/* Mobile Right: Trophy + AR + Hamburger */}
           <div className="lg:hidden flex items-center gap-2">
+            <button
+              onClick={() => setBadgesOpen(true)}
+              className="w-8 h-8 rounded-full bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer active:scale-95"
+              title="Student Practical Achievements & XP"
+              aria-label="Student Practical Achievements & XP"
+            >
+              <Trophy className="w-4 h-4 text-[#17231B]" />
+            </button>
+
             <Link
               href="/ar"
               className="px-2.5 py-1 text-xs font-extrabold rounded-lg bg-[#B8D96B] text-[#17231B] flex items-center gap-1 shadow-sm"
@@ -186,6 +220,7 @@ export function Navbar() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="p-1.5 rounded-lg text-[#17231B] hover:bg-[#F4F7F2] focus:outline-none"
+              aria-label="Toggle navigation menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -195,76 +230,116 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden bg-[#FFFFFF] border-b border-[#E2E8DF] px-4 pt-2 pb-5 space-y-3 shadow-xl">
+        <div className="lg:hidden bg-[#FFFFFF] border-b border-[#E2E8DF] px-4 pt-3 pb-5 space-y-3 shadow-xl max-h-[85vh] overflow-y-auto">
+          {/* Gamification / Trophy Quick Banner */}
+          <div className="p-3 bg-gradient-to-r from-[#B8D96B]/20 via-[#B8D96B]/10 to-transparent border border-[#B8D96B]/50 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-[#B8D96B] flex items-center justify-center text-[#17231B] shadow-xs shrink-0">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-extrabold text-[#17231B] truncate">Student Practical Awards</div>
+                <div className="text-[10px] text-[#647067] truncate">Earn XP & unlock AR lab badges</div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                setBadgesOpen(true);
+              }}
+              className="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-[#17231B] text-[#FFFFFF] hover:bg-black transition-colors shrink-0 cursor-pointer shadow-xs active:scale-95"
+            >
+              View Awards
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[#E2E8DF] text-xs">
             <Link
               href="/physics"
               onClick={() => setMobileOpen(false)}
-              className={`p-2 rounded-lg text-center font-bold ${
+              className={`p-2 rounded-xl text-center font-bold transition-colors ${
                 isPhysics ? 'bg-[#B8D96B] text-[#17231B]' : 'bg-[#F4F7F2] text-[#647067]'
               }`}
             >
               ⚛ Physics Suite
             </Link>
             <Link
-              href="/conductivity/lab"
+              href="/chemistry"
               onClick={() => setMobileOpen(false)}
-              className={`p-2 rounded-lg text-center font-bold ${
-                isConductivity ? 'bg-[#B8D96B] text-[#17231B]' : 'bg-[#F4F7F2] text-[#647067]'
+              className={`p-2 rounded-xl text-center font-bold transition-colors ${
+                isChemistry ? 'bg-[#B8D96B] text-[#17231B]' : 'bg-[#F4F7F2] text-[#647067]'
               }`}
             >
-              ⚡ Chemistry Lab
+              🧪 Chemistry Lab
             </Link>
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] uppercase font-bold text-[#647067] px-3 py-1">Physics Experiments</p>
+            <p className="text-[10px] uppercase font-bold text-[#647067] px-3 py-1">NCERT Class 10 Practicals</p>
             {physicsExperiments.map((exp) => (
               <Link
                 key={exp.href}
                 href={exp.href}
                 onClick={() => setMobileOpen(false)}
-                className={`block px-3 py-1.5 rounded-lg text-xs font-medium ${
+                className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium ${
                   pathname === exp.href ? 'bg-[#B8D96B]/25 text-[#17231B] font-bold' : 'text-[#17231B]'
                 }`}
               >
-                {exp.name}
+                <span>{exp.name}</span>
+                <span className="text-[9px] px-1 py-0.5 rounded bg-[#F4F7F2] text-[#647067] font-mono border border-[#E2E8DF]">
+                  {exp.badge}
+                </span>
               </Link>
             ))}
           </div>
 
           <div className="pt-2 border-t border-[#E2E8DF] space-y-1">
             <Link
+              href="/sandbox"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-[#17231B] hover:bg-[#F4F7F2]"
+            >
+              <Sliders className="w-3.5 h-3.5 text-[#17231B]" />
+              <span>Interactive Circuit Sandbox</span>
+            </Link>
+            <Link
               href={isConductivity ? '/conductivity/learn' : '/learn'}
               onClick={() => setMobileOpen(false)}
-              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B] hover:bg-[#F4F7F2]"
             >
-              Theory & Principles
+              <BookOpen className="w-3.5 h-3.5 text-[#647067]" />
+              <span>Theory & Principles</span>
             </Link>
             <Link
               href={isConductivity ? '/conductivity/ar' : '/ar'}
               onClick={() => setMobileOpen(false)}
-              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B] hover:bg-[#F4F7F2]"
             >
-              Tabletop AR Mode
+              <Smartphone className="w-3.5 h-3.5 text-[#647067]" />
+              <span>Tabletop WebXR AR Mode</span>
             </Link>
             <Link
               href={isConductivity ? '/conductivity/observations' : '/observations'}
               onClick={() => setMobileOpen(false)}
-              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B] hover:bg-[#F4F7F2]"
             >
-              Observation Tables
+              <TableProperties className="w-3.5 h-3.5 text-[#647067]" />
+              <span>Observation Tables</span>
             </Link>
             <Link
               href={isConductivity ? '/conductivity/report' : '/report'}
               onClick={() => setMobileOpen(false)}
-              className="block px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[#17231B] hover:bg-[#F4F7F2]"
             >
-              Printable Lab Report
+              <FileText className="w-3.5 h-3.5 text-[#647067]" />
+              <span>Printable Lab Report & Viva</span>
             </Link>
           </div>
         </div>
       )}
+
+      {/* Student Badges & Progress Modal */}
+      <StudentBadgesModal isOpen={badgesOpen} onClose={() => setBadgesOpen(false)} />
     </header>
   );
 }

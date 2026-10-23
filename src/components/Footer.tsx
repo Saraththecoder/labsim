@@ -31,27 +31,33 @@ export function Footer() {
             <h4 className="text-xs font-semibold text-[#17231B] uppercase tracking-wider mb-3">Laboratory Modules</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/lab" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
+                <Link href="/physics" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
                   <FlaskConical className="w-3 h-3 text-[#17231B]" />
-                  <span>3D Optical Bench</span>
+                  <span>Physics Suite (5 NCERT Practicals)</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/chemistry" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
+                  <FlaskConical className="w-3 h-3 text-[#17231B]" />
+                  <span>Chemistry Suite (pH, Displacement, Salts)</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/sandbox" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
+                  <Compass className="w-3 h-3 text-[#17231B]" />
+                  <span>Interactive Circuit Sandbox</span>
                 </Link>
               </li>
               <li>
                 <Link href="/ar" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
                   <Smartphone className="w-3 h-3 text-[#17231B]" />
-                  <span>WebXR Augmented Reality</span>
+                  <span>WebXR Desk Augmented Reality</span>
                 </Link>
               </li>
               <li>
-                <Link href="/learn" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
+                <Link href="/report" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
                   <BookOpen className="w-3 h-3 text-[#17231B]" />
-                  <span>Optical Theory & Ray Cases</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/observations" className="hover:text-[#17231B] transition-colors flex items-center gap-1.5 text-[#647067]">
-                  <Compass className="w-3 h-3 text-[#17231B]" />
-                  <span>Measurement Table & Graphs</span>
+                  <span>Printable Lab Reports & Viva</span>
                 </Link>
               </li>
             </ul>

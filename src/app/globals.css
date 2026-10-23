@@ -175,6 +175,17 @@ input[type="range"] {
   animation: cuteSpinSlow 12s linear infinite;
 }
 
+/* Electron charge particle drift along circuit wires */
+@keyframes electronDrift {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+.animate-electron-drift {
+  animation: electronDrift 1.2s linear infinite;
+}
+
 /* Print Styles for Laboratory Practical Report */
 @media print {
   body {

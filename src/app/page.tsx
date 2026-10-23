@@ -155,8 +155,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 4 Quick Access Navigation Tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 relative z-10">
+        {/* 5 Quick Access Navigation Tiles (Responsive Grid) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative z-10">
           <Link
             href="/physics"
             className="group block p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-xs cursor-pointer relative"
@@ -165,18 +165,29 @@ export default function HomePage() {
               <Atom className="w-5 h-5 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-[#17231B] mb-0.5">Physics Suite</h3>
-            <p className="text-[11px] text-[#647067] line-clamp-1">5 Prescribed Practicals</p>
+            <p className="text-[11px] text-[#647067] line-clamp-1">5 NCERT Practicals</p>
           </Link>
 
           <Link
-            href="/conductivity/lab"
+            href="/chemistry"
             className="group block p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-xs cursor-pointer relative"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] group-hover:bg-[#B8D96B]/20 flex items-center justify-center text-[#17231B] mb-3 transition-colors">
-              <Zap className="w-5 h-5 stroke-[2]" />
+              <Zap className="w-5 h-5 stroke-[2] text-[#17231B]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-[#17231B] mb-0.5">Chemistry Lab</h3>
-            <p className="text-[11px] text-[#647067] line-clamp-1">Electrolyte Conductivity</p>
+            <p className="text-[11px] text-[#647067] line-clamp-1">pH, CuSO4 & Salts</p>
+          </Link>
+
+          <Link
+            href="/sandbox"
+            className="group block p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-xs cursor-pointer relative"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] group-hover:bg-[#B8D96B]/20 flex items-center justify-center text-[#17231B] mb-3 transition-colors">
+              <Sparkles className="w-5 h-5 stroke-[2] text-[#17231B]" />
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-[#17231B] mb-0.5">Circuit Sandbox</h3>
+            <p className="text-[11px] text-[#647067] line-clamp-1">Tinkercad-Style CAD</p>
           </Link>
 
           <Link
@@ -192,7 +203,7 @@ export default function HomePage() {
 
           <Link
             href="/report"
-            className="group block p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-xs cursor-pointer"
+            className="group block p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] hover:bg-[#F9FAF8] border border-[#E2E8DF] hover:border-[#B8D96B] transition-all shadow-xs cursor-pointer col-span-2 sm:col-span-1"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] group-hover:border-[#B8D96B] group-hover:bg-[#B8D96B]/20 flex items-center justify-center text-[#17231B] mb-3 transition-colors">
               <FileText className="w-5 h-5 stroke-[2]" />
@@ -328,10 +339,10 @@ export default function HomePage() {
             </div>
 
             <Link
-              href="/conductivity/lab"
+              href="/chemistry"
               className="inline-flex items-center gap-2 text-xs font-bold text-[#17231B] group-hover:text-[#38761D] pt-1 transition-colors"
             >
-              <span>Test Chemistry & Circuit Labs</span>
+              <span>Explore Chemistry Practicals</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

@@ -50,6 +50,8 @@ export function OhmsLawCircuit3D({
   const rheostatSliderRef = useRef<THREE.Mesh | null>(null);
   const plugPinRef = useRef<THREE.Mesh | null>(null);
   const wiresGroupRef = useRef<THREE.Group | null>(null);
+  const electronMeshesRef = useRef<{ mesh: THREE.Mesh; curve: THREE.CatmullRomCurve3; progress: number }[]>([]);
+  const rebuildWiresRef = useRef<(() => void) | null>(null);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cameraView, setCameraView] = useState<'top' | 'perspective' | 'meters'>('perspective');
@@ -63,7 +65,7 @@ export function OhmsLawCircuit3D({
     isPlugKeyClosed,
   });
 
-  // Update needle deflections and slider positions
+  // Update needle deflections, slider positions, and dynamic circuit wires
   const updateCircuitVisuals = () => {
     // 1. Ammeter needle rotation (0 to 500 mA mapped to -45° to +45°)
     if (ammeterNeedleRef.current) {
@@ -90,6 +92,11 @@ export function OhmsLawCircuit3D({
     // 4. Plug pin inserted into key block
     if (plugPinRef.current) {
       plugPinRef.current.position.y = isPlugKeyClosed ? 0.32 : 0.65;
+    }
+
+    // 5. Rebuild wires dynamically with slider position & electron pulses
+    if (rebuildWiresRef.current) {
+      rebuildWiresRef.current();
     }
   };
 
@@ -299,39 +306,190 @@ export function OhmsLawCircuit3D({
     resGroup.position.set(1.8, 0.1, -1.8);
     scene.add(resGroup);
 
+    // Add Terminal Binding Posts to instruments for realistic wire attachment
+    const postGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.12, 16);
+    const postRedMat = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.6, roughness: 0.3 });
+    const postBlackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.6, roughness: 0.3 });
+    const brassPostMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.9, roughness: 0.2 });
+
+    // Plug Key binding posts
+    const kp1 = new THREE.Mesh(postGeo, brassPostMat);
+    kp1.position.set(-0.2, 0.36, 0);
+    keyGroup.add(kp1);
+    const kp2 = new THREE.Mesh(postGeo, brassPostMat);
+    kp2.position.set(0.2, 0.36, 0);
+    keyGroup.add(kp2);
+
+    // Rheostat lower terminal
+    const rhLower = new THREE.Mesh(postGeo, brassPostMat);
+    rhLower.position.set(-0.8, 0.25, 0);
+    rheoGroup.add(rhLower);
+
+    // Rheostat top slider terminal
+    const rhSliderTerm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.08, 16), brassPostMat);
+    rhSliderTerm.position.set(0, 0.12, 0);
+    slider.add(rhSliderTerm);
+
+    // Ammeter binding posts (+ on left, - on right)
+    const ammeterPostPos = new THREE.Mesh(postGeo, postRedMat);
+    ammeterPostPos.position.set(-0.25, 0.32, 0.25);
+    ammeterGroup.add(ammeterPostPos);
+    const ammeterPostNeg = new THREE.Mesh(postGeo, postBlackMat);
+    ammeterPostNeg.position.set(0.25, 0.32, 0.25);
+    ammeterGroup.add(ammeterPostNeg);
+
+    // Voltmeter binding posts (+ on left, - on right)
+    const voltPostPos = new THREE.Mesh(postGeo, postRedMat);
+    voltPostPos.position.set(-0.25, 0.32, 0.25);
+    voltmeterGroup.add(voltPostPos);
+    const voltPostNeg = new THREE.Mesh(postGeo, postBlackMat);
+    voltPostNeg.position.set(0.25, 0.32, 0.25);
+    voltmeterGroup.add(voltPostNeg);
+
+    // Resistor board binding posts
+    const resPostL = new THREE.Mesh(postGeo, brassPostMat);
+    resPostL.position.set(-0.7, 0.25, 0);
+    resGroup.add(resPostL);
+    const resPostR = new THREE.Mesh(postGeo, brassPostMat);
+    resPostR.position.set(0.7, 0.25, 0);
+    resGroup.add(resPostR);
+
     // ==========================================
-    // 8. CIRCUIT CONNECTING WIRES (Red & Black)
+    // 8. 3D CIRCUIT CONNECTING WIRES (Physics-Accurate)
+    // Series: Batt(+) -> Key -> Rheostat -> Ammeter -> Resistor -> Batt(-)
+    // Parallel: Voltmeter across Resistor
     // ==========================================
     const wiresGroup = new THREE.Group();
-    const wireMat = new THREE.LineBasicMaterial({
-      color: isPlugKeyClosed ? 0x00f0ff : 0x64748b,
-      linewidth: 3,
-    });
-
-    const addWire = (pts: THREE.Vector3[]) => {
-      const geo = new THREE.BufferGeometry().setFromPoints(pts);
-      wiresGroup.add(new THREE.Line(geo, wireMat));
-    };
-
-    // Battery -> Key
-    addWire([new THREE.Vector3(-2.45, 0.8, -1.8), new THREE.Vector3(-1.0, 0.3, -1.8)]);
-    // Key -> Resistor
-    addWire([new THREE.Vector3(-0.6, 0.3, -1.8), new THREE.Vector3(1.0, 0.3, -1.8)]);
-    // Resistor -> Voltmeter
-    addWire([new THREE.Vector3(1.8, 0.3, -1.4), new THREE.Vector3(2.6, 0.4, 0.6)]);
-    // Resistor -> Ammeter
-    addWire([new THREE.Vector3(2.6, 0.3, -1.8), new THREE.Vector3(1.0, 0.3, 1.2)]);
-    // Ammeter -> Rheostat
-    addWire([new THREE.Vector3(0.2, 0.3, 1.2), new THREE.Vector3(-1.2, 0.3, 0.8)]);
-    // Rheostat -> Battery (-ve)
-    addWire([new THREE.Vector3(-2.8, 0.3, 0.8), new THREE.Vector3(-3.15, 0.8, -1.8)]);
-
     wiresGroupRef.current = wiresGroup;
     scene.add(wiresGroup);
+
+    // Function to build insulated 3D tube wire with banana plugs & electron pulses
+    const electronGeo = new THREE.SphereGeometry(0.024, 12, 12);
+    const electronMatSeries = new THREE.MeshBasicMaterial({ color: 0x38bdf8 }); // Electric Cyan
+    const electronMatVolt = new THREE.MeshBasicMaterial({ color: 0x34d399 }); // Emerald Green
+
+    const rebuildWires = () => {
+      while (wiresGroup.children.length > 0) {
+        const child = wiresGroup.children[0];
+        wiresGroup.remove(child);
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          if (Array.isArray(child.material)) child.material.forEach((m) => m.dispose());
+          else child.material.dispose();
+        }
+      }
+      electronMeshesRef.current = [];
+
+      const makeBananaPlug = (pos: THREE.Vector3, col: number) => {
+        const plug = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.026, 0.022, 0.08, 16),
+          new THREE.MeshStandardMaterial({ color: col, roughness: 0.35 })
+        );
+        plug.position.copy(pos);
+        wiresGroup.add(plug);
+      };
+
+      const makeTubeWire = (pts: THREE.Vector3[], hexColor: number, electronCount = 0, isVolt = false) => {
+        const curve = new THREE.CatmullRomCurve3(pts);
+        makeBananaPlug(pts[0], hexColor);
+        makeBananaPlug(pts[pts.length - 1], hexColor);
+
+        const tubeGeo = new THREE.TubeGeometry(curve, 32, 0.016, 8, false);
+        const tubeMat = new THREE.MeshStandardMaterial({
+          color: hexColor,
+          roughness: 0.5,
+          metalness: 0.1,
+        });
+        wiresGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+
+        if (electronCount > 0 && isPlugKeyClosed && calc.measuredCurrentMA > 0.1) {
+          for (let i = 0; i < electronCount; i++) {
+            const eMesh = new THREE.Mesh(electronGeo, isVolt ? electronMatVolt : electronMatSeries);
+            const prog = i / electronCount;
+            eMesh.position.copy(curve.getPointAt(prog));
+            wiresGroup.add(eMesh);
+            electronMeshesRef.current.push({ mesh: eMesh, curve, progress: prog });
+          }
+        }
+      };
+
+      // Calculate dynamic slider world X
+      const sliderRatio = Math.max(0, Math.min(1, rheostatResistance / 50));
+      const sliderWorldX = -2.0 + (-0.6 + sliderRatio * 1.2);
+
+      // 1. Series Wire 1: Battery (+) to Plug Key (Red)
+      makeTubeWire([
+        new THREE.Vector3(-2.45, 0.85, -1.8),
+        new THREE.Vector3(-1.7, 0.55, -1.8),
+        new THREE.Vector3(-1.0, 0.38, -1.8),
+      ], 0xef4444, 4);
+
+      // 2. Series Wire 2: Plug Key to Rheostat Lower Terminal (Red)
+      makeTubeWire([
+        new THREE.Vector3(-0.6, 0.38, -1.8),
+        new THREE.Vector3(-1.1, 0.16, -1.0),
+        new THREE.Vector3(-2.2, 0.16, 0.0),
+        new THREE.Vector3(-2.8, 0.35, 0.8),
+      ], 0xef4444, 5);
+
+      // 3. Series Wire 3: Rheostat Slider Contact to Ammeter (+) (Yellow/Amber)
+      makeTubeWire([
+        new THREE.Vector3(sliderWorldX, 0.73, 0.8),
+        new THREE.Vector3(-0.8, 0.22, 1.1),
+        new THREE.Vector3(-0.1, 0.18, 1.3),
+        new THREE.Vector3(0.35, 0.42, 1.45),
+      ], 0xeab308, 5);
+
+      // 4. Series Wire 4: Ammeter (-) to Resistor Left Terminal (Yellow/Amber)
+      makeTubeWire([
+        new THREE.Vector3(0.85, 0.42, 1.45),
+        new THREE.Vector3(1.3, 0.18, 0.5),
+        new THREE.Vector3(1.2, 0.18, -0.7),
+        new THREE.Vector3(1.1, 0.35, -1.8),
+      ], 0xeab308, 6);
+
+      // 5. Series Wire 5: Resistor Right Terminal back to Battery (-) (Black)
+      makeTubeWire([
+        new THREE.Vector3(2.5, 0.35, -1.8),
+        new THREE.Vector3(1.5, 0.15, -2.4),
+        new THREE.Vector3(0.0, 0.15, -2.5),
+        new THREE.Vector3(-1.8, 0.15, -2.4),
+        new THREE.Vector3(-3.15, 0.85, -1.8),
+      ], 0x1e293b, 8);
+
+      // 6. Parallel Branch 1: Voltmeter (+) to Resistor Left Terminal (Green)
+      makeTubeWire([
+        new THREE.Vector3(2.35, 0.42, 1.45),
+        new THREE.Vector3(2.0, 0.18, 0.4),
+        new THREE.Vector3(1.5, 0.18, -0.6),
+        new THREE.Vector3(1.1, 0.35, -1.8),
+      ], 0x10b981, 4, true);
+
+      // 7. Parallel Branch 2: Voltmeter (-) to Resistor Right Terminal (Green)
+      makeTubeWire([
+        new THREE.Vector3(2.85, 0.42, 1.45),
+        new THREE.Vector3(3.0, 0.18, 0.4),
+        new THREE.Vector3(2.8, 0.18, -0.6),
+        new THREE.Vector3(2.5, 0.35, -1.8),
+      ], 0x10b981, 4, true);
+    };
+
+    rebuildWiresRef.current = rebuildWires;
+    rebuildWires();
 
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
+
+      // Real-time flowing electron charges along the circuit
+      if (electronMeshesRef.current.length > 0) {
+        const speed = 0.003 + Math.min(0.02, (calc.measuredCurrentMA / 500) * 0.015);
+        electronMeshesRef.current.forEach((el) => {
+          el.progress = (el.progress + speed) % 1.0;
+          el.mesh.position.copy(el.curve.getPointAt(el.progress));
+        });
+      }
+
       controls.update();
       renderer.render(scene, camera);
     };

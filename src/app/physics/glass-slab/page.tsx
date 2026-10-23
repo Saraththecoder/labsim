@@ -20,6 +20,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { GlassSlab3D } from '@/components/GlassSlab3D';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import { calculateGlassSlab, GLASS_TYPES } from '@/lib/glassSlabPhysics';
 
 export default function GlassSlabLabPage() {
@@ -361,6 +362,9 @@ export default function GlassSlabLabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="glass-slab" />
     </div>
   );
 }

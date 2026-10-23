@@ -20,6 +20,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { GlassPrism3D } from '@/components/GlassPrism3D';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import {
   calculateGlassPrism,
   VIBGYOR_SPECTRUM,
@@ -368,6 +369,9 @@ export default function GlassPrismLabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="glass-prism" />
     </div>
   );
 }

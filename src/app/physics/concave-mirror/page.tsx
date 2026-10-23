@@ -20,6 +20,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { ConcaveMirrorBench3D } from '@/components/ConcaveMirrorBench3D';
+import { LabSimAssistant } from '@/components/LabSimAssistant';
 import {
   calculateMirrorOptics,
   getMirrorCanonicalCase,
@@ -414,6 +415,9 @@ export default function ConcaveMirrorLabPage() {
           </div>
         </aside>
       </div>
+
+      {/* Labby AI Science Tutor */}
+      <LabSimAssistant experimentId="concave-mirror" />
     </div>
   );
 }

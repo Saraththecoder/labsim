@@ -83,8 +83,9 @@ export function GlassPrism3D({
     }
 
     // Equilateral triangle side S = 3.6 units
-    // Apex at top: (0, 1.8), Base left: (-1.8, -1.3), Base right: (1.8, -1.3)
-    const Oz = 0.05;
+    // Apex at top: A(0, 1.8), Base left: B(-1.8, -1.3), Base right: C(1.8, -1.3)
+    // Ray height in Z (centered in prism depth)
+    const Oz = 0.28;
 
     // Normal to left face (inclined at 30° to horizontal)
     // Point of incidence O on left face: halfway down
@@ -92,15 +93,51 @@ export function GlassPrism3D({
     const Oy = 0.25;
 
     const iRad = (angleIncidence * Math.PI) / 180;
-    // Incident ray coming from upper-left
     const incLen = 3.2;
-    const incAngleFromNormal = iRad;
-    // Face angle is 60° from horizontal => normal angle is 150°
+    // Face angle is ~60° => normal angle is 150° (5*pi/6)
     const normalAngleLeft = (150 * Math.PI) / 180;
-    const incRayAngle = normalAngleLeft + incAngleFromNormal;
+    const incRayAngle = normalAngleLeft - Math.PI + iRad; // direction towards O
 
     const incStartX = Ox - Math.cos(incRayAngle) * incLen;
     const incStartY = Oy - Math.sin(incRayAngle) * incLen;
+
+    // Mathematical intersection helper: finds exact point O' where ray from O hits right face AC
+    const findRightFaceIntersection = (dirAngle: number) => {
+      const dx = Math.cos(dirAngle);
+      const dy = Math.sin(dirAngle);
+      // Segment AC goes from (0, 1.8) to (1.8, -1.3). Vector v = (1.8, -3.1)
+      const denom = 3.1 * dx + 1.8 * dy;
+      const t = denom !== 0 ? Math.max(0.5, 5.58 / denom) : 1.8;
+      return {
+        x: Ox + t * dx,
+        y: Oy + t * dy,
+      };
+    };
+
+    const normalAngleRight = Math.atan2(1.8, 3.1); // ~30.14° outward normal from right face
+
+    // Grounded Optical Pin helper (planted firmly in paper at Z = -0.04)
+    const makeGroundedPin = (x: number, y: number, headColor = 0xd97706) => {
+      const pin = new THREE.Group();
+      pin.position.set(x, y, -0.04);
+
+      // Steel needle shaft standing upright along +Z
+      const shaftGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.44, 16);
+      const shaftMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
+      const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+      shaft.rotation.x = Math.PI / 2;
+      shaft.position.z = 0.22;
+      pin.add(shaft);
+
+      // Plastic colored round bead head
+      const headGeo = new THREE.SphereGeometry(0.038, 16, 16);
+      const headMat = new THREE.MeshStandardMaterial({ color: headColor, roughness: 0.3 });
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.position.z = 0.44;
+      pin.add(head);
+
+      pinsGroup.add(pin);
+    };
 
     if (mode === 'monochromatic') {
       // 1. Incident Ray (Cyan)
@@ -109,28 +146,27 @@ export function GlassPrism3D({
       const incMat = new THREE.LineBasicMaterial({ color: 0x00f0ff, linewidth: 3 });
       raysGroup.add(new THREE.Line(incGeo, incMat));
 
-      // Point of emergence O' on right face:
+      // Direction inside prism: deflected towards normal by r1
       const r1Rad = calc.r1Rad;
       const rAngleInside = normalAngleLeft - Math.PI + r1Rad;
-      const insideLen = 1.8;
-      const OprimeX = Ox + Math.cos(rAngleInside) * insideLen;
-      const OprimeY = Oy + Math.sin(rAngleInside) * insideLen;
 
-      // 2. Refracted Ray inside prism (Yellow)
-      const refrPts = [new THREE.Vector3(Ox, Oy, Oz), new THREE.Vector3(OprimeX, OprimeY, Oz)];
+      // Exact intersection O' on right face:
+      const Oprime = findRightFaceIntersection(rAngleInside);
+
+      // 2. Refracted Ray inside prism (Vibrant Yellow)
+      const refrPts = [new THREE.Vector3(Ox, Oy, Oz), new THREE.Vector3(Oprime.x, Oprime.y, Oz)];
       const refrGeo = new THREE.BufferGeometry().setFromPoints(refrPts);
       const refrMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3 });
       raysGroup.add(new THREE.Line(refrGeo, refrMat));
 
       // 3. Emergent Ray (Emerald Green)
       const eRad = calc.angleEmergenceRad;
-      const normalAngleRight = (30 * Math.PI) / 180;
       const emRayAngle = normalAngleRight - eRad;
       const emLen = 3.2;
-      const emEndX = OprimeX + Math.cos(emRayAngle) * emLen;
-      const emEndY = OprimeY + Math.sin(emRayAngle) * emLen;
+      const emEndX = Oprime.x + Math.cos(emRayAngle) * emLen;
+      const emEndY = Oprime.y + Math.sin(emRayAngle) * emLen;
 
-      const emPts = [new THREE.Vector3(OprimeX, OprimeY, Oz), new THREE.Vector3(emEndX, emEndY, Oz)];
+      const emPts = [new THREE.Vector3(Oprime.x, Oprime.y, Oz), new THREE.Vector3(emEndX, emEndY, Oz)];
       const emGeo = new THREE.BufferGeometry().setFromPoints(emPts);
       const emMat = new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 3 });
       raysGroup.add(new THREE.Line(emGeo, emMat));
@@ -138,8 +174,8 @@ export function GlassPrism3D({
       // 4. Deviation Angle Extensions (Dashed white/purple)
       if (showDeviationAngle) {
         // Forward extension of incident ray
-        const incExtX = Ox + Math.cos(incRayAngle) * 2.5;
-        const incExtY = Oy + Math.sin(incRayAngle) * 2.5;
+        const incExtX = Ox + Math.cos(incRayAngle) * 2.8;
+        const incExtY = Oy + Math.sin(incRayAngle) * 2.8;
         const extGeo = new THREE.BufferGeometry().setFromPoints([
           new THREE.Vector3(Ox, Oy, Oz),
           new THREE.Vector3(incExtX, incExtY, Oz),
@@ -150,10 +186,10 @@ export function GlassPrism3D({
         raysGroup.add(extLine);
 
         // Backward extension of emergent ray
-        const emBackX = OprimeX - Math.cos(emRayAngle) * 2.5;
-        const emBackY = OprimeY - Math.sin(emRayAngle) * 2.5;
+        const emBackX = Oprime.x - Math.cos(emRayAngle) * 2.8;
+        const emBackY = Oprime.y - Math.sin(emRayAngle) * 2.8;
         const emBackGeo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(OprimeX, OprimeY, Oz),
+          new THREE.Vector3(Oprime.x, Oprime.y, Oz),
           new THREE.Vector3(emBackX, emBackY, Oz),
         ]);
         const emBackMat = new THREE.LineDashedMaterial({ color: 0xa855f7, dashSize: 0.1, gapSize: 0.05 });
@@ -162,33 +198,12 @@ export function GlassPrism3D({
         raysGroup.add(emBackLine);
       }
 
-      // Optical Pins
+      // Optical Pins (P1, P2 along incident ray; P3, P4 along emergent ray)
       if (showPins) {
-        const pinMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
-        const pinHeadMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3 });
-        const pinGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 16);
-        const headGeo = new THREE.SphereGeometry(0.04, 16, 16);
-
-        const addPin = (x: number, y: number) => {
-          const pin = new THREE.Group();
-          const body = new THREE.Mesh(pinGeo, pinMat);
-          body.rotation.x = Math.PI / 2;
-          body.position.set(0, 0, 0.25);
-          pin.add(body);
-          const head = new THREE.Mesh(headGeo, pinHeadMat);
-          head.position.set(0, 0, 0.5);
-          pin.add(head);
-          pin.position.set(x, y, Oz);
-          pinsGroup.add(pin);
-        };
-
-        // P1 & P2 along incident ray
-        addPin(incStartX + (Ox - incStartX) * 0.3, incStartY + (Oy - incStartY) * 0.3);
-        addPin(incStartX + (Ox - incStartX) * 0.7, incStartY + (Oy - incStartY) * 0.7);
-
-        // P3 & P4 along emergent ray
-        addPin(OprimeX + (emEndX - OprimeX) * 0.3, OprimeY + (emEndY - OprimeY) * 0.3);
-        addPin(OprimeX + (emEndX - OprimeX) * 0.7, OprimeY + (emEndY - OprimeY) * 0.7);
+        makeGroundedPin(incStartX + (Ox - incStartX) * 0.35, incStartY + (Oy - incStartY) * 0.35, 0xef4444);
+        makeGroundedPin(incStartX + (Ox - incStartX) * 0.75, incStartY + (Oy - incStartY) * 0.75, 0xef4444);
+        makeGroundedPin(Oprime.x + (emEndX - Oprime.x) * 0.35, Oprime.y + (emEndY - Oprime.y) * 0.35, 0x0284c7);
+        makeGroundedPin(Oprime.x + (emEndX - Oprime.x) * 0.75, Oprime.y + (emEndY - Oprime.y) * 0.75, 0x0284c7);
       }
     } else {
       // DISPERSION MODE: White light splits into VIBGYOR
@@ -198,30 +213,29 @@ export function GlassPrism3D({
       const incMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 4 });
       raysGroup.add(new THREE.Line(incGeo, incMat));
 
-      // Draw each spectral color
+      // Draw each spectral color with exact raycast intersection
       if (calc.spectralRays) {
         calc.spectralRays.forEach((spec) => {
           const r1Rad = (spec.r1Deg * Math.PI) / 180;
           const rAngleInside = normalAngleLeft - Math.PI + r1Rad;
-          const insideLen = 1.8;
-          const OprimeX = Ox + Math.cos(rAngleInside) * insideLen;
-          const OprimeY = Oy + Math.sin(rAngleInside) * insideLen;
+
+          // Exact intersection O' on right face for this color
+          const Oprime = findRightFaceIntersection(rAngleInside);
 
           // Inside color ray
-          const refrPts = [new THREE.Vector3(Ox, Oy, Oz), new THREE.Vector3(OprimeX, OprimeY, Oz)];
+          const refrPts = [new THREE.Vector3(Ox, Oy, Oz), new THREE.Vector3(Oprime.x, Oprime.y, Oz)];
           const refrGeo = new THREE.BufferGeometry().setFromPoints(refrPts);
           const refrMat = new THREE.LineBasicMaterial({ color: spec.colorHex, linewidth: 2.5 });
           raysGroup.add(new THREE.Line(refrGeo, refrMat));
 
           // Emergent spectral ray
           const eRad = (spec.eDeg * Math.PI) / 180;
-          const normalAngleRight = (30 * Math.PI) / 180;
           const emRayAngle = normalAngleRight - eRad;
           const emLen = 3.4;
-          const emEndX = OprimeX + Math.cos(emRayAngle) * emLen;
-          const emEndY = OprimeY + Math.sin(emRayAngle) * emLen;
+          const emEndX = Oprime.x + Math.cos(emRayAngle) * emLen;
+          const emEndY = Oprime.y + Math.sin(emRayAngle) * emLen;
 
-          const emPts = [new THREE.Vector3(OprimeX, OprimeY, Oz), new THREE.Vector3(emEndX, emEndY, Oz)];
+          const emPts = [new THREE.Vector3(Oprime.x, Oprime.y, Oz), new THREE.Vector3(emEndX, emEndY, Oz)];
           const emGeo = new THREE.BufferGeometry().setFromPoints(emPts);
           const emMat = new THREE.LineBasicMaterial({ color: spec.colorHex, linewidth: 2.5 });
           raysGroup.add(new THREE.Line(emGeo, emMat));

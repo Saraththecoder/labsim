@@ -50,6 +50,8 @@ export function OpticalBench3D({
 
   // 3D Object Groups
   const objectUprightRef = useRef<THREE.Group | null>(null);
+  const arrowGroupRef = useRef<THREE.Group | null>(null);
+  const updateArrowRef = useRef<((hCm: number) => void) | null>(null);
   const lensUprightRef = useRef<THREE.Group | null>(null);
   const screenUprightRef = useRef<THREE.Group | null>(null);
   const raysGroupRef = useRef<THREE.Group | null>(null);
@@ -412,27 +414,56 @@ export function OpticalBench3D({
     objPillar.position.set(0, 0.68, 0);
     objectGroup.add(objPillar);
 
-    // Glowing Object Arrow
-    const arrowShaftGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.45, 16);
-    const arrowAmberMat = new THREE.MeshStandardMaterial({
-      color: 0xf59e0b,
-      emissive: 0xf59e0b,
-      emissiveIntensity: 1.5,
-    });
-    const arrowShaft = new THREE.Mesh(arrowShaftGeo, arrowAmberMat);
-    arrowShaft.position.set(0, 1.0, 0); // optical axis at y=1.0
-    objectGroup.add(arrowShaft);
+    // Glowing Object Arrow Needle standing strictly on optical axis (Y = 1.0)
+    const arrowGroup = new THREE.Group();
+    arrowGroupRef.current = arrowGroup;
+    objectGroup.add(arrowGroup);
 
-    // Arrow Tip Cone
-    const arrowTipGeo = new THREE.ConeGeometry(0.05, 0.12, 16);
-    const arrowTip = new THREE.Mesh(arrowTipGeo, arrowAmberMat);
-    arrowTip.position.set(0, 1.25, 0);
-    objectGroup.add(arrowTip);
+    const updateArrowGeometry = (hCm: number) => {
+      while (arrowGroup.children.length > 0) {
+        const c = arrowGroup.children[0];
+        arrowGroup.remove(c);
+        if (c instanceof THREE.Mesh) {
+          c.geometry.dispose();
+          if (Array.isArray(c.material)) c.material.forEach((m) => m.dispose());
+          else c.material.dispose();
+        }
+      }
+      const H = Math.max(0.15, hCm * 0.1);
+      const tipH = 0.08;
+      const shaftH = Math.max(0.05, H - tipH);
 
-    // Warm Glow Light from Object
-    const objectLight = new THREE.PointLight(0xf59e0b, 1.8, 2.5);
-    objectLight.position.set(0, 1.2, 0);
-    objectGroup.add(objectLight);
+      const arrowAmberMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 1.8,
+        roughness: 0.2,
+      });
+
+      // Shaft standing on optical axis y=1.0 upwards
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.014, 0.014, shaftH, 16),
+        arrowAmberMat
+      );
+      shaft.position.set(0, 1.0 + shaftH / 2, 0);
+      arrowGroup.add(shaft);
+
+      // Arrow tip cone ending exactly at Y = 1.0 + H
+      const tip = new THREE.Mesh(
+        new THREE.ConeGeometry(0.038, tipH, 16),
+        arrowAmberMat
+      );
+      tip.position.set(0, 1.0 + H - tipH / 2, 0);
+      arrowGroup.add(tip);
+
+      // Warm glow emitted from apex tip
+      const objectLight = new THREE.PointLight(0xf59e0b, 1.8, 2.5);
+      objectLight.position.set(0, 1.0 + H, 0);
+      arrowGroup.add(objectLight);
+    };
+
+    updateArrowRef.current = updateArrowGeometry;
+    updateArrowGeometry(objectHeight);
 
     objectUprightRef.current = objectGroup;
     scene.add(objectGroup);
@@ -486,6 +517,7 @@ export function OpticalBench3D({
 
     // ==========================================
     // UPRIGHT 3: PROJECTION SCREEN (Ground Glass)
+    // Perpendicular to rails, facing the lens along -X
     // ==========================================
     const screenGroup = new THREE.Group();
 
@@ -507,19 +539,44 @@ export function OpticalBench3D({
     const screenTexture = new THREE.CanvasTexture(screenCanvas);
     screenTextureRef.current = screenTexture;
 
-    // Ground Glass Screen Plate
-    const screenPlateGeo = new THREE.BoxGeometry(0.02, 0.75, 0.75);
+    // Outer dark metal frame
+    const screenFrameGeo = new THREE.BoxGeometry(0.03, 0.82, 0.82);
+    const screenFrameMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.4,
+      metalness: 0.8,
+    });
+    const screenFrame = new THREE.Mesh(screenFrameGeo, screenFrameMat);
+    screenFrame.position.set(0, 1.0, 0);
+    screenGroup.add(screenFrame);
+
+    // Ground Glass Screen Plate (lying in YZ plane, perpendicular to bench X axis)
+    const screenPlateGeo = new THREE.BoxGeometry(0.016, 0.76, 0.76);
     const screenPlateMat = new THREE.MeshStandardMaterial({
-      map: screenTexture,
+      color: 0xf8fafc,
       roughness: 0.4,
       metalness: 0.1,
     });
     const screenPlate = new THREE.Mesh(screenPlateGeo, screenPlateMat);
-    screenPlate.rotation.y = Math.PI / 2;
     screenPlate.position.set(0, 1.0, 0);
     screenPlate.castShadow = true;
     screenPlate.receiveShadow = true;
     screenGroup.add(screenPlate);
+
+    // Front projection surface (facing lens towards -X)
+    const surfGeo = new THREE.PlaneGeometry(0.74, 0.74);
+    const surfMat = new THREE.MeshBasicMaterial({ map: screenTexture, transparent: true });
+
+    const frontSurf = new THREE.Mesh(surfGeo, surfMat);
+    frontSurf.rotation.y = -Math.PI / 2;
+    frontSurf.position.set(-0.009, 1.0, 0);
+    screenGroup.add(frontSurf);
+
+    // Back projection surface (facing observer towards +X)
+    const backSurf = new THREE.Mesh(surfGeo, surfMat);
+    backSurf.rotation.y = Math.PI / 2;
+    backSurf.position.set(0.009, 1.0, 0);
+    screenGroup.add(backSurf);
 
     screenUprightRef.current = screenGroup;
     scene.add(screenGroup);
@@ -569,6 +626,10 @@ export function OpticalBench3D({
     }
     if (screenUprightRef.current) {
       screenUprightRef.current.position.x = cmTo3D(screenPos);
+    }
+
+    if (updateArrowRef.current) {
+      updateArrowRef.current(objectHeight);
     }
 
     updateScreenTexture();
