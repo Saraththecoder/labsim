@@ -10,21 +10,18 @@ import {
   FlaskConical,
   Smartphone,
   TableProperties,
-  Award,
+  Presentation,
   FileText,
   ChevronDown,
   Atom,
   Zap,
-  Trophy,
   Sliders,
 } from 'lucide-react';
-import { StudentBadgesModal } from '@/components/StudentBadgesModal';
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [physicsDropdownOpen, setPhysicsDropdownOpen] = useState(false);
-  const [badgesOpen, setBadgesOpen] = useState(false);
 
   // Clean up any legacy classroom-mode if present
   useEffect(() => {
@@ -196,33 +193,14 @@ export function Navbar() {
                     : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
                 }`}
               >
-                <Award className="w-3.5 h-3.5 text-emerald-600" />
+                <Presentation className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Poster</span>
               </Link>
-
-              <button
-                onClick={() => setBadgesOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] text-[#17231B] transition-all shadow-xs cursor-pointer ml-1 text-xs font-bold"
-                title="View Practical Achievements & Level"
-                aria-label="View Practical Achievements & Level"
-              >
-                <Trophy className="w-3.5 h-3.5 text-[#17231B]" />
-                <span className="hidden xl:inline text-[11px]">Awards</span>
-              </button>
             </nav>
           </div>
 
-          {/* Mobile Right: Trophy + AR + Hamburger */}
+          {/* Mobile Right: AR + Hamburger */}
           <div className="lg:hidden flex items-center gap-2">
-            <button
-              onClick={() => setBadgesOpen(true)}
-              className="w-9 h-9 rounded-full bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer active:scale-95 touch-manipulation"
-              title="Student Practical Achievements & XP"
-              aria-label="Student Practical Achievements & XP"
-            >
-              <Trophy className="w-4 h-4 text-[#17231B]" />
-            </button>
-
             <Link
               href="/ar"
               className="px-2.5 py-1 text-xs font-extrabold rounded-lg bg-[#B8D96B] text-[#17231B] flex items-center gap-1 shadow-sm"
@@ -245,28 +223,6 @@ export function Navbar() {
       {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="lg:hidden bg-[#FFFFFF] border-b border-[#E2E8DF] px-4 pt-3 pb-5 space-y-3 shadow-xl max-h-[85vh] overflow-y-auto">
-          {/* Gamification / Trophy Quick Banner */}
-          <div className="p-3 bg-gradient-to-r from-[#B8D96B]/20 via-[#B8D96B]/10 to-transparent border border-[#B8D96B]/50 rounded-2xl flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#B8D96B] flex items-center justify-center text-[#17231B] shadow-xs shrink-0">
-                <Trophy className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs font-extrabold text-[#17231B] truncate">Student Practical Awards</div>
-                <div className="text-[10px] text-[#647067] truncate">Earn XP & unlock AR lab badges</div>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setMobileOpen(false);
-                setBadgesOpen(true);
-              }}
-              className="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-[#17231B] text-[#FFFFFF] hover:bg-black transition-colors shrink-0 cursor-pointer shadow-xs active:scale-95"
-            >
-              View Awards
-            </button>
-          </div>
-
           <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[#E2E8DF] text-xs">
             <Link
               href="/physics"
@@ -353,15 +309,12 @@ export function Navbar() {
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100"
             >
-              <Award className="w-3.5 h-3.5 text-emerald-600" />
+              <Presentation className="w-3.5 h-3.5 text-emerald-600" />
               <span>Project Presentation Poster (A0/A1)</span>
             </Link>
           </div>
         </div>
       )}
-
-      {/* Student Badges & Progress Modal */}
-      <StudentBadgesModal isOpen={badgesOpen} onClose={() => setBadgesOpen(false)} />
     </header>
   );
 }
