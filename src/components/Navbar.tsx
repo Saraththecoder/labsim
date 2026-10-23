@@ -202,10 +202,12 @@ export function Navbar() {
 
               <button
                 onClick={() => setBadgesOpen(true)}
-                className="w-8 h-8 rounded-full bg-[#B8D96B]/20 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer ml-1"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] text-[#17231B] transition-all shadow-xs cursor-pointer ml-1 text-xs font-bold"
                 title="View Practical Achievements & Level"
+                aria-label="View Practical Achievements & Level"
               >
                 <Trophy className="w-3.5 h-3.5 text-[#17231B]" />
+                <span className="hidden xl:inline text-[11px]">Awards</span>
               </button>
             </nav>
           </div>
@@ -214,7 +216,7 @@ export function Navbar() {
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => setBadgesOpen(true)}
-              className="w-8 h-8 rounded-full bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer active:scale-95"
+              className="w-9 h-9 rounded-full bg-[#B8D96B]/25 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer active:scale-95 touch-manipulation"
               title="Student Practical Achievements & XP"
               aria-label="Student Practical Achievements & XP"
             >

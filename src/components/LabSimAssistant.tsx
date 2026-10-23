@@ -119,6 +119,7 @@ export function LabSimAssistant({
   // Floating menu open/close state
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'status' | 'viva' | 'formula'>('status');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Active Issue balloon visibility
   const [issueVisible, setIssueVisible] = useState(false);
@@ -128,6 +129,34 @@ export function LabSimAssistant({
   // Audio & Voice toggles
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+
+  // Dismiss on click outside or Escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setDrawerOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setDrawerOpen(false);
+        setIssueVisible(false);
+      }
+    };
+
+    if (drawerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [drawerOpen]);
 
   // Sync incoming issue
   useEffect(() => {
@@ -270,12 +299,15 @@ export function LabSimAssistant({
   const knowledge = EXPERIMENT_KNOWLEDGE[experimentId] || EXPERIMENT_KNOWLEDGE.sandbox;
 
   return (
-    <div className={`fixed bottom-6 right-4 sm:right-6 z-50 pointer-events-auto select-none ${className}`}>
+    <div
+      ref={containerRef}
+      className={`fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-[60] pointer-events-auto select-none ${className}`}
+    >
       {/* =========================================================================
           1. ACTIVE HAZARD / SETUP ALERT BALLOON (Pop-up on issue)
          ========================================================================= */}
       {issueVisible && activeIssue && (
-        <div className="mb-3 max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300">
           <div className="bg-[#FFFFFF]/98 backdrop-blur-xl border-2 border-[#ef4444] rounded-3xl p-4 shadow-[0_12px_40px_rgba(23,35,27,0.25)] text-[#17231B] space-y-2.5 relative">
             <div className="flex items-center justify-between border-b border-[#E2E8DF] pb-2">
               <div className="flex items-center gap-1.5">
@@ -329,7 +361,7 @@ export function LabSimAssistant({
           2. INTERACTIVE LABBY AI MENTOR DRAWER (When mascot is tapped)
          ========================================================================= */}
       {drawerOpen && (
-        <div className="mb-3 max-w-sm sm:max-w-md w-80 sm:w-96 rounded-3xl bg-[#FFFFFF] border-2 border-[#B8D96B] shadow-[0_16px_45px_rgba(23,35,27,0.25)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200 text-[#17231B]">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm rounded-3xl bg-[#FFFFFF] border-2 border-[#B8D96B] shadow-[0_16px_45px_rgba(23,35,27,0.25)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200 text-[#17231B] max-h-[72vh] overflow-y-auto">
           {/* Drawer Top Header */}
           <div className="flex items-center justify-between border-b border-[#E2E8DF] pb-2">
             <div className="flex items-center gap-2">
@@ -448,7 +480,7 @@ export function LabSimAssistant({
             triggerHaptic('click');
             setDrawerOpen(!drawerOpen);
           }}
-          className="group relative flex items-center gap-2 p-1.5 sm:p-2 rounded-full bg-[#17231B] hover:bg-black text-white shadow-2xl border-2 border-[#B8D96B] transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+          className="group relative flex items-center gap-2 p-1.5 sm:p-2 pr-3.5 sm:pr-4 rounded-full bg-[#17231B] hover:bg-black text-white shadow-2xl border-2 border-[#B8D96B] transition-all transform hover:scale-105 active:scale-95 cursor-pointer touch-manipulation"
           title="Open Labby AI Science Tutor"
           aria-label="Open Labby AI Science Tutor"
         >
@@ -467,13 +499,13 @@ export function LabSimAssistant({
             />
           </div>
 
-          {/* Button Text Pill */}
-          <div className="hidden sm:flex flex-col text-left pr-2 relative z-10">
-            <span className="text-[11px] font-black tracking-wider text-[#B8D96B] uppercase flex items-center gap-1">
+          {/* Button Text Pill - Visible on mobile & desktop */}
+          <div className="flex flex-col text-left pr-1 relative z-10">
+            <span className="text-[11px] sm:text-xs font-black tracking-wider text-[#B8D96B] uppercase flex items-center gap-1 leading-none">
               <span>Ask Labby</span>
               <Sparkles className="w-3 h-3 text-[#B8D96B]" />
             </span>
-            <span className="text-[9px] text-slate-300 font-mono -mt-0.5">24/7 AI Tutor</span>
+            <span className="text-[9px] text-slate-300 font-mono mt-0.5 leading-none">AI Tutor</span>
           </div>
         </button>
       </div>
