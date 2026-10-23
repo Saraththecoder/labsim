@@ -52,13 +52,13 @@ export function StudentBadgesModal({ isOpen, onClose }: BadgesModalProps) {
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-[100] bg-[#17231B]/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 touch-manipulation"
+      className="fixed inset-0 z-[100] bg-[#17231B]/60 backdrop-blur-md overflow-y-auto p-2 sm:p-4 flex flex-col items-center justify-start sm:justify-center touch-manipulation"
     >
-      <div className="bg-[#FFFFFF] border border-[#E2E8DF] rounded-3xl max-w-lg w-full flex flex-col shadow-2xl relative text-[#17231B] max-h-[85vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="my-auto w-full max-w-lg bg-[#FFFFFF] border border-[#E2E8DF] rounded-2xl sm:rounded-3xl flex flex-col shadow-2xl relative text-[#17231B] max-h-[92vh] sm:max-h-[86vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* ===================================================================
-            1. FIXED HEADER (Always visible on all screen sizes)
+            1. FIXED HEADER (Always visible at the top, never clipped)
            =================================================================== */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#E2E8DF] shrink-0 bg-white">
+        <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#E2E8DF] shrink-0 bg-white">
           <div className="flex items-center gap-2.5 font-bold text-sm sm:text-base text-[#17231B]">
             <div className="w-8 h-8 rounded-xl bg-[#B8D96B]/30 border border-[#B8D96B]/60 flex items-center justify-center text-[#17231B] shadow-xs shrink-0">
               <Trophy className="w-4 h-4 text-[#17231B]" />
@@ -80,11 +80,11 @@ export function StudentBadgesModal({ isOpen, onClose }: BadgesModalProps) {
         </div>
 
         {/* ===================================================================
-            2. SCROLLABLE BODY (Scrolls independently within viewport)
+            2. SCROLLABLE BODY (Scrolls cleanly without pushing header off)
            =================================================================== */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-3">
           {/* Level & XP Progress Card */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2.5 shadow-2xs">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-7 h-7 rounded-lg bg-[#B8D96B] font-extrabold text-xs text-[#17231B] flex items-center justify-center shadow-xs shrink-0">
@@ -125,19 +125,19 @@ export function StudentBadgesModal({ isOpen, onClose }: BadgesModalProps) {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {ALL_BADGES.map((badge) => {
                 const isUnlocked = progress.badges.includes(badge.id);
                 return (
                   <div
                     key={badge.id}
-                    className={`p-2.5 sm:p-3 rounded-2xl border text-xs flex items-start gap-2.5 transition-all ${
+                    className={`p-2.5 rounded-2xl border text-xs flex items-start gap-2.5 transition-all ${
                       isUnlocked
                         ? 'bg-[#FFFFFF] border-[#B8D96B] shadow-xs'
                         : 'bg-[#F4F7F2]/60 border-[#E2E8DF] opacity-60'
                     }`}
                   >
-                    <span className="text-xl sm:text-2xl p-1.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] shrink-0">
+                    <span className="text-xl p-1.5 rounded-xl bg-[#F4F7F2] border border-[#E2E8DF] shrink-0">
                       {badge.icon}
                     </span>
                     <div className="space-y-0.5 min-w-0 flex-1">
@@ -163,9 +163,9 @@ export function StudentBadgesModal({ isOpen, onClose }: BadgesModalProps) {
         </div>
 
         {/* ===================================================================
-            3. FIXED FOOTER (Always visible and clickable on all screen sizes)
+            3. FIXED FOOTER (Always visible and clickable at the bottom)
            =================================================================== */}
-        <div className="p-3.5 sm:p-4 border-t border-[#E2E8DF] shrink-0 bg-[#F9FAF8]">
+        <div className="p-3 sm:p-3.5 border-t border-[#E2E8DF] shrink-0 bg-[#F9FAF8]">
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl bg-[#B8D96B] hover:bg-[#a9cd59] text-[#17231B] font-bold text-xs sm:text-sm shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"

@@ -16,6 +16,8 @@ import {
   ChevronDown,
   ChevronUp,
   Atom,
+  Square,
+  Radio,
 } from 'lucide-react';
 
 export interface AssistantIssue {
@@ -128,7 +130,25 @@ export function LabSimAssistant({
 
   // Audio & Voice toggles
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Preload browser speech voices on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        try {
+          window.speechSynthesis.getVoices();
+        } catch {}
+      };
+      loadVoices();
+      if ('onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+  }, []);
 
   // Dismiss on click outside or Escape key
   useEffect(() => {
@@ -142,6 +162,7 @@ export function LabSimAssistant({
       if (event.key === 'Escape') {
         setDrawerOpen(false);
         setIssueVisible(false);
+        stopSpeaking();
       }
     };
 
@@ -185,30 +206,136 @@ export function LabSimAssistant({
     }
   };
 
-  // Web Speech API Voice
-  const speakMessage = (text: string) => {
-    if (!voiceEnabled || !soundEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  // 1. Guaranteed Web Audio Melodic Voice Chime (Plays on 100% of browsers)
+  const playVocalChime = () => {
+    if (!soundEnabled || typeof window === 'undefined') return;
     try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = audioContextRef.current || new AudioCtx();
+      audioContextRef.current = ctx;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+      // Friendly, melodic 3-tone harmonic arpeggio (C5 -> E5 -> G5)
+      const freqs = [523.25, 659.25, 783.99];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.08, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.22);
+      });
+    } catch {}
+  };
+
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    (window as any).__labbyActiveUtterance = null;
+    utteranceRef.current = null;
+    setIsSpeaking(false);
+  };
+
+  // 2. High-Fidelity Web Speech Voice Engine (Zero-Cancel Stall, Anti-GC)
+  const speakMessage = (text: string) => {
+    if (!soundEnabled || typeof window === 'undefined') return;
+
+    // Guaranteed chime feedback
+    playVocalChime();
+
+    if (!('speechSynthesis' in window)) return;
+
+    try {
+      // Resume if paused
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
+      // Stop previous
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/[^a-zA-Z0-9\s.,?!%]/g, '');
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.pitch = 1.25;
-      utterance.rate = 1.05;
 
-      const voices = window.speechSynthesis.getVoices();
-      const naturalVoice = voices.find(
-        (v) =>
-          v.lang.startsWith('en') &&
-          (v.name.includes('Natural') ||
-            v.name.includes('Google') ||
-            v.name.includes('Samantha') ||
-            v.name.includes('Zira'))
-      );
-      if (naturalVoice) utterance.voice = naturalVoice;
+      // Clean speech text
+      const cleanText = text
+        .replace(/∠/g, 'angle ')
+        .replace(/Δ/g, 'delta ')
+        .replace(/•/g, ', ')
+        .replace(/➔/g, ' which gives ')
+        .replace(/Ω/g, ' Ohms ')
+        .replace(/λ/g, ' lambda ')
+        .replace(/\+/g, ' plus ')
+        .replace(/([a-zA-Z0-9])\/([a-zA-Z0-9])/g, '$1 over $2')
+        .replace(/[^a-zA-Z0-9\s.,?!%'-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-      window.speechSynthesis.speak(utterance);
+      if (!cleanText) return;
+
+      // Small tick delay to avoid Chromium cancel() stall
+      setTimeout(() => {
+        try {
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          utterance.lang = 'en-US';
+          utterance.rate = 1.0;
+          utterance.pitch = 1.05;
+
+          const voices = window.speechSynthesis.getVoices();
+          if (voices && voices.length > 0) {
+            const preferred =
+              voices.find(
+                (v) =>
+                  v.lang.startsWith('en') &&
+                  (v.name.includes('Natural') ||
+                    v.name.includes('Google') ||
+                    v.name.includes('Jenny') ||
+                    v.name.includes('Guy') ||
+                    v.name.includes('Zira') ||
+                    v.name.includes('Samantha') ||
+                    v.name.includes('Microsoft'))
+              ) ||
+              voices.find((v) => v.lang.startsWith('en')) ||
+              voices[0];
+
+            if (preferred) utterance.voice = preferred;
+          }
+
+          utterance.onstart = () => {
+            setIsSpeaking(true);
+          };
+
+          utterance.onend = () => {
+            setIsSpeaking(false);
+            (window as any).__labbyActiveUtterance = null;
+            utteranceRef.current = null;
+          };
+
+          utterance.onerror = () => {
+            setIsSpeaking(false);
+            (window as any).__labbyActiveUtterance = null;
+            utteranceRef.current = null;
+          };
+
+          // Store on window + ref so Chromium V8 never garbage-collects it
+          (window as any).__labbyActiveUtterance = utterance;
+          utteranceRef.current = utterance;
+
+          window.speechSynthesis.speak(utterance);
+        } catch {
+          setIsSpeaking(false);
+        }
+      }, 40);
     } catch {
-      // Speech fallback
+      setIsSpeaking(false);
     }
   };
 
@@ -217,7 +344,10 @@ export function LabSimAssistant({
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
-      const ctx = new AudioCtx();
+      const ctx = audioContextRef.current || new AudioCtx();
+      audioContextRef.current = ctx;
+      if (ctx.state === 'suspended') ctx.resume();
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -239,9 +369,7 @@ export function LabSimAssistant({
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.35);
-    } catch {
-      // Audio fallback
-    }
+    } catch {}
   };
 
   const playFixSound = () => {
@@ -249,22 +377,22 @@ export function LabSimAssistant({
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.07);
-        gain.gain.setValueAtTime(0.05, ctx.currentTime + i * 0.07);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.07 + 0.2);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + i * 0.07);
-        osc.stop(ctx.currentTime + i * 0.07 + 0.2);
-      });
-    } catch {
-      // Audio fallback
-    }
+      const ctx = audioContextRef.current || new AudioCtx();
+      audioContextRef.current = ctx;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch {}
   };
 
   const handleApplyFix = () => {
@@ -272,9 +400,6 @@ export function LabSimAssistant({
     setIsFixing(true);
     triggerHaptic('fix');
     playFixSound();
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
     if (activeIssue.onApplyFix) {
       activeIssue.onApplyFix();
     }
@@ -288,9 +413,7 @@ export function LabSimAssistant({
 
   const handleDismissIssue = () => {
     triggerHaptic('click');
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopSpeaking();
     setIssueVisible(false);
     setActiveIssue(null);
     if (onDismiss) onDismiss();
@@ -361,7 +484,7 @@ export function LabSimAssistant({
           2. INTERACTIVE LABBY AI MENTOR DRAWER (When mascot is tapped)
          ========================================================================= */}
       {drawerOpen && (
-        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm rounded-3xl bg-[#FFFFFF] border-2 border-[#B8D96B] shadow-[0_16px_45px_rgba(23,35,27,0.25)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200 text-[#17231B] max-h-[72vh] overflow-y-auto">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm rounded-3xl bg-[#FFFFFF] border-2 border-[#B8D96B] shadow-[0_16px_45px_rgba(23,35,27,0.25)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200 text-[#17231B] max-h-[75vh] overflow-y-auto">
           {/* Drawer Top Header */}
           <div className="flex items-center justify-between border-b border-[#E2E8DF] pb-2">
             <div className="flex items-center gap-2">
@@ -374,17 +497,54 @@ export function LabSimAssistant({
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              {/* Speaking Indicator & Stop Button */}
+              {isSpeaking ? (
+                <button
+                  onClick={stopSpeaking}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold shadow-xs cursor-pointer active:scale-95 transition-all"
+                  title="Stop Speech"
+                >
+                  <Square className="w-2.5 h-2.5 fill-current" />
+                  <span>Stop</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    speakMessage(
+                      `Hello! I am Labby, your virtual lab tutor for ${knowledge.title}. Tap any section below to hear my voice explanation!`
+                    )
+                  }
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#B8D96B]/30 hover:bg-[#B8D96B]/50 text-[#17231B] text-[10px] font-bold border border-[#B8D96B]/60 shadow-xs cursor-pointer active:scale-95 transition-all"
+                  title="Test Labby Voice"
+                >
+                  <Volume2 className="w-2.5 h-2.5 text-[#17231B]" />
+                  <span>Test Voice</span>
+                </button>
+              )}
+
               <button
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-1 rounded-lg text-[#647067] hover:text-[#17231B] transition-colors"
+                onClick={() => {
+                  if (soundEnabled) {
+                    stopSpeaking();
+                    setSoundEnabled(false);
+                  } else {
+                    setSoundEnabled(true);
+                    playVocalChime();
+                  }
+                }}
+                className="p-1 rounded-lg text-[#647067] hover:text-[#17231B] transition-colors cursor-pointer"
                 title={soundEnabled ? 'Mute' : 'Unmute'}
               >
-                {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-500" />}
+                {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4 text-red-500" />}
               </button>
+
               <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-1 rounded-lg text-[#647067] hover:text-[#17231B] transition-colors"
+                onClick={() => {
+                  stopSpeaking();
+                  setDrawerOpen(false);
+                }}
+                className="p-1 rounded-lg text-[#647067] hover:text-[#17231B] transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -395,7 +555,7 @@ export function LabSimAssistant({
           <div className="grid grid-cols-3 gap-1 bg-[#F4F7F2] p-1 rounded-xl text-[11px] font-bold">
             <button
               onClick={() => setActiveTab('status')}
-              className={`py-1 rounded-lg transition-all ${
+              className={`py-1 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'status' ? 'bg-[#FFFFFF] text-[#17231B] shadow-xs' : 'text-[#647067]'
               }`}
             >
@@ -403,7 +563,7 @@ export function LabSimAssistant({
             </button>
             <button
               onClick={() => setActiveTab('viva')}
-              className={`py-1 rounded-lg transition-all ${
+              className={`py-1 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'viva' ? 'bg-[#FFFFFF] text-[#17231B] shadow-xs' : 'text-[#647067]'
               }`}
             >
@@ -411,7 +571,7 @@ export function LabSimAssistant({
             </button>
             <button
               onClick={() => setActiveTab('formula')}
-              className={`py-1 rounded-lg transition-all ${
+              className={`py-1 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'formula' ? 'bg-[#FFFFFF] text-[#17231B] shadow-xs' : 'text-[#647067]'
               }`}
             >
@@ -421,8 +581,9 @@ export function LabSimAssistant({
 
           {/* Tab Content */}
           <div className="space-y-2 text-xs">
+            {/* 1. PRO-TIP TAB */}
             {activeTab === 'status' && (
-              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-1.5">
+              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#558120] flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
                   <span>Curriculum Insight</span>
@@ -430,40 +591,106 @@ export function LabSimAssistant({
                 <p className="text-[#17231B] text-[11px] leading-relaxed font-medium">
                   {knowledge.proTip}
                 </p>
-                <button
-                  onClick={() => speakMessage(knowledge.proTip)}
-                  className="pt-1 text-[10px] font-bold text-[#558120] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Volume2 className="w-3 h-3" />
-                  <span>Listen to Labby</span>
-                </button>
+
+                {/* Primary Voice Button */}
+                <div className="pt-1">
+                  {isSpeaking ? (
+                    <button
+                      onClick={stopSpeaking}
+                      className="w-full py-1.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Square className="w-3 h-3 fill-current" />
+                      <span>Stop Voice</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => speakMessage(knowledge.proTip)}
+                      className="w-full py-1.5 px-3 rounded-xl bg-[#17231B] hover:bg-black text-[#B8D96B] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Volume2 className="w-3.5 h-3.5 text-[#B8D96B]" />
+                      <span>🔊 Listen to Labby's Pro-Tip</span>
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
+            {/* 2. VIVA Q&A TAB */}
             {activeTab === 'viva' && (
-              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2">
+              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2.5">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">
                     Board Viva Voce Question:
                   </span>
-                  <p className="font-bold text-[#17231B] text-[11px]">{knowledge.vivaQuestion}</p>
+                  <p className="font-bold text-[#17231B] text-[11px] mt-0.5">{knowledge.vivaQuestion}</p>
                 </div>
-                <div className="pt-1 border-t border-[#E2E8DF]">
+                <div className="pt-1.5 border-t border-[#E2E8DF]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">
-                    Model Answer:
+                    Model Examiner Answer:
                   </span>
-                  <p className="text-[11px] text-[#647067] leading-relaxed">{knowledge.vivaAnswer}</p>
+                  <p className="text-[11px] text-[#647067] leading-relaxed mt-0.5">{knowledge.vivaAnswer}</p>
+                </div>
+
+                {/* Primary Voice Button for Viva */}
+                <div className="pt-1">
+                  {isSpeaking ? (
+                    <button
+                      onClick={stopSpeaking}
+                      className="w-full py-1.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Square className="w-3 h-3 fill-current" />
+                      <span>Stop Voice</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        speakMessage(
+                          `Board viva voce question: ${knowledge.vivaQuestion}. Model examiner answer: ${knowledge.vivaAnswer}`
+                        )
+                      }
+                      className="w-full py-1.5 px-3 rounded-xl bg-[#17231B] hover:bg-black text-[#B8D96B] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Volume2 className="w-3.5 h-3.5 text-[#B8D96B]" />
+                      <span>🔊 Read Question & Model Answer</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}
 
+            {/* 3. FORMULA TAB */}
             {activeTab === 'formula' && (
-              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-1.5 text-center">
+              <div className="p-3 rounded-2xl bg-[#F8FAF6] border border-[#B8D96B]/50 space-y-2 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#647067]">
                   Key Governing Equation
                 </span>
                 <div className="p-2 rounded-xl bg-[#FFFFFF] border border-[#E2E8DF] font-mono text-xs font-bold text-[#17231B]">
                   {knowledge.keyFormula}
+                </div>
+
+                {/* Primary Voice Button for Formula */}
+                <div className="pt-1">
+                  {isSpeaking ? (
+                    <button
+                      onClick={stopSpeaking}
+                      className="w-full py-1.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Square className="w-3 h-3 fill-current" />
+                      <span>Stop Voice</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        speakMessage(
+                          `The key governing formula for ${knowledge.title} is: ${knowledge.keyFormula}`
+                        )
+                      }
+                      className="w-full py-1.5 px-3 rounded-xl bg-[#17231B] hover:bg-black text-[#B8D96B] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Volume2 className="w-3.5 h-3.5 text-[#B8D96B]" />
+                      <span>🔊 Explain Formula</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -478,7 +705,15 @@ export function LabSimAssistant({
         <button
           onClick={() => {
             triggerHaptic('click');
-            setDrawerOpen(!drawerOpen);
+            const willOpen = !drawerOpen;
+            setDrawerOpen(willOpen);
+            if (willOpen) {
+              speakMessage(
+                `Hello! I am Labby, your virtual lab assistant for ${knowledge.title}. Tap any tab to hear my explanations!`
+              );
+            } else {
+              stopSpeaking();
+            }
           }}
           className="group relative flex items-center gap-2 p-1.5 sm:p-2 pr-3.5 sm:pr-4 rounded-full bg-[#17231B] hover:bg-black text-white shadow-2xl border-2 border-[#B8D96B] transition-all transform hover:scale-105 active:scale-95 cursor-pointer touch-manipulation"
           title="Open Labby AI Science Tutor"
@@ -505,7 +740,12 @@ export function LabSimAssistant({
               <span>Ask Labby</span>
               <Sparkles className="w-3 h-3 text-[#B8D96B]" />
             </span>
-            <span className="text-[9px] text-slate-300 font-mono mt-0.5 leading-none">AI Tutor</span>
+            <span className="text-[9px] text-slate-300 font-mono mt-0.5 leading-none flex items-center gap-1">
+              <span>AI Tutor</span>
+              {isSpeaking && (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+              )}
+            </span>
           </div>
         </button>
       </div>
