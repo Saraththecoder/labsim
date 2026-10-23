@@ -61,6 +61,14 @@ export default function GlassSlabLabPage() {
 
           <div className="flex items-center gap-2">
             <Link
+              href="/ar?exp=glass-slab"
+              className="px-3 py-1 rounded-lg bg-[#FFFFFF] hover:bg-[#F4F7F2] text-[#17231B] text-xs font-bold border border-[#E2E8DF] flex items-center gap-1.5 shadow-xs"
+              title="Launch Tabletop Augmented Reality"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#17231B]" />
+              <span>Tabletop AR</span>
+            </Link>
+            <Link
               href="/report?exp=glass-slab"
               className="px-3 py-1 rounded-lg bg-[#B8D96B] hover:bg-[#a7cb58] text-[#17231B] text-xs font-bold border border-[#B8D96B] flex items-center gap-1 shadow-xs"
             >

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -249,8 +249,22 @@ function LearnContent() {
   const activeLensCase = CONVEX_LENS_CASES[lensCaseIndex];
   const activeMirrorCase = CONCAVE_MIRROR_CASES[mirrorCaseIndex];
 
+  // Sync query parameter if changed externally
+  useEffect(() => {
+    if (expParam) {
+      const idx = CLASS_10_PHYSICS_EXPERIMENTS.findIndex((e) => e.id === expParam);
+      if (idx >= 0) {
+        setSelectedExpIndex(idx);
+      }
+    }
+  }, [expParam]);
+
   const handleSelectExperiment = (idx: number) => {
     setSelectedExpIndex(idx);
+    const exp = CLASS_10_PHYSICS_EXPERIMENTS[idx];
+    if (typeof window !== 'undefined' && exp) {
+      window.history.replaceState(null, '', `/learn?exp=${exp.id}`);
+    }
     // Smoothly scroll down directly to the theory matter
     setTimeout(() => {
       if (theoryDetailsRef.current) {
@@ -261,7 +275,7 @@ function LearnContent() {
           behavior: 'smooth',
         });
       }
-    }, 70);
+    }, 50);
   };
 
   return (
@@ -299,6 +313,8 @@ function LearnContent() {
             return (
               <button
                 key={exp.id}
+                type="button"
+                id={`exp-tab-${exp.id}`}
                 onClick={() => handleSelectExperiment(idx)}
                 className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group cursor-pointer relative overflow-hidden ${
                   isSelected
@@ -342,7 +358,18 @@ function LearnContent() {
       {/* =========================================
           EXPERIMENT BANNER & THEORY DETAILS SECTION (Auto-scrolled to)
          ========================================= */}
-      <div ref={theoryDetailsRef} className="pt-2 scroll-mt-24 space-y-8">
+      <div ref={theoryDetailsRef} className="pt-2 scroll-mt-24 space-y-6">
+        {/* Active Experiment Notice Banner */}
+        <div className="p-3.5 px-4 rounded-xl bg-[#F4F7F2] border border-[#B8D96B]/60 flex items-center justify-between text-xs font-bold text-[#17231B] shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-base">📖</span>
+            <span>You are reading: <strong>Experiment {currentExp.number} — {currentExp.title}</strong></span>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider bg-[#B8D96B] text-[#17231B] px-2.5 py-0.5 rounded-full font-extrabold">
+            Active Practical
+          </span>
+        </div>
+
         <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8DF] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2 flex-1">
           <div className="flex flex-wrap items-center gap-2">

@@ -170,9 +170,9 @@ export default function PhysicsSuiteHubPage() {
 
                 {exp.status === 'live' && (
                   <Link
-                    href={exp.id === 'convex-lens' ? '/ar' : `${exp.route}#ar`}
+                    href={`/ar?exp=${exp.id}`}
                     className="p-2.5 rounded-xl bg-[#F4F7F2] hover:bg-[#E2E8DF] text-[#17231B] border border-[#E2E8DF] transition-colors"
-                    title="Launch WebXR AR Mode"
+                    title={`Launch Tabletop AR for ${exp.title}`}
                   >
                     <Smartphone className="w-4 h-4" />
                   </Link>
