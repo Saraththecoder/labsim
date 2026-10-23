@@ -188,6 +188,18 @@ export function Navbar() {
                 <span>Reports</span>
               </Link>
 
+              <Link
+                href="/poster"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  pathname === '/poster'
+                    ? 'text-[#17231B] bg-[#B8D96B]/25 font-bold'
+                    : 'text-[#647067] hover:text-[#17231B] hover:bg-[#F4F7F2]'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Poster</span>
+              </Link>
+
               <button
                 onClick={() => setBadgesOpen(true)}
                 className="w-8 h-8 rounded-full bg-[#B8D96B]/20 hover:bg-[#B8D96B]/40 border border-[#B8D96B] flex items-center justify-center text-[#17231B] transition-all shadow-xs cursor-pointer ml-1"
@@ -333,6 +345,14 @@ export function Navbar() {
             >
               <FileText className="w-3.5 h-3.5 text-[#647067]" />
               <span>Printable Lab Report & Viva</span>
+            </Link>
+            <Link
+              href="/poster"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100"
+            >
+              <Award className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Project Presentation Poster (A0/A1)</span>
             </Link>
           </div>
         </div>
