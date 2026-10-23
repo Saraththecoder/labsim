@@ -187,7 +187,7 @@ export default function HomePage() {
               <Sparkles className="w-5 h-5 stroke-[2] text-[#17231B]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-[#17231B] mb-0.5">Circuit Sandbox</h3>
-            <p className="text-[11px] text-[#647067] line-clamp-1">Tinkercad-Style CAD</p>
+            <p className="text-[11px] text-[#647067] line-clamp-1">3D Circuit Workbench</p>
           </Link>
 
           <Link

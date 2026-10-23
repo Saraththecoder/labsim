@@ -721,17 +721,17 @@ export default function ProjectPosterPage() {
               {/* COMPARISON WITH EXISTING PLATFORMS */}
               <div className="bg-white rounded-xl border border-slate-300 p-3.5 shadow-xs">
                 <h4 className="text-xs font-bold text-[#0f3822] uppercase tracking-wide mb-2">
-                  Comparison with Existing Platforms
+                  Industry Benchmark Comparison
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-[9px] text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
                         <th className="p-1">Feature / Metric</th>
-                        <th className="p-1 text-center">PhET</th>
-                        <th className="p-1 text-center">Tinkercad</th>
-                        <th className="p-1 text-center">Labster</th>
-                        <th className="p-1 text-center bg-emerald-100 text-[#0f3822]">LabSim (Our Project)</th>
+                        <th className="p-1 text-center">Traditional 2D Simulators</th>
+                        <th className="p-1 text-center">Generic Web 3D CAD</th>
+                        <th className="p-1 text-center">Heavy Native VR Suites</th>
+                        <th className="p-1 text-center bg-emerald-100 text-[#0f3822]">LabSim (Our Platform)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 text-slate-700">
@@ -925,7 +925,7 @@ export default function ProjectPosterPage() {
           {/* =============================================================== */}
           <div className="bg-[#0f281e] text-slate-300 px-6 py-2.5 border-t-2 border-emerald-500 flex flex-wrap items-center justify-between text-[11px]">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-white text-xs">LabSim • National Science & Technology Hackathon</span>
+              <span className="font-extrabold text-white text-xs">LabSim • Virtual STEM Science Laboratory</span>
               <span>•</span>
               <span className="text-emerald-300">Annamacharya Institute of Technology and Sciences</span>
             </div>

@@ -174,7 +174,7 @@ export default function SandboxPage() {
       id: `sandbox-tip-${Date.now()}`,
       experimentId: 'sandbox',
       severity: 'info',
-      title: 'Tinkercad Parity Pro-Tip',
+      title: 'Circuit Workbench Pro-Tip',
       message:
         'In this physical sandbox, current I = V / R_total = ' +
         voltage.toFixed(1) +

@@ -11,7 +11,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Modern%20UI-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
 
-**National STEM Innovation Challenge 2026 • Grand Finale Project**  
+**Virtual STEM Science Laboratory • Production & Academic Edition**  
 *Democratizing high-fidelity experiential science for 150M+ students across India with zero hardware overhead.*
 
 [Explore Live Demo](http://localhost:3005) • [Academic Research Poster](http://localhost:3005/poster) • [Interactive Circuit Sandbox](http://localhost:3005/sandbox) • [Performance Scorecard](#-performance-benchmarks--system-scorecard)
@@ -34,7 +34,7 @@ In developing nations like India, access to well-equipped secondary science wet 
 
 ## 🏆 Key Innovations & Competitive Matrix (How LabSim Outperforms)
 
-| Feature / Metric | PhET Interactive Simulations | Autodesk Tinkercad | Labster | **LabSim (Our Project)** |
+| Feature / Metric | Traditional 2D Simulators | Generic Web 3D CAD | Heavy Native VR Suites | **LabSim (Our Platform)** |
 | :--- | :---: | :---: | :---: | :---: |
 | **Spatial Dimensionality** | 2D Flat Canvas | 3D Basic Meshes | 3D Desktop Heavy | **Full 3D WebGL + Immersive WebXR AR** |
 | **Augmented Reality on Desks** | ❌ None | ❌ App-restricted | ❌ VR Headset required ($400+) | **✅ Native WebXR (Zero app install, camera AR)** |
@@ -98,7 +98,7 @@ In developing nations like India, access to well-equipped secondary science wet 
     $$d = t \cdot \frac{\sin(i - r)}{\cos(r)}$$
 
 #### F. Interactive Circuit Sandbox (`/sandbox`)
-* **Tinkercad-Competitor Circuit Workbench:** Allows students to wire arbitrary combinations of batteries, SPST knife switches, potentiometers, rheostats, carbon film resistors, ammeters, and incandescent filament bulbs.
+* **Interactive 3D Circuit Workbench:** Allows students to wire arbitrary combinations of batteries, SPST knife switches, potentiometers, rheostats, carbon film resistors, ammeters, and incandescent filament bulbs.
 * Features real-time loop current calculation, filament temperature glow, and live electron flow animations.
 
 ---
@@ -248,7 +248,7 @@ ar studio/
 │   ├── app/
 │   │   ├── page.tsx                # LabSim Hero Landing Hub
 │   │   ├── poster/page.tsx         # Academic Research Poster View & A0/A1 Print Export
-│   │   ├── sandbox/page.tsx        # Interactive Circuit Sandbox (Tinkercad Competitor)
+│   │   ├── sandbox/page.tsx        # Interactive 3D Circuit Sandbox
 │   │   ├── lab/page.tsx            # Dual-Rail Optical Bench Convex Lens Lab
 │   │   ├── physics/
 │   │   │   ├── ohms-law/page.tsx   # Kirchhoff Ohm's Law Circuit Lab
@@ -294,11 +294,11 @@ ar studio/
 
 ---
 
-## 👥 Authors & National Hackathon Team
+## 👥 Engineering & Institutional Credits
 
 * **Lead Developer & Spatial Architect:** Sarath (`Saraththecoder`)
 * **Project Repository:** [Saraththecoder/labsim](https://github.com/Saraththecoder/labsim)
-* **Competition:** National Hackathon 2026 (Grand Finale Finalist — Top 300+ Teams across India)
+* **Institutional Affiliation:** Annamacharya Institute of Technology and Sciences (AITS), Tirupati, Andhra Pradesh
 
 ---
 
