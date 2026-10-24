@@ -10,7 +10,7 @@
 [![TypeScript 5](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Modern%20UI-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![CBSE / NCERT](https://img.shields.io/badge/Curriculum-CBSE%20%2F%20NCERT%20Class%209--12-10B981?style=for-the-badge&logo=book&logoColor=white)](https://ncert.nic.in/)
-[![Frame Rate](https://img.shields.io/badge/Performance-60%20FPS%20Locked-B8D96B?style=for-the-badge&logo=speedtest&logoColor=17231B)](#-performance-benchmarks--system-scorecard)
+[![Frame Rate](https://img.shields.io/badge/Performance-60%20FPS%20Locked-B8D96B?style=for-the-badge&logo=speedtest&logoColor=17231B)](#performance-benchmarks)
 [![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -20,17 +20,17 @@
 
 <br/>
 
-<a href="http://localhost:3005">
+<a href="https://labsim-woad.vercel.app/lab">
   <img src="public/screenshots/solution_device_mockup.png" alt="LabSim 3D WebXR Simulation on Desktop and Mobile" width="880" style="border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);" />
 </a>
 
 <br/><br/>
 
-[🌐 Explore Live Lab](http://localhost:3005) &nbsp;•&nbsp; 
-[📊 Academic Research Poster](http://localhost:3005/poster) &nbsp;•&nbsp; 
-[⚡ Interactive Circuit Sandbox](http://localhost:3005/sandbox) &nbsp;•&nbsp; 
-[🥽 Tabletop WebXR Mode](http://localhost:3005/ar) &nbsp;•&nbsp; 
-[📄 Printable Examination Report](http://localhost:3005/report)
+[🌐 Explore Live Lab](https://labsim-woad.vercel.app/lab) &nbsp;•&nbsp; 
+[📊 Academic Research Poster](https://labsim-woad.vercel.app/poster) &nbsp;•&nbsp; 
+[⚡ Interactive Circuit Sandbox](https://labsim-woad.vercel.app/sandbox) &nbsp;•&nbsp; 
+[🥽 Tabletop WebXR Mode](https://labsim-woad.vercel.app/ar) &nbsp;•&nbsp; 
+[📄 Printable Examination Report](https://labsim-woad.vercel.app/report)
 
 </div>
 
@@ -38,23 +38,23 @@
 
 ## 📑 Table of Contents
 
-- [📌 Executive Summary & Problem Statement](#-executive-summary--problem-statement)
-- [🏆 Key Architectural Innovations & Competitive Matrix](#-key-architectural-innovations--competitive-matrix)
-- [🔬 Interactive 3D Virtual Apparatus Suite](#-interactive-3d-virtual-apparatus-suite)
-  - [1. Physics Laboratory Suite (Optics & Electromagnetism)](#1-physics-laboratory-suite-optics--electromagnetism)
-  - [2. Chemistry Laboratory Suite (Electrochemistry & Kinetics)](#2-chemistry-laboratory-suite-electrochemistry--kinetics)
-- [🥽 Spatial Computing & Tabletop WebXR Augmented Reality](#-spatial-computing--tabletop-webxr-augmented-reality)
-- [🤖 LabSim Assistant AI: Embedded Voice Viva-Voce Tutor](#-labsim-assistant-ai-embedded-voice-viva-voce-tutor)
-- [🏗️ System Architecture & Spatial Computing Pipeline](#️-system-architecture--spatial-computing-pipeline)
-- [🛠️ Detailed Technology Stack & Technical Significance](#️-detailed-technology-stack--technical-significance)
-- [📊 Performance Benchmarks & Empirical Learning Outcomes](#-performance-benchmarks--empirical-learning-outcomes)
-- [📚 CBSE / NCERT Practical Curriculum Alignment Matrix](#-cbse--ncert-practical-curriculum-alignment-matrix)
-- [🚀 Local Installation & Reproduction Guide](#-local-installation--reproduction-guide)
-- [👥 Institutional Attribution & Engineering Credits](#-institutional-attribution--engineering-credits)
+- [📌 Executive Summary & Problem Statement](#executive-summary)
+- [🏆 Key Architectural Innovations & Competitive Matrix](#innovations-matrix)
+- [🔬 Interactive 3D Virtual Apparatus Suite](#apparatus-suite)
+  - [1. Physics Laboratory Suite (Optics & Electromagnetism)](#physics-suite)
+  - [2. Chemistry Laboratory Suite (Electrochemistry & Kinetics)](#chemistry-suite)
+- [🥽 Spatial Computing & Tabletop WebXR Augmented Reality](#spatial-webxr)
+- [🤖 LabSim Assistant AI: Embedded Voice Viva-Voce Tutor](#voice-assistant)
+- [🏗️ System Architecture & Spatial Computing Pipeline](#system-architecture)
+- [🛠️ Detailed Technology Stack & Technical Significance](#technology-stack)
+- [📊 Performance Benchmarks & Empirical Learning Outcomes](#performance-benchmarks)
+- [📚 CBSE / NCERT Practical Curriculum Alignment Matrix](#curriculum-matrix)
+- [🚀 Local Installation & Reproduction Guide](#installation-guide)
+- [👥 Institutional Attribution & Engineering Credits](#institutional-attribution)
 
 ---
 
-## 📌 Executive Summary & Problem Statement
+## <a id="executive-summary"></a>📌 Executive Summary & Problem Statement
 
 In developing nations like India, access to well-equipped secondary science wet laboratories remains a severe systemic bottleneck:
 
@@ -64,11 +64,11 @@ In developing nations like India, access to well-equipped secondary science wet 
 * **📖 The Rote-Learning Consequence:** Lacking hands-on access, students are forced to memorize experimental readings, tabulated observations, and ray diagrams from guidebooks rather than discovering underlying scientific laws.
 
 > [!IMPORTANT]
-> **LabSim's Sovereign Solution:** A zero-install, photorealistic, deterministic 3D and WebXR Augmented Reality Virtual Science Laboratory accessible directly within any standard browser (Chrome, Edge, Safari, Firefox) on budget Android smartphones, Chromebooks, tablets, and legacy PCs.
+> **LabSim's Sovereign Solution:** A zero-install, photorealistic, deterministic 3D and WebXR Augmented Reality Virtual Science Laboratory accessible directly within any standard browser (Chrome, Edge, Safari, Firefox) on budget Android smartphones, Chromebooks, tablets, and legacy PCs at [labsim-woad.vercel.app/lab](https://labsim-woad.vercel.app/lab).
 
 ---
 
-## 🏆 Key Architectural Innovations & Competitive Matrix
+## <a id="innovations-matrix"></a>🏆 Key Architectural Innovations & Competitive Matrix
 
 | Feature / Architectural Metric | Traditional 2D Simulators | Generic Web 3D CAD | Heavy Native VR Suites | **LabSim (Our Platform)** |
 | :--- | :---: | :---: | :---: | :---: |
@@ -83,15 +83,17 @@ In developing nations like India, access to well-equipped secondary science wet 
 
 ---
 
-## 🔬 Interactive 3D Virtual Apparatus Suite
+## <a id="apparatus-suite"></a>🔬 Interactive 3D Virtual Apparatus Suite
 
-### 1. Physics Laboratory Suite (Optics & Electromagnetism)
+### <a id="physics-suite"></a>1. Physics Laboratory Suite (Optics & Electromagnetism)
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <img src="public/screenshots/optical_bench_crop.png" alt="Dual-Rail Optical Bench Convex Lens Simulation" width="100%" style="border-radius: 8px;" />
-      <h3>🔬 Dual-Rail Optical Bench (`/lab`)</h3>
+      <a href="https://labsim-woad.vercel.app/lab">
+        <img src="public/screenshots/optical_bench_crop.png" alt="Dual-Rail Optical Bench Convex Lens Simulation" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>🔬 <a href="https://labsim-woad.vercel.app/lab">Dual-Rail Optical Bench (`/lab`)</a></h3>
       <p><b>CBSE Class 10 & 12 Practical: Focal Length of Convex Lens</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> 100 cm cast-iron dual-rail bed with sliding uprights, brass thumb screws, illuminated crosswires, double convex crown glass lens ($f = +15\text{ cm}$), and frosted projection screen.</li>
@@ -106,8 +108,10 @@ In developing nations like India, access to well-equipped secondary science wet 
       </ul>
     </td>
     <td width="50%" valign="top">
-      <img src="public/screenshots/ohms_law_crop.png" alt="Ohm's Law Kirchhoff Circuit Simulation" width="100%" style="border-radius: 8px;" />
-      <h3>⚡ Kirchhoff Ohm's Law Circuit (`/physics/ohms-law`)</h3>
+      <a href="https://labsim-woad.vercel.app/physics/ohms-law">
+        <img src="public/screenshots/ohms_law_crop.png" alt="Ohm's Law Kirchhoff Circuit Simulation" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>⚡ <a href="https://labsim-woad.vercel.app/physics/ohms-law">Kirchhoff Ohm's Law Circuit (`/physics/ohms-law`)</a></h3>
       <p><b>CBSE Class 10 & 12 Practical: Resistance per Unit Length & V-I Graph</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> DC battery eliminator (+ Red, - Black), vulcanite brass plug key, wire-wound porcelain sliding rheostat ($0\text{–}50\,\Omega$), analog DC Ammeter ($0\text{–}500\text{ mA}$), analog DC Voltmeter ($0\text{–}5\text{ V}$), and test resistors.</li>
@@ -122,8 +126,10 @@ In developing nations like India, access to well-equipped secondary science wet 
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <img src="public/screenshots/glass_prism_crop.png" alt="Triangular Glass Prism VIBGYOR Dispersion" width="100%" style="border-radius: 8px;" />
-      <h3>🌈 Triangular Glass Prism (`/physics/glass-prism`)</h3>
+      <a href="https://labsim-woad.vercel.app/physics/glass-prism">
+        <img src="public/screenshots/glass_prism_crop.png" alt="Triangular Glass Prism VIBGYOR Dispersion" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>🌈 <a href="https://labsim-woad.vercel.app/physics/glass-prism">Triangular Glass Prism (`/physics/glass-prism`)</a></h3>
       <p><b>CBSE Class 10 & 12 Practical: Angle of Minimum Deviation ($D_m$) & Dispersion</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> 60° equilateral crown glass prism ($n = 1.52$), teak drawing board, pinned white paper, illuminated collimated light slit, and 4 colored optical pins.</li>
@@ -137,8 +143,10 @@ In developing nations like India, access to well-equipped secondary science wet 
       </ul>
     </td>
     <td width="50%" valign="top">
-      <img src="public/screenshots/concave_mirror_crop.png" alt="Concave Mirror Optical Bench Simulation" width="100%" style="border-radius: 8px;" />
-      <h3>🪞 Concave Spherical Mirror (`/physics/concave-mirror`)</h3>
+      <a href="https://labsim-woad.vercel.app/physics/concave-mirror">
+        <img src="public/screenshots/concave_mirror_crop.png" alt="Concave Mirror Optical Bench Simulation" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>🪞 <a href="https://labsim-woad.vercel.app/physics/concave-mirror">Concave Spherical Mirror (`/physics/concave-mirror`)</a></h3>
       <p><b>CBSE Class 10 Practical: Reflection & Real/Virtual Image Formation</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> Heavy optical slider base, metallic spherical concave reflector dish opening towards $-X$, illuminated arrow needle on optical axis ($Y = 1.0$), and projection screen.</li>
@@ -152,8 +160,10 @@ In developing nations like India, access to well-equipped secondary science wet 
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <img src="public/screenshots/glass_slab_crop.png" alt="Rectangular Glass Slab Lateral Displacement" width="100%" style="border-radius: 8px;" />
-      <h3>🧊 Rectangular Glass Slab (`/physics/glass-slab`)</h3>
+      <a href="https://labsim-woad.vercel.app/physics/glass-slab">
+        <img src="public/screenshots/glass_slab_crop.png" alt="Rectangular Glass Slab Lateral Displacement" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>🧊 <a href="https://labsim-woad.vercel.app/physics/glass-slab">Rectangular Glass Slab (`/physics/glass-slab`)</a></h3>
       <p><b>CBSE Class 10 Practical: Refraction & Lateral Displacement</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> Rectangular crown glass slab ($n = 1.50$) of variable thickness ($3\text{–}10\text{ cm}$), normal dashed reference lines, and 4 colored optical pins.</li>
@@ -165,8 +175,10 @@ In developing nations like India, access to well-equipped secondary science wet 
       </ul>
     </td>
     <td width="50%" valign="top">
-      <img src="public/screenshots/chemistry_lab_crop.png" alt="Electrolytic Conductivity Cell Simulation" width="100%" style="border-radius: 8px;" />
-      <h3>🧪 Electrochemical Conductivity Cell (`/conductivity/lab`)</h3>
+      <a href="https://labsim-woad.vercel.app/conductivity/lab">
+        <img src="public/screenshots/chemistry_lab_crop.png" alt="Electrolytic Conductivity Cell Simulation" width="100%" style="border-radius: 8px;" />
+      </a>
+      <h3>🧪 <a href="https://labsim-woad.vercel.app/conductivity/lab">Electrochemical Conductivity Cell (`/conductivity/lab`)</a></h3>
       <p><b>CBSE Class 12 Practical: Electrolytic Conductance & Kohlrausch's Law</b></p>
       <ul>
         <li><b>Physical Apparatus:</b> 250 mL graduated Pyrex beaker, dual platinum plate electrodes ($A = 1.0\text{ cm}^2$) with adjustable separation ($l$), red/black alligator clips, DC supply with 7-segment LED, and incandescent indicator bulb.</li>
@@ -182,17 +194,17 @@ In developing nations like India, access to well-equipped secondary science wet 
 
 ---
 
-### 2. Chemistry Laboratory Suite (Electrochemistry & Kinetics)
+### <a id="chemistry-suite"></a>2. Chemistry Laboratory Suite (Electrochemistry & Kinetics)
 
-* **🧪 Acid-Base Colorimetry & pH Indicators (`/chemistry/ph-indicators`):** 10 solution reagents across 4 analytical indicators (Universal Indicator, Red Litmus, Blue Litmus, Phenolphthalein) with real-time RGB spectrophotometric color absorption.
-* **⚗️ Metal Displacement Kinetics (`/chemistry/displacement`):** Models single displacement reactions:
+* **🧪 [Acid-Base Colorimetry & pH Indicators](https://labsim-woad.vercel.app/chemistry/ph-indicators):** 10 solution reagents across 4 analytical indicators (Universal Indicator, Red Litmus, Blue Litmus, Phenolphthalein) with real-time RGB spectrophotometric color absorption.
+* **⚗️ [Metal Displacement Kinetics](https://labsim-woad.vercel.app/chemistry/displacement):** Models single displacement reactions:
   $$Fe(s) + CuSO_4(aq) \to FeSO_4(aq) + Cu(s) \quad (\Delta E^\circ = +0.78\text{ V})$$
   Visualizes copper dendritic plating onto iron nails, gradual solution color transition from deep blue ($Cu^{2+}$) to pale green ($Fe^{2+}$), and thermodynamic enthalpy temperature shifts.
-* **⚡ Interactive Circuit Sandbox (`/sandbox`):** Full drag-and-drop circuit simulator allowing arbitrary configurations of batteries, SPST knife switches, potentiometers, rheostats, carbon film resistors, ammeters, and incandescent filament bulbs with real-time Kirchhoff solving and live electron flows.
+* **⚡ [Interactive Circuit Sandbox](https://labsim-woad.vercel.app/sandbox):** Full drag-and-drop circuit simulator allowing arbitrary configurations of batteries, SPST knife switches, potentiometers, rheostats, carbon film resistors, ammeters, and incandescent filament bulbs with real-time Kirchhoff solving and live electron flows.
 
 ---
 
-## 🥽 Spatial Computing & Tabletop WebXR Augmented Reality
+## <a id="spatial-webxr"></a>🥽 Spatial Computing & Tabletop WebXR Augmented Reality
 
 LabSim brings the physics and chemistry bench directly onto physical classroom student desks through native **WebXR Device API** integration:
 
@@ -215,7 +227,7 @@ LabSim brings the physics and chemistry bench directly onto physical classroom s
 
 ---
 
-## 🤖 LabSim Assistant AI: Embedded Voice Viva-Voce Tutor
+## <a id="voice-assistant"></a>🤖 LabSim Assistant AI: Embedded Voice Viva-Voce Tutor
 
 <table width="100%">
   <tr>
@@ -252,7 +264,7 @@ LabSim brings the physics and chemistry bench directly onto physical classroom s
 
 ---
 
-## 🏗️ System Architecture & Spatial Computing Pipeline
+## <a id="system-architecture"></a>🏗️ System Architecture & Spatial Computing Pipeline
 
 ```mermaid
 graph TD
@@ -310,7 +322,7 @@ graph TD
 
 ---
 
-## 🛠️ Detailed Technology Stack & Technical Significance
+## <a id="technology-stack"></a>🛠️ Detailed Technology Stack & Technical Significance
 
 | Architectural Tier | Technologies Used | Version | Technical Significance & Role in Platform |
 | :--- | :--- | :---: | :--- |
@@ -323,7 +335,7 @@ graph TD
 
 ---
 
-## 📊 Performance Benchmarks & Empirical Learning Outcomes
+## <a id="performance-benchmarks"></a>📊 Performance Benchmarks & Empirical Learning Outcomes
 
 ### 1. Hardware & Runtime Evaluation (Rigorous Multi-Device Test)
 
@@ -355,7 +367,7 @@ Viva-Voce Answer Confidence:        +64.5% improvement in board examiner readine
 
 ---
 
-## 📚 CBSE / NCERT Practical Curriculum Alignment Matrix
+## <a id="curriculum-matrix"></a>📚 CBSE / NCERT Practical Curriculum Alignment Matrix
 
 <details>
 <summary><b>🔍 Click to expand full CBSE / NCERT Curriculum Mapping Matrix (Classes 9–12)</b></summary>
@@ -376,7 +388,7 @@ Viva-Voce Answer Confidence:        +64.5% improvement in board examiner readine
 
 ---
 
-## 🚀 Local Installation & Reproduction Guide
+## <a id="installation-guide"></a>🚀 Local Installation & Reproduction Guide
 
 ### Prerequisites
 * **Node.js:** `v18.18.0` or higher (`Node 20+` strongly recommended)
@@ -399,7 +411,7 @@ Viva-Voce Answer Confidence:        +64.5% improvement in board examiner readine
    ```bash
    npm run dev
    ```
-   Open your browser and navigate to `http://localhost:3000` (or `http://localhost:3005`).
+   Open your browser and navigate to `http://localhost:3000` (or `http://localhost:3005`), or access the deployed production lab directly at **[labsim-woad.vercel.app/lab](https://labsim-woad.vercel.app/lab)**.
 
 4. **Compile production build & verify all 26 static routes:**
    ```bash
@@ -409,7 +421,7 @@ Viva-Voce Answer Confidence:        +64.5% improvement in board examiner readine
 
 ---
 
-## 👥 Institutional Attribution & Engineering Credits
+## <a id="institutional-attribution"></a>👥 Institutional Attribution & Engineering Credits
 
 * **Lead Spatial Architect & Developer:** Sarath (`Saraththecoder`)
 * **Project Repository:** [github.com/Saraththecoder/labsim](https://github.com/Saraththecoder/labsim)
