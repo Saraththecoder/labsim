@@ -133,14 +133,20 @@ In developing nations like India, access to well-equipped secondary science wet 
 
 ## 🤖 LabSim Assistant AI: Embedded Voice Viva-Voce Tutor
 
-Each experiment incorporates **LabSim Assistant**, an interactive pedagogical copilot positioned in the lower-right corner:
-* **Voice Speech Narration:** Leverages the browser Web Speech API for voice synthesis and interactive student speech recognition.
-* **Curriculum Pro-Tips:** Highlights essential laboratory best practices (least count of instruments, zero error calibration, index correction, meniscus parallax prevention).
-* **Board Viva-Voce Question Bank:** Generates targeted questions asked by CBSE/NCERT external examiners:
-  * *"Why is the voltmeter always connected in parallel while the ammeter is in series?"*
-  * *"How does the limiting molar conductivity of weak electrolytes vary with infinite dilution?"*
-  * *"What is the significance of the angle of minimum deviation in a prism?"*
-* **Real-Time Hazard Alerts & Haptics:** Detects unsafe conditions (short-circuiting a battery with zero resistance, thermal overload, dry electrode conduction) with audio/visual warnings.
+Each experiment incorporates **LabSim Assistant** ("Labby"), an interactive pedagogical copilot positioned as an adaptive floating assistant:
+* **Dual-Engine Audio Architecture:**
+  * **Primary Engine — Web Speech API (`window.speechSynthesis`):** High-clarity neural voice synthesis for real-time narration of Pro-Tips, Viva questions, and formula derivations. Features **V8 Garbage Collection Utterance Pinning** (`window.__labbyActiveUtterance`) to permanently eliminate Chromium speech cancellation stalls.
+  * **Fallback Engine — Web Audio API (`AudioContext`):** Hardware-level harmonic frequency oscillator that emits an instant melodic chime upon interaction, guaranteeing zero-fail audible feedback even when device TTS engines or autoplay permissions are constrained.
+* **Tri-Modal Pedagogical Knowledge Drawer:**
+  1. **Curriculum Pro-Tips (`💡`):** Highlights essential laboratory best practices (least count of instruments, zero-error calibration, index correction, meniscus parallax prevention).
+  2. **Board Viva-Voce Question Bank (`🎯`):** Real-world questions with model answers asked by CBSE/NCERT external examiners:
+     * *"Why is the voltmeter always connected in parallel while the ammeter is in series?"*
+     * *"How does the limiting molar conductivity of weak electrolytes vary with infinite dilution?"*
+     * *"What is the physical significance of the angle of minimum deviation in a prism?"*
+  3. **Mathematical Physics Derivations (`📐`):** Step-by-step breakdown of governing equations with interactive variable inspection.
+* **Full Audio Playback Controls:** Includes dedicated `🔊 Listen to Pro-Tip`, `🔊 Read Question & Model Answer`, `🔊 Explain Formula`, `⏹ Stop Audio`, and a header audio diagnostic test.
+* **Real-Time Hazard Alerts & Haptics:** Detects unsafe conditions (short-circuiting a battery with zero resistance, thermal overload, dry electrode conduction) with instant visual and audible warnings.
+* **Responsive Viewport Docking:** Dynamically elevates on mobile viewports (`bottom-20 md:bottom-6`) to prevent overlap with the mobile navigation dock.
 
 ---
 
@@ -177,7 +183,7 @@ Ohm's Law Wiring Topology Mastery:  +71.0% reduction in laboratory connection er
 
 ---
 
-## 🛠️ Technology Stack & Architecture
+## 🛠️ Complete Technology Stack & System Architecture
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -186,8 +192,8 @@ Ohm's Law Wiring Topology Mastery:  +71.0% reduction in laboratory connection er
 ├────────────────────────────────┬───────────────────────────────────────┤
 │    3D GRAPHICS & SPATIAL AR    │          INTELLIGENT PEDAGOGY         │
 │  • Three.js WebGL Engine       │  • LabSim Assistant Voice Agent       │
-│  • WebXR Device API (AR Mode)  │  • Web Speech API (TTS & ASR)         │
-│  • TubeGeometry Cable Physics  │  • Interactive Viva-Voce Questioner   │
+│  • WebXR Device API (AR Mode)  │  • Web Speech API (TTS & Utterance GC)│
+│  • TubeGeometry Cable Physics  │  • Web Audio API Synthesizer Fallback │
 │  • Procedural Canvas Textures  │  • Laboratory Safety Hazard Monitor   │
 ├────────────────────────────────┴───────────────────────────────────────┤
 │                   DETERMINISTIC CLIENT PHYSICS ENGINES                 │
@@ -196,11 +202,22 @@ Ohm's Law Wiring Topology Mastery:  +71.0% reduction in laboratory connection er
 │  • prismPhysics.ts (Exact Face Raycast, Cauchy VIBGYOR Dispersion)     │
 │  • conductivityPhysics.ts (Ostwald Dilution, Kohlrausch, Onsager)      │
 ├────────────────────────────────────────────────────────────────────────┤
-│                   OFFLINE PERSISTENCE & REPORT GENERATOR               │
+│                   DATA VALIDATION, PERSISTENCE & PRINT                 │
 │  • LocalStorage Observation Ledger • Printable PDF Report Generator    │
-│  • Student Practical XP & Competency Badge Gamification                │
+│  • High-DPI Vector A0/A1 Academic Research Poster Print Engine         │
 └────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Detailed Architectural Breakdown
+
+| Architectural Tier | Technologies Used | Role & Technical Significance |
+| :--- | :--- | :--- |
+| **Core Framework & Runtime** | **Next.js 16.4 (App Router)**<br>**React 19.3**<br>**TypeScript 5** | • Zero-overhead server-side rendering and client-side hydration.<br>• Turbopack bundler compiles 26 static routes in under 4 seconds.<br>• Strict static typing across physics coordinate matrices, raycast vectors, and circuit topologies. |
+| **3D Rendering & WebXR** | **Three.js (`^0.186.1`)**<br>**WebXR Device API**<br>**WebGL 2.0** | • Real-time hardware-accelerated 3D scene rendering at locked 60 FPS.<br>• Browser-native Augmented Reality via `navigator.xr` with 6-DoF spatial desk tracking.<br>• Procedural `CatmullRomCurve3` / `TubeGeometry` cables with live electron charge pulses. |
+| **Deterministic Physics Engines** | **Custom Pure TypeScript** | • **Optics:** Real-time Gaussian conjugate focus solver, raycasting, and dynamic Gaussian blur convolution for circle of confusion.<br>• **Circuits:** Full Kirchhoff solver with rheostat wiper tracking and current-proportional drift kinematics ($v_d \propto I$).<br>• **Chemistry:** Debye-Hückel-Onsager, Kohlrausch ionic migration, and Ostwald dilution kinetics. |
+| **Multimodal AI & Audio** | **Web Speech API**<br>**Web Audio API (`AudioContext`)** | • Utterance GC pinning (`window.__labbyActiveUtterance`) to eliminate Chromium speech engine stalls.<br>• Hardware oscillator fallback ensuring guaranteed audible interaction across mobile/desktop.<br>• Viva-voce oral examiner with board question banks and model answers. |
+| **UI Design System & Styling** | **Tailwind CSS v4**<br>**GSAP 3.15**<br>**Lucide React (`^1.61.0`)** | • Clean scientific design tokens, glassmorphism, and responsive viewports.<br>• High-performance timeline animations for meters, switches, and sliders.<br>• Ultra-lightweight SVG vector iconography for laboratory controls. |
+| **Persistence, Schema & Export** | **Zod (`^4.6.7`)**<br>**HTML5 LocalStorage**<br>**CSS Paged Media (`@media print`)** | • Runtime schema validation for student observation data tables.<br>• Offline ledger persistence for practical recordings.<br>• Vector-grade high-DPI export formatting for A0/A1 academic research posters and printable lab reports. |
 
 ---
 
@@ -272,8 +289,8 @@ ar studio/
 │   │   ├── ConductivityBench3D.tsx # 3D Beaker, Platinum Electrodes & Clamped Wires
 │   │   ├── CircuitWireConnector.tsx# Curved 3D Tube Cable Physics Connector
 │   │   ├── LabSimAssistant.tsx     # Voice AI Viva Examiner & Hazard Monitor
-│   │   ├── Navbar.tsx              # Universal Adaptive Navigation Bar
-│   │   └── StudentBadgesModal.tsx  # Gamified Practical Competency Badges
+│   │   ├── MobileBottomNav.tsx     # Adaptive Mobile Dock Navigation
+│   │   └── Navbar.tsx              # Universal Adaptive Top Navigation Bar
 │   └── lib/
 │       ├── physics.ts              # Optics, Raytracing & Blur Mathematics
 │       ├── ohmsLawPhysics.ts       # Circuit Equations & Drifting Electron Kinematics
